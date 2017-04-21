@@ -13,36 +13,26 @@ TestCase subclass: #IdiomTest
 	poolDictionaries: ''
 	category: 'Idiom-Exercise'!
 
-!IdiomTest methodsFor: 'testing' stamp: 'HAW 4/14/2017 16:56:37'!
+!IdiomTest methodsFor: 'testing' stamp: 'DIM 4/21/2017 10:53:26'!
 test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
 
-	| customerBook millisecondsBeforeRunning millisecondsAfterRunning |
+	| customerBook |
 	
 	customerBook := CustomerBook  new.
 	
-	millisecondsBeforeRunning := Time millisecondClockValue.
-	customerBook addCustomerNamed: 'John Lennon'.
-	millisecondsAfterRunning := Time millisecondClockValue.
-	
-	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < 50 
-	
-! !
+	self assertBlock:[customerBook addCustomerNamed: 'John Lennon'.] shouldNotTakeMoreThanMilliseconds: 50.! !
 
-!IdiomTest methodsFor: 'testing' stamp: 'HernanWilkinson 4/11/2016 20:29'!
+!IdiomTest methodsFor: 'testing' stamp: 'DIM 4/21/2017 10:54:42'!
 test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 
-	| customerBook millisecondsBeforeRunning millisecondsAfterRunning paulMcCartney |
+	| customerBook paulMcCartney |
 	
 	customerBook := CustomerBook  new.
 	paulMcCartney := 'Paul McCartney'.
 	
 	customerBook addCustomerNamed: paulMcCartney.
-	  
-	millisecondsBeforeRunning := Time millisecondClockValue.
-	customerBook removeCustomerNamed: paulMcCartney.
-	millisecondsAfterRunning := Time millisecondClockValue.
 	
-	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < 100 
+	self assertBlock: [customerBook removeCustomerNamed: paulMcCartney.] shouldNotTakeMoreThanMilliseconds: 100.
 	
 ! !
 
@@ -76,6 +66,16 @@ test04CanNotRemoveAndInvalidCustomer
 			self assert: customerBook numberOfCustomers = 1.
 			self assert: (customerBook includesCustomerNamed: johnLennon) ]
 ! !
+
+
+!IdiomTest methodsFor: 'as yet unclassified' stamp: 'DIM 4/21/2017 10:52:45'!
+assertBlock: aBlock shouldNotTakeMoreThanMilliseconds: milliseconds 
+	|millisecondsBeforeRunning millisecondsAfterRunning |
+	millisecondsBeforeRunning := Time millisecondClockValue.
+	aBlock value.
+	millisecondsAfterRunning := Time millisecondClockValue.
+	
+	^ (millisecondsAfterRunning-millisecondsBeforeRunning) < milliseconds.! !
 
 
 !classDefinition: #CustomerBook category: #'Idiom-Exercise'!
