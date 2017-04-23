@@ -36,21 +36,22 @@ test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 	
 ! !
 
-!IdiomTest methodsFor: 'testing' stamp: 'HernanWilkinson 5/9/2012 18:12'!
+!IdiomTest methodsFor: 'testing' stamp: 'DIM 4/23/2017 19:33:26'!
 test03CanNotAddACustomerWithEmptyName 
 
 	| customerBook |
 			
 	customerBook := CustomerBook new.
-
-	[ customerBook addCustomerNamed: ''.
-	self fail ]
+	
+	self failBlock: [ customerBook addCustomerNamed: ''.] 
 		on: Error 
 		do: [ :anError | 
 			self assert: anError messageText = CustomerBook customerCanNotBeEmptyErrorMessage.
-			self assert: customerBook isEmpty ]! !
+			self assert: customerBook isEmpty ]
 
-!IdiomTest methodsFor: 'testing' stamp: 'HernanWilkinson 5/16/2012 16:50'!
+! !
+
+!IdiomTest methodsFor: 'testing' stamp: 'DIM 4/23/2017 19:34:07'!
 test04CanNotRemoveAndInvalidCustomer
 	
 	| customerBook johnLennon |
@@ -59,8 +60,7 @@ test04CanNotRemoveAndInvalidCustomer
 	johnLennon := 'John Lennon'.
 	customerBook addCustomerNamed: johnLennon.
 	
-	[ customerBook removeCustomerNamed: 'Paul McCartney'.
-	self fail ]
+	self failBlock: [ customerBook removeCustomerNamed: 'Paul McCartney'.]
 		on: NotFound 
 		do: [ :anError | 
 			self assert: customerBook numberOfCustomers = 1.
@@ -79,6 +79,13 @@ assertBlock: aBlock shouldNotTakeMoreThanMilliseconds: milliseconds
 	millisecondsBeforeRunning := Time millisecondClockValue.
 	aBlock value.
 	millisecondsAfterRunning := Time millisecondClockValue."! !
+
+!IdiomTest methodsFor: 'as yet unclassified' stamp: 'DIM 4/23/2017 19:32:49'!
+failBlock: aBlock on: anError do: otherBlock
+
+	[ aBlock value.
+		self fail ] on: anError do: otherBlock.
+		! !
 
 
 !classDefinition: #CustomerBook category: #'Idiom-Exercise'!
