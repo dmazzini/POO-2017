@@ -13,16 +13,16 @@ TestCase subclass: #IdiomTest
 	poolDictionaries: ''
 	category: 'Idiom-Exercise'!
 
-!IdiomTest methodsFor: 'testing' stamp: 'ad 4/22/2017 19:21:47'!
+!IdiomTest methodsFor: 'testing' stamp: 'DIM 4/21/2017 10:53:26'!
 test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
 
 	| customerBook |
 	
 	customerBook := CustomerBook  new.
 	
-	self assert: [customerBook addCustomerNamed: 'John Lennon'.] durationToRun < (Duration milliSeconds: 50). ! !
+	self assertBlock:[customerBook addCustomerNamed: 'John Lennon'.] shouldNotTakeMoreThanMilliseconds: 50.! !
 
-!IdiomTest methodsFor: 'testing' stamp: 'ad 4/22/2017 19:21:24'!
+!IdiomTest methodsFor: 'testing' stamp: 'DIM 4/21/2017 10:54:42'!
 test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 
 	| customerBook paulMcCartney |
@@ -32,7 +32,7 @@ test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 	
 	customerBook addCustomerNamed: paulMcCartney.
 	
-	self assert: [customerBook removeCustomerNamed: paulMcCartney.] durationToRun < (Duration milliSeconds: 100). 
+	self assertBlock: [customerBook removeCustomerNamed: paulMcCartney.] shouldNotTakeMoreThanMilliseconds: 100.
 	
 ! !
 
@@ -68,17 +68,14 @@ test04CanNotRemoveAndInvalidCustomer
 ! !
 
 
-!IdiomTest methodsFor: 'as yet unclassified' stamp: 'ad 4/22/2017 19:12:18'!
+!IdiomTest methodsFor: 'as yet unclassified' stamp: 'DIM 4/21/2017 10:52:45'!
 assertBlock: aBlock shouldNotTakeMoreThanMilliseconds: milliseconds 
-		
-	
-	^ (aBlock durationToRun) < (Duration milliSeconds: milliseconds).
-	
-	
-	"millisecondsBeforeRunning millisecondsAfterRunning |
+	|millisecondsBeforeRunning millisecondsAfterRunning |
 	millisecondsBeforeRunning := Time millisecondClockValue.
 	aBlock value.
-	millisecondsAfterRunning := Time millisecondClockValue."! !
+	millisecondsAfterRunning := Time millisecondClockValue.
+	
+	^ (millisecondsAfterRunning-millisecondsBeforeRunning) < milliseconds.! !
 
 
 !classDefinition: #CustomerBook category: #'Idiom-Exercise'!
