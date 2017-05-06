@@ -139,10 +139,38 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 
 !classDefinition: #OOStack category: #'Stack-Exercise'!
 Object subclass: #OOStack
-	instanceVariableNames: ''
+	instanceVariableNames: 'collection'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
+
+!OOStack methodsFor: 'as yet unclassified' stamp: 'DIM 5/4/2017 21:52:12'!
+initialize
+	
+	collection := OrderedCollection new! !
+
+!OOStack methodsFor: 'as yet unclassified' stamp: 'DIM 5/4/2017 19:09:38'!
+isEmpty
+	
+	^collection isEmpty! !
+
+!OOStack methodsFor: 'as yet unclassified' stamp: 'dim 5/5/2017 21:54:14'!
+pop
+	collection isEmpty ifTrue:[self class stackEmptyErrorDescription].
+	
+	^collection removeLast! !
+
+!OOStack methodsFor: 'as yet unclassified' stamp: 'DIM 5/5/2017 10:37:43'!
+push: anElement 
+	collection addLast: anElement! !
+
+!OOStack methodsFor: 'as yet unclassified' stamp: 'DIM 5/5/2017 10:47:01'!
+size
+ ^collection size! !
+
+!OOStack methodsFor: 'as yet unclassified' stamp: 'DIM 5/5/2017 10:43:40'!
+top
+ ^collection last! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -150,7 +178,7 @@ Object subclass: #OOStack
 OOStack class
 	instanceVariableNames: ''!
 
-!OOStack class methodsFor: 'error descriptions' stamp: 'HernanWilkinson 5/7/2012 11:51'!
+!OOStack class methodsFor: 'error descriptions' stamp: 'dim 5/5/2017 22:02:30'!
 stackEmptyErrorDescription
 	
 	^ 'Stack is empty'! !
