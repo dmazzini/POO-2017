@@ -144,22 +144,7 @@ Object subclass: #OOStack
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'ad 5/8/2017 22:44:45'!
-emptyCheck	
-	
-	"self isEmpty ifTrue: [self emptyError]."
-	
-	[ collection emptyCheck ] on: Error do: [ self emptyError].
-		
-	
-	! !
-
-!OOStack methodsFor: 'as yet unclassified' stamp: 'ad 5/8/2017 16:05:05'!
-emptyError
-
-	self error: self class stackEmptyErrorDescription.! !
-
-!OOStack methodsFor: 'as yet unclassified' stamp: 'ad 5/9/2017 00:01:25'!
+!OOStack methodsFor: 'initialization' stamp: 'ad 5/9/2017 00:01:25'!
 initialize
 
 	| stackBottom |
@@ -173,12 +158,20 @@ initialize
 	
 	! !
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'ad 5/9/2017 00:02:01'!
+
+!OOStack methodsFor: 'accessing' stamp: 'ad 5/9/2017 00:09:39'!
+size
+	
+	 ^collection size - 1! !
+
+
+!OOStack methodsFor: 'testing' stamp: 'ad 5/9/2017 00:02:01'!
 isEmpty
 	
 	^collection size = 1! !
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'dim 5/9/2017 12:32:46'!
+
+!OOStack methodsFor: 'controlling' stamp: 'dim 5/9/2017 12:32:46'!
 pop
 	
 	| stackItem |
@@ -188,21 +181,16 @@ pop
 	
 	 ^ stackItem item! !
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'ad 5/9/2017 00:04:26'!
+!OOStack methodsFor: 'controlling' stamp: 'ad 5/9/2017 15:09:05'!
 push: anObject
 
 	| stackItem |
 	
-	stackItem := StackNormalItem new with: anObject.
+	stackItem := StackItem new with: anObject.
 
 	collection addLast: stackItem.! !
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'ad 5/9/2017 00:09:39'!
-size
-	
-	 ^collection size - 1! !
-
-!OOStack methodsFor: 'as yet unclassified' stamp: 'ad 5/9/2017 00:09:08'!
+!OOStack methodsFor: 'controlling' stamp: 'ad 5/9/2017 00:09:08'!
 top
 	
 	| stackItem |
@@ -225,53 +213,56 @@ stackEmptyErrorDescription
 	^ 'Stack is empty'! !
 
 
-!classDefinition: #StackItem category: #'Stack-Exercise'!
-Object subclass: #StackItem
+!classDefinition: #StackElement category: #'Stack-Exercise'!
+Object subclass: #StackElement
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!StackItem methodsFor: 'as yet unclassified' stamp: 'ad 5/8/2017 23:53:51'!
-item
+!StackElement methodsFor: 'initialization' stamp: 'ad 5/9/2017 14:59:31'!
+with: anElement
 
 	self subclassResponsibility ! !
 
-!StackItem methodsFor: 'as yet unclassified' stamp: 'ad 5/8/2017 23:59:42'!
-with: anObject
+
+!StackElement methodsFor: 'accesing' stamp: 'ad 5/9/2017 15:00:41'!
+item
 
 	self subclassResponsibility ! !
 
 
 !classDefinition: #StackBottom category: #'Stack-Exercise'!
-StackItem subclass: #StackBottom
-	instanceVariableNames: 'item'
+StackElement subclass: #StackBottom
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!StackBottom methodsFor: 'as yet unclassified' stamp: 'ad 5/8/2017 23:57:22'!
+!StackBottom methodsFor: 'accesing' stamp: 'ad 5/8/2017 23:57:22'!
 item
 
 	self error: OOStack stackEmptyErrorDescription! !
 
-!StackBottom methodsFor: 'as yet unclassified' stamp: 'ad 5/9/2017 00:00:16'!
+
+!StackBottom methodsFor: 'initialization' stamp: 'ad 5/9/2017 00:00:16'!
 with: anObject! !
 
 
-!classDefinition: #StackNormalItem category: #'Stack-Exercise'!
-StackItem subclass: #StackNormalItem
+!classDefinition: #StackItem category: #'Stack-Exercise'!
+StackElement subclass: #StackItem
 	instanceVariableNames: 'item'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!StackNormalItem methodsFor: 'as yet unclassified' stamp: 'ad 5/8/2017 23:58:20'!
+!StackItem methodsFor: 'accesing' stamp: 'ad 5/8/2017 23:58:20'!
 item
 
 	^ item! !
 
-!StackNormalItem methodsFor: 'as yet unclassified' stamp: 'ad 5/9/2017 00:00:43'!
+
+!StackItem methodsFor: 'initialization' stamp: 'ad 5/9/2017 00:00:43'!
 with: anObject
 
 	item := anObject! !
