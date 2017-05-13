@@ -97,18 +97,12 @@ hasToSurvive: aCell
 	
 	^numberOfAliveNeighbours = 2 or:  [numberOfAliveNeighbours = 3]! !
 
-!GameOfLife methodsFor: 'as yet unclassified' stamp: 'HAW 5/9/2017 20:53:16'!
-initializeWith: aCollectionOfAliveCells 
-
-	aliveCells := aCollectionOfAliveCells ! !
-
-!GameOfLife methodsFor: 'as yet unclassified' stamp: 'HAW 5/11/2017 20:40:27'!
+!GameOfLife methodsFor: 'as yet unclassified' stamp: 'dim 5/13/2017 19:13:40'!
 initializeWith: aCollectionOfAliveCells withSize: aSize
 
 	size := aSize.
 	aliveCells := aCollectionOfAliveCells.
-	(aliveCells allSatisfy: [:aCell |
-		(aCell x between: 0 and: size x) and: [ aCell y between: 0 and: size y]]) ifFalse: [ self error: 'celda fuera de rango' ]! !
+	! !
 
 !GameOfLife methodsFor: 'as yet unclassified' stamp: 'HAW 5/10/2017 10:28:24'!
 isDeadAt: aCell
@@ -132,12 +126,10 @@ numberOfAliveNeighboursOf: aCell
 GameOfLife class
 	instanceVariableNames: ''!
 
-!GameOfLife class methodsFor: 'as yet unclassified' stamp: 'HAW 5/9/2017 20:52:29'!
-withLiveCells: aCollectionOfAliveCells
-
-	^self new initializeWith: aCollectionOfAliveCells ! !
-
-!GameOfLife class methodsFor: 'as yet unclassified' stamp: 'HAW 5/11/2017 20:38:14'!
+!GameOfLife class methodsFor: 'as yet unclassified' stamp: 'dim 5/13/2017 19:05:53'!
 withLiveCells: aCollectionOfAliveCells withSize: aPoint 
+
+	(aCollectionOfAliveCells allSatisfy: [:aCell |
+		(aCell x between: 0 and: aPoint x) and: [ aCell y between: 0 and: aPoint y]]) ifFalse: [ self error: 'celda fuera de rango' ].
 	
 	^self new initializeWith: aCollectionOfAliveCells withSize: aPoint ! !
