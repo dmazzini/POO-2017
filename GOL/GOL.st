@@ -67,19 +67,19 @@ test06CreateCellOutsideBounds
 
 !classDefinition: #GameOfLife category: #GOL!
 Object subclass: #GameOfLife
-	instanceVariableNames: 'aliveCells size'
+	instanceVariableNames: 'aliveCells board'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'GOL'!
 
-!GameOfLife methodsFor: 'as yet unclassified' stamp: 'HAW 5/12/2017 09:10:31'!
+!GameOfLife methodsFor: 'as yet unclassified' stamp: 'dim 5/13/2017 19:36:46'!
 deadCells
 	
 	| deadCells |
 	
 	deadCells _ OrderedCollection new.
-	0 to: size x do: [ :x |
-		0 to: size y do: [ :y |
+	0 to: (board corner) x do: [ :x |
+		0 to: (board corner) y do: [ :y |
 			(aliveCells includes: x@y) not ifTrue: [ deadCells add: x@y]]].
 	^deadCells ! !
 
@@ -97,10 +97,10 @@ hasToSurvive: aCell
 	
 	^numberOfAliveNeighbours = 2 or:  [numberOfAliveNeighbours = 3]! !
 
-!GameOfLife methodsFor: 'as yet unclassified' stamp: 'dim 5/13/2017 19:13:40'!
-initializeWith: aCollectionOfAliveCells withSize: aSize
+!GameOfLife methodsFor: 'as yet unclassified' stamp: 'dim 5/13/2017 19:42:09'!
+initializeWith: aCollectionOfAliveCells withBoard: aBoard
 
-	size := aSize.
+	board := aBoard.
 	aliveCells := aCollectionOfAliveCells.
 	! !
 
@@ -126,10 +126,12 @@ numberOfAliveNeighboursOf: aCell
 GameOfLife class
 	instanceVariableNames: ''!
 
-!GameOfLife class methodsFor: 'as yet unclassified' stamp: 'dim 5/13/2017 19:05:53'!
+!GameOfLife class methodsFor: 'as yet unclassified' stamp: 'dim 5/13/2017 19:41:27'!
 withLiveCells: aCollectionOfAliveCells withSize: aPoint 
-
-	(aCollectionOfAliveCells allSatisfy: [:aCell |
-		(aCell x between: 0 and: aPoint x) and: [ aCell y between: 0 and: aPoint y]]) ifFalse: [ self error: 'celda fuera de rango' ].
+	|aBoard|
 	
-	^self new initializeWith: aCollectionOfAliveCells withSize: aPoint ! !
+	aBoard := Rectangle origin:0@0 corner:aPoint.
+	
+	(aCollectionOfAliveCells allSatisfy: [:aCell | aBoard containsPoint: aCell ]) ifFalse: [ self error: 'celda fuera de rango' ].
+	
+	^self new initializeWith: aCollectionOfAliveCells withBoard: aBoard.! !
