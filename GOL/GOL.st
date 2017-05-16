@@ -106,6 +106,17 @@ test10TwoCellsAtTheSamePositionAtGameCreationAreConsideredAsOne
 
 	^ self assert:  ( game countOfAliveCells ) = 1.! !
 
+!GOLTest methodsFor: 'tests' stamp: 'ad 5/16/2017 15:33:34'!
+test11NewGenerationDoesNotExpandOutsideOfBoundaries
+
+	| game |
+	
+	game := GameOfLife withLiveCells: { 0@0. 1@0. 2@0 } withSize: 3@3.
+	
+	game nextGeneration.
+
+	^ self assert:  ( game numberOfAliveNeighboursOf: 1@0) = 1.! !
+
 
 !classDefinition: #GameOfLife category: #GOL!
 Object subclass: #GameOfLife
@@ -164,14 +175,14 @@ isDeadAt: aCell
 	^(self isAliveAt: aCell) not! !
 
 
-!GameOfLife methodsFor: 'accessing' stamp: 'ad 5/15/2017 15:54:29'!
+!GameOfLife methodsFor: 'accessing' stamp: 'ad 5/16/2017 15:42:11'!
 allCells
 	
 	| allCells |
 	
 	allCells _ OrderedCollection new.
-	(board origin) x to: (board corner) x do: [ :x |
-		(board origin) y to: (board corner) y do: [ :y |
+	(board origin) x to: (board corner) x - 1 do: [ :x |
+		(board origin) y to: (board corner) y - 1 do: [ :y |
 			allCells add: x@y]].
 	
 	^ allCells ! !
@@ -181,8 +192,10 @@ deadCells
 	
 	^ self allCells difference: aliveCells.! !
 
-!GameOfLife methodsFor: 'accessing' stamp: 'HAW 5/10/2017 10:29:35'!
+!GameOfLife methodsFor: 'accessing' stamp: 'ad 5/16/2017 15:34:55'!
 numberOfAliveNeighboursOf: aCell
+
+	self isAliveAt: aCell.
 
 	^(aCell eightNeighbors intersection: aliveCells) size! !
 
