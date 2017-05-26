@@ -217,24 +217,16 @@ Object subclass: #Distancia
 
 	! !
 
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:28:13'!
+!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:44:21'!
 + aDistance
 
-	|aDistanceConverted|
-	
-	aDistanceConverted _ aDistance convertTo: self class.
-	
-	^ self class new quantity: (self quantity + aDistanceConverted quantity).  
+	^ self class new quantity: (self quantity + (aDistance convertTo: self class) quantity).  
 	! !
 
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:28:18'!
+!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:45:04'!
 - aDistance
 
-	|aDistanceConverted|
-	
-	aDistanceConverted _ aDistance convertTo: self class.
-	
-	^ self class new quantity: (self quantity - aDistanceConverted quantity).  
+	^ self class new quantity: (self quantity - (aDistance convertTo: self class) quantity).  
 	! !
 
 !Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:17:22'!
@@ -244,58 +236,38 @@ Object subclass: #Distancia
 
 	! !
 
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:19:10'!
+!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:45:26'!
 < aDistance
 
-	|aDistanceConverted|
-	
-	aDistanceConverted _ aDistance convertTo: self class.
-	
-	^ self quantity < aDistanceConverted quantity.  
+	^ self quantity < (aDistance convertTo: self class) quantity.  
 	
 
 	! !
 
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:19:25'!
+!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:45:36'!
 <= aDistance
 
-	|aDistanceConverted|
-	
-	aDistanceConverted _ aDistance convertTo: self class.
-	
-	^ self quantity <= aDistanceConverted quantity.  
+	^ self quantity <= (aDistance convertTo: self class) quantity.  
 
 	! !
 
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:27:38'!
+!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:45:46'!
 = aDistance
 
-	|aDistanceConverted|
-	
-	aDistanceConverted _ aDistance convertTo: self class.
-	
-	^ self quantity = aDistanceConverted quantity.
+	^ self quantity = (aDistance convertTo: self class) quantity.
 	! !
 
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:19:50'!
+!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:43:43'!
 > aDistance
 
-	|aDistanceConverted|
-	
-	aDistanceConverted _ aDistance convertTo: self class.
-	
-	^ self quantity > aDistanceConverted quantity.  
+	^ self quantity > (aDistance convertTo: self class) quantity.  
 
 	! !
 
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:20:10'!
+!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:45:58'!
 >= aDistance
 
-	|aDistanceConverted|
-	
-	aDistanceConverted _ aDistance convertTo: self class.
-	
-	^ self quantity >= aDistanceConverted quantity.  
+	^ self quantity >= (aDistance convertTo: self class) quantity.  
 	! !
 
 !Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:20:54'!
@@ -320,7 +292,7 @@ quantity
 	! !
 
 
-!Distancia methodsFor: 'as yet unclassified' stamp: 'dim 5/26/2017 00:02:42'!
+!Distancia methodsFor: 'converting' stamp: 'dim 5/26/2017 00:02:42'!
 convertTo: aDistanceClass
 
 	^aDistanceClass quantity:((self quantity * (self class factorDeConversionAMetros)) / aDistanceClass factorDeConversionAMetros).! !
