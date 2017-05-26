@@ -1,14 +1,15 @@
 !classDefinition: #DistanciaTest category: #'Distance-Solution'!
 TestCase subclass: #DistanciaTest
-	instanceVariableNames: 'ceroMetros unMetro dosMetros tresMetros cuatroMetros cincoMetros medioMetro unMetroYMedio cienCentimetros doscientosCentimetros milMetros unKilometro dosKilometros milMilimetros dosMilMilimetros unCentimetro diezMilimetros unMillonDeMilimetros cienMilCentimetros unMilimetro'
+	instanceVariableNames: 'ceroMetros unMetro dosMetros tresMetros cuatroMetros cincoMetros medioMetro unMetroYMedio cienCentimetros doscientosCentimetros milMetros unKilometro dosKilometros milMilimetros dosMilMilimetros unCentimetro diezMilimetros unMillonDeMilimetros cienMilCentimetros unMilimetro tresCentimetros cincoMilimetros'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Distance-Solution'!
 
-!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/20/2017 22:13:26'!
+!DistanciaTest methodsFor: 'tests' stamp: 'DIM 5/26/2017 11:11:03'!
 test01UnMetroEqualsUnMetro
 
-	self assert: unMetro = unMetro.! !
+	self assert: unMetro = unMetro.
+! !
 
 !DistanciaTest methodsFor: 'tests' stamp: 'ad 5/20/2017 22:13:21'!
 test02UnMetroIsNotTheSameThanDosMetros
@@ -150,25 +151,54 @@ test30UnKilometroEqualsUnMillonDeMilimetros
 	self assert: unKilometro = unMillonDeMilimetros.
 	self assert:  unMillonDeMilimetros =  unKilometro.! !
 
-!DistanciaTest methodsFor: 'tests' stamp: 'dim 5/25/2017 22:16:32'!
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/26/2017 15:56:40'!
 test31UnKilometroEqualsCienMilCentimetros
+
 	self assert: unKilometro = cienMilCentimetros.
 	self assert: cienMilCentimetros = unKilometro! !
 
-!DistanciaTest methodsFor: 'tests' stamp: 'dim 5/25/2017 22:17:25'!
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/26/2017 15:56:46'!
 test32UnKilometroEqualsUnKilometro
+
 	self assert: unKilometro = unKilometro .! !
 
-!DistanciaTest methodsFor: 'tests' stamp: 'dim 5/25/2017 22:18:23'!
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/26/2017 15:56:49'!
 test33UnMilimetroEqualsUnMilimetro
+
 	self assert: unMilimetro = unMilimetro .! !
 
-!DistanciaTest methodsFor: 'tests' stamp: 'dim 5/25/2017 22:19:39'!
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/26/2017 15:56:52'!
 test34UnCentimetroEqualsUnCentimetro
+
 	self assert: unCentimetro = unCentimetro .! !
 
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/26/2017 16:33:21'!
+test35UnKilometroMultipliedByTwoEqualsDosKilometros
+	
+	self assert: unKilometro * 2 = dosKilometros .! !
 
-!DistanciaTest methodsFor: 'Set Up' stamp: 'dim 5/25/2017 22:18:42'!
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/26/2017 16:34:34'!
+test36ThreeMultipliedByUnCentimetroEqualsTresCentimetros
+	
+	self assert: 3 * unCentimetro = tresCentimetros.! !
+
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/26/2017 16:38:41'!
+test37UnMilimetroIsLesserOrEqualThanUnKilometro
+	
+	self assert: unMilimetro <= unKilometro.! !
+
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/26/2017 16:39:47'!
+test38UnMilimetroIsNotGreaterThanUnKilometro
+	
+	self deny: unMilimetro > unKilometro.! !
+
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/26/2017 16:42:53'!
+test39UnCentimetroDividedByTwoEqualsCincoMilimetros
+	
+	self assert: unCentimetro / 2 = cincoMilimetros.! !
+
+
+!DistanciaTest methodsFor: 'Set Up' stamp: 'ad 5/26/2017 16:43:14'!
 setUp
 
 	ceroMetros := Metros quantity: 0.
@@ -182,165 +212,210 @@ setUp
 	milMetros := Metros quantity: 1000.
 	
 	unCentimetro := Centimetros quantity: 1.
+	tresCentimetros := Centimetros quantity: 3.
 	cienCentimetros := Centimetros quantity: 100.
-	doscientosCentimetros := Centimetros quantity: 200.
-	
+	doscientosCentimetros := Centimetros quantity: 200.	
 	cienMilCentimetros := Centimetros quantity: 100000.
 	
 	unKilometro := Kilometros quantity: 1.
 	dosKilometros := Kilometros quantity: 2.
 
 	unMilimetro := Milimetros quantity: 1.	
-	
+	cincoMilimetros := Milimetros quantity: 5.	
 	diezMilimetros := Milimetros quantity: 10.	
 	milMilimetros := Milimetros quantity: 1000.
 	dosMilMilimetros := Milimetros quantity: 2000.
 	unMillonDeMilimetros := Milimetros quantity: 1000000.	! !
 
 
-!classDefinition: #Distancia category: #'Distance-Solution'!
-Object subclass: #Distancia
+!classDefinition: #DistanceFactory category: #'Distance-Solution'!
+Object subclass: #DistanceFactory
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Distance-Solution'!
 
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 20:54:31'!
-* aNumber
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:37:52'!
+minusOneMeter
+	
+	^ Metros quantity: -1.! !
 
-	^ self subclassResponsibility 
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:39:29'!
+oneCentimeter
+	
+	^ Centimetros quantity: 1.! !
 
-	! !
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:39:42'!
+oneHundredCentimeters
+	
+	^ Centimetros quantity: 100.! !
 
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 20:53:07'!
-+ aDistance
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:40:00'!
+oneMeter
+	
+	^ Metros quantity: 1.! !
 
-	^ self subclassResponsibility 
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:40:21'!
+twoHundredCentimeters
+	
+	^ Centimetros quantity: 200.! !
 
-	! !
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:40:36'!
+twoMeters
+	
+	^ Metros quantity: 2.! !
 
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 20:53:14'!
-- aDistance
-
-	^ self subclassResponsibility 
-
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 20:54:35'!
-/ aNumber
-
-	^ self subclassResponsibility 
-
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 20:56:00'!
-// aNumber
-
-	^ self subclassResponsibility 
-
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 20:55:06'!
-< aDistance
-
-	^ self subclassResponsibility 
-
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 20:55:09'!
-<= aDistance
-
-	^ self subclassResponsibility 
-
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 20:55:01'!
-= aDistance
-
-	^ self subclassResponsibility 
-
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 20:55:14'!
-> aDistance
-
-	^ self subclassResponsibility 
-
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 20:55:12'!
->= aDistance
-
-	^ self subclassResponsibility 
-
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 20:55:53'!
-adaptToNumber: aNumber andSend: aSymbol 
-
-	^ self subclassResponsibility ! !
-
-
-!Distancia methodsFor: 'private' stamp: 'dim 5/25/2017 20:52:35'!
-quantity: aDistance
-
-	^ self subclassResponsibility 
-
-	! !
-
-
-!Distancia methodsFor: 'accessing' stamp: 'dim 5/25/2017 20:52:46'!
-quantity
-
-	^ self subclassResponsibility 
-
-	! !
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:40:46'!
+zeroMeters
+	
+	^ Metros quantity: 0.! !
 
 
-!classDefinition: #Centimetros category: #'Distance-Solution'!
-Distancia subclass: #Centimetros
+!classDefinition: #Distancia category: #'Distance-Solution'!
+Object subclass: #Distancia
 	instanceVariableNames: 'quantity'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Distance-Solution'!
 
-!Centimetros methodsFor: 'private' stamp: 'dim 5/25/2017 22:14:04'!
+!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:02:28'!
+* aNumber
+
+	^ self performArithmeticOperation: #* withNumber: aNumber
+
+	! !
+
+!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:05:41'!
++ aDistance
+
+	^ self performArithmeticOperation: #+ with: aDistance
+	! !
+
+!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:07:42'!
+- aDistance
+
+	^ self performArithmeticOperation: #- with: aDistance
+	! !
+
+!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:02:48'!
+/  aNumber
+
+	^ self performArithmeticOperation: #/ withNumber: aNumber
+
+	! !
+
+!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:02:58'!
+//  aNumber
+
+	^ self performArithmeticOperation: #// withNumber: aNumber
+
+	! !
+
+!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:16:18'!
+< aDistance
+
+	^ self performComparisonOperation: #< with: aDistance 
+
+	! !
+
+!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:16:32'!
+<= aDistance
+
+	^ self performComparisonOperation: #<= with: aDistance 
+
+	! !
+
+!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:16:40'!
 = aDistance
+
+	^ self performComparisonOperation: #= with: aDistance 
+	! !
+
+!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:16:49'!
+> aDistance
+
+	^ self performComparisonOperation: #> with: aDistance 
+
+	! !
+
+!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:16:59'!
+>= aDistance
+
+	^ self performComparisonOperation: #>= with: aDistance  
+	! !
+
+!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:20:54'!
+adaptToNumber: aNumber andSend: aSymbol 
 	
-	^ aDistance equalsCentimetros: self.! !
+	^ self * aNumber.! !
 
-!Centimetros methodsFor: 'private' stamp: 'dim 5/25/2017 22:15:57'!
-equalsMetros: aDistanceInMetros
+!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:14:10'!
+performArithmeticOperation: aSelector with: aDistance
+
+	^ self class quantity: (self quantity perform: aSelector with: (aDistance convertTo: self class) quantity).  
+	! !
+
+!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:01:36'!
+performArithmeticOperation: aSelector withNumber: aNumber
+
+	^ self class quantity: (self quantity perform: aSelector with: aNumber )
+
+	! !
+
+!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:24:43'!
+performComparisonOperation: aSelector with: aDistance
+
+	^ self quantity perform: aSelector with: (aDistance convertTo: self class) quantity.  
 	
-		^ self quantity = (aDistanceInMetros quantity *100).
-! !
 
-!Centimetros methodsFor: 'private' stamp: 'AD 5/23/2017 20:33:02'!
-quantity: aQuantityOfCentimetros
-
-	quantity := aQuantityOfCentimetros ! !
+	! !
 
 
-!Centimetros methodsFor: 'accessing' stamp: 'AD 5/23/2017 20:33:28'!
+!Distancia methodsFor: 'private' stamp: 'dim 5/26/2017 00:24:43'!
+quantity: aQuantity
+
+	quantity := aQuantity 
+
+	! !
+
+
+!Distancia methodsFor: 'accessing' stamp: 'dim 5/26/2017 00:24:15'!
 quantity
 	
-	^ quantity! !
+	^ quantity
+
+	! !
 
 
-!Centimetros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 22:19:55'!
-equalsCentimetros: aCentimetros 
-	
-	^ quantity = aCentimetros quantity ! !
+!Distancia methodsFor: 'converting' stamp: 'dim 5/26/2017 00:02:42'!
+convertTo: aDistanceClass
 
-!Centimetros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 22:12:58'!
-equalsKilometros: aKilometros
+	^aDistanceClass quantity:((self quantity * (self class factorDeConversionAMetros)) / aDistanceClass factorDeConversionAMetros).! !
 
-	^ self quantity = (aKilometros quantity * 100000)! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!Centimetros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 22:14:07'!
-equalsMilimetros: aMilimetros 
-	
-	^ aMilimetros equalsCentimetros: self.! !
+!classDefinition: 'Distancia class' category: #'Distance-Solution'!
+Distancia class
+	instanceVariableNames: ''!
+
+!Distancia class methodsFor: 'convertion' stamp: 'DIM 5/26/2017 13:00:08'!
+factorDeConversionAMetros
+
+	self subclassResponsibility.! !
+
+
+!Distancia class methodsFor: 'initialization' stamp: 'DIM 5/26/2017 13:01:24'!
+quantity: aQuantity
+
+	^ self new quantity: aQuantity.! !
+
+
+!classDefinition: #Centimetros category: #'Distance-Solution'!
+Distancia subclass: #Centimetros
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Distance-Solution'!
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -348,55 +423,64 @@ equalsMilimetros: aMilimetros
 Centimetros class
 	instanceVariableNames: ''!
 
-!Centimetros class methodsFor: 'initialization' stamp: 'AD 5/23/2017 20:32:18'!
-quantity: aQuantityOfCentimetros
+!Centimetros class methodsFor: 'convertion' stamp: 'DIM 5/26/2017 12:57:54'!
+factorDeConversionAMetros
 
-	^ self new quantity: aQuantityOfCentimetros ! !
+	^ 1/100.
+	
+	! !
 
 
-!classDefinition: #Kilometros category: #'Distance-Solution'!
-Distancia subclass: #Kilometros
-	instanceVariableNames: 'quantity'
+!classDefinition: #Decimetros category: #'Distance-Solution'!
+Distancia subclass: #Decimetros
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Distance-Solution'!
 
-!Kilometros methodsFor: 'private' stamp: 'dim 5/25/2017 22:13:06'!
-= aDistance
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Decimetros class' category: #'Distance-Solution'!
+Decimetros class
+	instanceVariableNames: ''!
+
+!Decimetros class methodsFor: 'convertion' stamp: 'DIM 5/26/2017 12:58:24'!
+factorDeConversionAMetros 
+
+	^ 1/10.
 	
-	^ aDistance equalsKilometros: self.! !
 
-!Kilometros methodsFor: 'private' stamp: 'dim 5/25/2017 22:15:19'!
-equalsMetros: aDistanceInMetros
 	
-		^ self quantity *1000 = aDistanceInMetros quantity.! !
-
-!Kilometros methodsFor: 'private' stamp: 'AD 5/23/2017 20:47:31'!
-quantity: aQuantityOfKilometros
-
-	quantity := aQuantityOfKilometros ! !
-
-
-!Kilometros methodsFor: 'accessing' stamp: 'AD 5/23/2017 20:47:47'!
-quantity
 	
-	^ quantity ! !
+	! !
 
+
+!classDefinition: #Hectometros category: #'Distance-Solution'!
+Distancia subclass: #Hectometros
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Distance-Solution'!
 
-!Kilometros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 22:16:55'!
-equalsCentimetros: aCentimetros 
-	
-	^ aCentimetros equalsKilometros: self.! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!Kilometros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 22:17:50'!
-equalsKilometros: aKilometros 
-	
-	^ quantity = aKilometros quantity .! !
+!classDefinition: 'Hectometros class' category: #'Distance-Solution'!
+Hectometros class
+	instanceVariableNames: ''!
 
-!Kilometros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 22:12:22'!
-equalsMilimetros: aMilimetros 
-	
-	^ aMilimetros equalsKilometros: self.! !
+!Hectometros class methodsFor: 'convertion' stamp: 'DIM 5/26/2017 12:58:48'!
+factorDeConversionAMetros 
+
+	^ 100.
+	! !
+
+
+!classDefinition: #Kilometros category: #'Distance-Solution'!
+Distancia subclass: #Kilometros
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Distance-Solution'!
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -404,122 +488,19 @@ equalsMilimetros: aMilimetros
 Kilometros class
 	instanceVariableNames: ''!
 
-!Kilometros class methodsFor: 'initialization' stamp: 'AD 5/23/2017 20:47:04'!
-quantity: aQuantityOfKilometros
+!Kilometros class methodsFor: 'convertion' stamp: 'DIM 5/26/2017 12:59:04'!
+factorDeConversionAMetros 
 
-	^ self new quantity: aQuantityOfKilometros .! !
+	^ 1000.
+	! !
 
 
 !classDefinition: #Metros category: #'Distance-Solution'!
 Distancia subclass: #Metros
-	instanceVariableNames: 'quantity'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Distance-Solution'!
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 21:44:08'!
-* aNumber
-	^ self performArithmeticOperator: #* withNumber: aNumber .! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 21:26:52'!
-+ aDistanceInMetros 
-	
-	^ self performArithmeticOperator: #+ with: aDistanceInMetros.! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 21:45:55'!
-- aDistanceInMetros
-	
-	^ self performArithmeticOperator: #- with: aDistanceInMetros.! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 21:44:47'!
-/ aNumber 
-
-	^ self performArithmeticOperator: #/ withNumber: aNumber .! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 21:45:04'!
-// aNumber
-
-	^ self performArithmeticOperator: #// withNumber: aNumber .! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 21:34:30'!
-< aDistanceInMetros 
-		^ self performComparisonOperator: #< with: aDistanceInMetros.! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 21:23:50'!
-<= aDistanceInMetros
-	
-	^ self performComparisonOperator: #<= with: aDistanceInMetros.! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 22:15:01'!
-= aDistance
-	
-	^ aDistance equalsMetros: self.
-
-
-
-	! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 21:24:21'!
-> aDistanceInMetros
-	
-	^ self performComparisonOperator: #> with: aDistanceInMetros.! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 21:24:30'!
->= aDistanceInMetros
-	
-	^ self performComparisonOperator: #>= with: aDistanceInMetros.! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'AD 5/23/2017 19:30:36'!
-adaptToNumber: aNumber andSend: aSymbol 
-	
-	^ self * aNumber.! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 22:15:04'!
-equalsCentimetros: aCentimetros 
-	
-	^ aCentimetros equalsMetros: self.! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 22:15:08'!
-equalsKilometros: aKilometros 
-	
-	^ aKilometros equalsMetros: self.! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 22:23:19'!
-equalsMilimetros: aMilimetros 
-	
-	^ aMilimetros equalsMetros: self.! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 21:22:18'!
-performArithmeticOperator: aSelector with: aDistanceInMetros
-	
-	^ self class quantity: ( self quantity perform: aSelector with: aDistanceInMetros quantity ).! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 21:43:13'!
-performArithmeticOperator: aSelector withNumber: aNumber
-	
-	^ self class quantity: ( self quantity perform: aSelector with: aNumber ).! !
-
-!Metros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 21:21:51'!
-performComparisonOperator: aSelector with: aDistanceInMetros
-	
-	^ self quantity perform: aSelector with: aDistanceInMetros quantity .! !
-
-
-!Metros methodsFor: 'private' stamp: 'dim 5/25/2017 22:14:52'!
-equalsMetros: aDistanceInMetros
-	
-		^ self quantity = aDistanceInMetros quantity.! !
-
-!Metros methodsFor: 'private' stamp: 'ad 5/20/2017 21:34:36'!
-quantity: aQuantityOfMetros
-
-	quantity := aQuantityOfMetros! !
-
-
-!Metros methodsFor: 'accessing' stamp: 'ad 5/20/2017 21:32:32'!
-quantity
-	
-	^ quantity! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -527,53 +508,18 @@ quantity
 Metros class
 	instanceVariableNames: ''!
 
-!Metros class methodsFor: 'initialization' stamp: 'dim 5/25/2017 20:47:28'!
-quantity: aQuantityOfMetros
-	^ self new quantity: aQuantityOfMetros! !
+!Metros class methodsFor: 'convertion' stamp: 'DIM 5/26/2017 12:59:27'!
+factorDeConversionAMetros 
+
+	^ 1.! !
 
 
 !classDefinition: #Milimetros category: #'Distance-Solution'!
 Distancia subclass: #Milimetros
-	instanceVariableNames: 'quantity'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Distance-Solution'!
-
-!Milimetros methodsFor: 'private' stamp: 'dim 5/25/2017 22:15:40'!
-equalsCentimetros: aDistanceInCentimetros 
-	^ self quantity = (aDistanceInCentimetros quantity *10)! !
-
-!Milimetros methodsFor: 'private' stamp: 'dim 5/25/2017 22:15:34'!
-equalsMetros: aDistanceInMetros
-	
-		^ self quantity = (aDistanceInMetros quantity *1000).! !
-
-!Milimetros methodsFor: 'private' stamp: 'AD 5/23/2017 20:56:15'!
-quantity: aQuantityOfMilimetros
-
-	quantity := aQuantityOfMilimetros ! !
-
-
-!Milimetros methodsFor: 'accessing' stamp: 'AD 5/23/2017 20:56:34'!
-quantity
-	
-	^ quantity ! !
-
-
-!Milimetros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 22:09:51'!
-= aDistance 
-
-	^aDistance equalsMilimetros: self.! !
-
-!Milimetros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 22:14:34'!
-equalsKilometros: aDistanceInKilometros 
-
-	^ self quantity = (aDistanceInKilometros quantity * 1000000)! !
-
-!Milimetros methodsFor: 'arithmetic' stamp: 'dim 5/25/2017 22:19:07'!
-equalsMilimetros: aMilimetros 
-	
-	^ quantity = aMilimetros quantity ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -581,7 +527,8 @@ equalsMilimetros: aMilimetros
 Milimetros class
 	instanceVariableNames: ''!
 
-!Milimetros class methodsFor: 'initialization' stamp: 'AD 5/23/2017 20:55:51'!
-quantity: aQuantityOfMilimetros
+!Milimetros class methodsFor: 'convertion' stamp: 'DIM 5/26/2017 12:59:42'!
+factorDeConversionAMetros 
 
-	^ self new quantity: aQuantityOfMilimetros ! !
+	^ 1/1000.
+	! !
