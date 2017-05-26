@@ -203,6 +203,49 @@ setUp
 	unMillonDeMilimetros := Milimetros quantity: 1000000.	! !
 
 
+!classDefinition: #DistanceFactory category: #'Distance-Solution'!
+Object subclass: #DistanceFactory
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Distance-Solution'!
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:37:52'!
+minusOneMeter
+	
+	^ Metros quantity: -1.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:39:29'!
+oneCentimeter
+	
+	^ Centimetros quantity: 1.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:39:42'!
+oneHundredCentimeters
+	
+	^ Centimetros quantity: 100.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:40:00'!
+oneMeter
+	
+	^ Metros quantity: 1.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:40:21'!
+twoHundredCentimeters
+	
+	^ Centimetros quantity: 200.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:40:36'!
+twoMeters
+	
+	^ Metros quantity: 2.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:40:46'!
+zeroMeters
+	
+	^ Metros quantity: 0.! !
+
+
 !classDefinition: #Distancia category: #'Distance-Solution'!
 Object subclass: #Distancia
 	instanceVariableNames: 'quantity'
