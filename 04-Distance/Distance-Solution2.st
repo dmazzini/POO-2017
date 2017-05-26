@@ -5,11 +5,10 @@ TestCase subclass: #DistanciaTest
 	poolDictionaries: ''
 	category: 'Distance-Solution'!
 
-!DistanciaTest methodsFor: 'tests' stamp: 'DIM 5/26/2017 10:53:50'!
+!DistanciaTest methodsFor: 'tests' stamp: 'DIM 5/26/2017 11:11:03'!
 test01UnMetroEqualsUnMetro
 
 	self assert: unMetro = unMetro.
-	
 ! !
 
 !DistanciaTest methodsFor: 'tests' stamp: 'ad 5/20/2017 22:13:21'!
@@ -346,12 +345,17 @@ convertTo: aDistanceClass
 
 !classDefinition: 'Distancia class' category: #'Distance-Solution'!
 Distancia class
-	instanceVariableNames: 'factorDeConversionAMetros'!
+	instanceVariableNames: ''!
 
-!Distancia class methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 10:57:44'!
+!Distancia class methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 13:00:08'!
 factorDeConversionAMetros
 
-	^factorDeConversionAMetros.! !
+	self subclassResponsibility.! !
+
+!Distancia class methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 13:01:24'!
+quantity: aQuantity
+
+	^ self new quantity: aQuantity.! !
 
 
 !classDefinition: #Centimetros category: #'Distance-Solution'!
@@ -367,12 +371,56 @@ Distancia subclass: #Centimetros
 Centimetros class
 	instanceVariableNames: ''!
 
-!Centimetros class methodsFor: 'initialization' stamp: 'dim 5/26/2017 00:29:47'!
-quantity: aQuantityOfCentimetros
+!Centimetros class methodsFor: 'initialization' stamp: 'DIM 5/26/2017 12:57:54'!
+factorDeConversionAMetros
 
-	factorDeConversionAMetros _ 1/100.
+	^ 1/100.
 	
-	^ self new quantity: aQuantityOfCentimetros ! !
+	! !
+
+
+!classDefinition: #Decimetros category: #'Distance-Solution'!
+Distancia subclass: #Decimetros
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Distance-Solution'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Decimetros class' category: #'Distance-Solution'!
+Decimetros class
+	instanceVariableNames: ''!
+
+!Decimetros class methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 12:58:24'!
+factorDeConversionAMetros 
+
+	^ 1/10.
+	
+
+	
+	
+	! !
+
+
+!classDefinition: #Hectometros category: #'Distance-Solution'!
+Distancia subclass: #Hectometros
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Distance-Solution'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Hectometros class' category: #'Distance-Solution'!
+Hectometros class
+	instanceVariableNames: ''!
+
+!Hectometros class methodsFor: 'as yet unclassified' stamp: 'DIM 5/26/2017 12:58:48'!
+factorDeConversionAMetros 
+
+	^ 100.
+	! !
 
 
 !classDefinition: #Kilometros category: #'Distance-Solution'!
@@ -388,12 +436,11 @@ Distancia subclass: #Kilometros
 Kilometros class
 	instanceVariableNames: ''!
 
-!Kilometros class methodsFor: 'initialization' stamp: 'dim 5/26/2017 00:29:36'!
-quantity: aQuantityOfKilometros
+!Kilometros class methodsFor: 'initialization' stamp: 'DIM 5/26/2017 12:59:04'!
+factorDeConversionAMetros 
 
-	factorDeConversionAMetros _ 1000.
-	
-	^ self new quantity: aQuantityOfKilometros .! !
+	^ 1000.
+	! !
 
 
 !classDefinition: #Metros category: #'Distance-Solution'!
@@ -409,12 +456,10 @@ Distancia subclass: #Metros
 Metros class
 	instanceVariableNames: ''!
 
-!Metros class methodsFor: 'initialization' stamp: 'dim 5/26/2017 00:29:21'!
-quantity: aQuantityOfMetros
+!Metros class methodsFor: 'initialization' stamp: 'DIM 5/26/2017 12:59:27'!
+factorDeConversionAMetros 
 
-	factorDeConversionAMetros _ 1.
-	
-	^ self new quantity: aQuantityOfMetros! !
+	^ 1.! !
 
 
 !classDefinition: #Milimetros category: #'Distance-Solution'!
@@ -430,9 +475,8 @@ Distancia subclass: #Milimetros
 Milimetros class
 	instanceVariableNames: ''!
 
-!Milimetros class methodsFor: 'initialization' stamp: 'dim 5/26/2017 00:29:09'!
-quantity: aQuantityOfMilimetros
+!Milimetros class methodsFor: 'initialization' stamp: 'DIM 5/26/2017 12:59:42'!
+factorDeConversionAMetros 
 
-	factorDeConversionAMetros _ 1/1000.
-	
-	^ self new quantity: aQuantityOfMilimetros ! !
+	^ 1/1000.
+	! !
