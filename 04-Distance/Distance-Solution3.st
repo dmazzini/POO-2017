@@ -216,7 +216,7 @@ test41AnIntervalFromOneMetroToDiezKilometrosByCincoCentimetrosContainsTwoMetrosA
 	
 	self assert:  (anIntervalOfDistances at: 21) = dosMetros.! !
 
-!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/29/2017 11:51:57'!
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/29/2017 13:42:44'!
 test42
 
 	| sumOfIntervalDistances |
@@ -240,6 +240,18 @@ test43
 			ifTrue: [amountOfElementsOverTresMetrosInInterval _ amountOfElementsOverTresMetrosInInterval + 1] ].	
 	
 	self assert:  amountOfElementsOverTresMetrosInInterval = 3.! !
+
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/29/2017 13:34:35'!
+test44
+
+	| sumOfIntervalDistances |
+	
+	sumOfIntervalDistances _ Metros quantity: 0.
+	
+	unMetro to: tresMetros by: medioMetro do: [:aDistance | 
+		sumOfIntervalDistances _ aDistance + sumOfIntervalDistances ].	
+	
+	self assert:  sumOfIntervalDistances = (Metros quantity: 10).! !
 
 
 !DistanciaTest methodsFor: 'Set Up' stamp: 'ad 5/29/2017 10:11:10'!
@@ -456,17 +468,32 @@ to: aDistance by: stepDistance
 		to: (aDistance convertTo: self class) 
 		by: (stepDistance convertTo: self class)! !
 
-!Distancia methodsFor: 'as yet unclassified' stamp: 'ad 5/29/2017 11:50:57'!
+!Distancia methodsFor: 'as yet unclassified' stamp: 'ad 5/29/2017 13:37:17'!
 to: aDistance by: stepDistance do: aBlockClosure
+
+	Transcript show: 'Distancia >> to:by:do:'; newLine.
 	
 	(self to: aDistance by: stepDistance )
 			do: aBlockClosure .! !
 
-!Distancia methodsFor: 'as yet unclassified' stamp: 'ad 5/29/2017 11:50:19'!
+!Distancia methodsFor: 'as yet unclassified' stamp: 'ad 5/29/2017 13:37:37'!
 to: aDistance do: aBlockClosure
+
+	Transcript show: 'Distancia >> to:do:'; newLine.
 
 	 (self to: aDistance )
 			do: aBlockClosure .! !
+
+
+!Distancia methodsFor: 'printing' stamp: 'ad 5/29/2017 12:52:57'!
+printString
+	
+	^String streamContents: 
+        [:stream | 
+            stream 
+                 nextPutAll: (quantity printString); 
+                 nextPutAll: ' '; 
+                 nextPutAll: (self class printString) ]. ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -506,6 +533,12 @@ factorDeConversionAMetros
 	
 	! !
 
+
+!Centimetros class methodsFor: 'printing' stamp: 'ad 5/29/2017 12:54:15'!
+printString
+
+	^ 'centimetros'! !
+
 
 !classDefinition: #Decimetros category: #'Distance-Solution'!
 Distancia subclass: #Decimetros
@@ -530,6 +563,12 @@ factorDeConversionAMetros
 	
 	! !
 
+
+!Decimetros class methodsFor: 'printing' stamp: 'ad 5/29/2017 12:54:09'!
+printString
+
+	^ 'decimetros'! !
+
 
 !classDefinition: #Hectometros category: #'Distance-Solution'!
 Distancia subclass: #Hectometros
@@ -549,6 +588,12 @@ factorDeConversionAMetros
 
 	^ 100.
 	! !
+
+
+!Hectometros class methodsFor: 'printing' stamp: 'ad 5/29/2017 12:54:00'!
+printString
+
+	^ 'hectometros'! !
 
 
 !classDefinition: #Kilometros category: #'Distance-Solution'!
@@ -570,6 +615,12 @@ factorDeConversionAMetros
 	^ 1000.
 	! !
 
+
+!Kilometros class methodsFor: 'printing' stamp: 'ad 5/29/2017 12:53:49'!
+printString
+
+	^ 'kilometros'! !
+
 
 !classDefinition: #Metros category: #'Distance-Solution'!
 Distancia subclass: #Metros
@@ -588,6 +639,12 @@ Metros class
 factorDeConversionAMetros 
 
 	^ 1.! !
+
+
+!Metros class methodsFor: 'printing' stamp: 'ad 5/29/2017 12:37:32'!
+printString
+
+	^ 'metros'! !
 
 
 !classDefinition: #Milimetros category: #'Distance-Solution'!
@@ -608,6 +665,12 @@ factorDeConversionAMetros
 
 	^ 1/1000.
 	! !
+
+
+!Milimetros class methodsFor: 'printing' stamp: 'ad 5/29/2017 12:53:38'!
+printString
+
+	^ 'milimetros'! !
 
 
 !classDefinition: #IntervaloDeDistancia category: #'Distance-Solution'!
@@ -640,8 +703,10 @@ at: anIndex
 	^ distanceUnit quantity: (interval at: anIndex)! !
 
 
-!IntervaloDeDistancia methodsFor: 'enumerating' stamp: 'ad 5/29/2017 11:45:44'!
+!IntervaloDeDistancia methodsFor: 'enumerating' stamp: 'ad 5/29/2017 13:37:46'!
 do: aBlockClosure
+
+	Transcript show: 'IntrevaloDeDistancias  >> do:'; newLine.
 
 	1 to: (interval size) do: [ :i |
 		aBlockClosure value: (distanceUnit quantity: (interval at: i)) ]	
