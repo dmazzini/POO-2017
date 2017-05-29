@@ -1,6 +1,6 @@
 !classDefinition: #DistanciaTest category: #'Distance-Solution'!
 TestCase subclass: #DistanciaTest
-	instanceVariableNames: 'ceroMetros unMetro dosMetros tresMetros cuatroMetros cincoMetros medioMetro unMetroYMedio cienCentimetros doscientosCentimetros milMetros unKilometro dosKilometros milMilimetros dosMilMilimetros unCentimetro diezMilimetros unMillonDeMilimetros cienMilCentimetros unMilimetro tresCentimetros cincoMilimetros'
+	instanceVariableNames: 'ceroMetros unMetro dosMetros tresMetros cuatroMetros cincoMetros medioMetro unMetroYMedio cienCentimetros doscientosCentimetros milMetros unKilometro dosKilometros milMilimetros dosMilMilimetros unCentimetro diezMilimetros unMillonDeMilimetros cienMilCentimetros unMilimetro tresCentimetros cincoMilimetros diezKilometros cincoCentimetros'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Distance-Solution'!
@@ -197,8 +197,22 @@ test39UnCentimetroDividedByTwoEqualsCincoMilimetros
 	
 	self assert: unCentimetro / 2 = cincoMilimetros.! !
 
+!DistanciaTest methodsFor: 'tests' stamp: 'dim 5/28/2017 20:33:51'!
+test40AnIntervalFromOneMetroToThreeMetrosContainsTwoMetrosAtSecondPosition
+	|anIntervalOfDistances|
+	
+	anIntervalOfDistances _ unMetro to: tresMetros.
+	self assert:  (anIntervalOfDistances at: 2) = dosMetros.! !
 
-!DistanciaTest methodsFor: 'Set Up' stamp: 'ad 5/26/2017 16:43:14'!
+!DistanciaTest methodsFor: 'tests' stamp: 'dim 5/28/2017 23:23:43'!
+test41AnIntervalFromOneMetroToDiezKilometrosByCincoCentimetrosContainsTwoMetrosAtPosition21
+	|anIntervalOfDistances|
+	
+	anIntervalOfDistances _ unMetro to: diezKilometros by: cincoCentimetros.
+	self assert:  (anIntervalOfDistances at: 21) = dosMetros.! !
+
+
+!DistanciaTest methodsFor: 'Set Up' stamp: 'dim 5/28/2017 20:40:40'!
 setUp
 
 	ceroMetros := Metros quantity: 0.
@@ -213,12 +227,15 @@ setUp
 	
 	unCentimetro := Centimetros quantity: 1.
 	tresCentimetros := Centimetros quantity: 3.
+	cincoCentimetros := Centimetros quantity: 5.
+	
 	cienCentimetros := Centimetros quantity: 100.
 	doscientosCentimetros := Centimetros quantity: 200.	
 	cienMilCentimetros := Centimetros quantity: 100000.
 	
 	unKilometro := Kilometros quantity: 1.
 	dosKilometros := Kilometros quantity: 2.
+	diezKilometros := Kilometros quantity: 10.
 
 	unMilimetro := Milimetros quantity: 1.	
 	cincoMilimetros := Milimetros quantity: 5.	
@@ -392,6 +409,16 @@ convertTo: aDistanceClass
 
 	^aDistanceClass quantity:((self quantity * (self class factorDeConversionAMetros)) / aDistanceClass factorDeConversionAMetros).! !
 
+
+!Distancia methodsFor: 'as yet unclassified' stamp: 'dim 5/28/2017 21:46:35'!
+to: aDistance 
+	^ IntervaloDeDistancia from: self to: (aDistance convertTo: self class).! !
+
+!Distancia methodsFor: 'as yet unclassified' stamp: 'dim 5/28/2017 21:23:50'!
+to: aDistance by: stepDistance 
+	
+		^ IntervaloDeDistancia from: self to: (aDistance convertTo: self class) by: (stepDistance convertTo: self class).! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Distancia class' category: #'Distance-Solution'!
@@ -532,3 +559,48 @@ factorDeConversionAMetros
 
 	^ 1/1000.
 	! !
+
+
+!classDefinition: #IntervaloDeDistancia category: #'Distance-Solution'!
+Object subclass: #IntervaloDeDistancia
+	instanceVariableNames: 'start step stop'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Distance-Solution'!
+
+!IntervaloDeDistancia methodsFor: 'as yet unclassified' stamp: 'dim 5/28/2017 21:43:15'!
+at: anIndex
+
+	^ start class quantity: (start quantity + (step quantity * (anIndex -1))).! !
+
+!IntervaloDeDistancia methodsFor: 'as yet unclassified' stamp: 'dim 5/28/2017 21:44:10'!
+from: startDistance to: stopDistance
+	
+	start _ startDistance.
+	stop _ stopDistance.
+	step _ startDistance class quantity: 1.! !
+
+!IntervaloDeDistancia methodsFor: 'as yet unclassified' stamp: 'dim 5/28/2017 20:47:31'!
+from: startDistance to: stopDistance by: aStepDistance 
+	
+	start _ startDistance.
+	stop _ stopDistance.
+	step _ aStepDistance.
+	
+	! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'IntervaloDeDistancia class' category: #'Distance-Solution'!
+IntervaloDeDistancia class
+	instanceVariableNames: ''!
+
+!IntervaloDeDistancia class methodsFor: 'as yet unclassified' stamp: 'dim 5/28/2017 21:37:59'!
+from: aDistance to: anotherDistance
+
+	^ self new from: aDistance to: anotherDistance.! !
+
+!IntervaloDeDistancia class methodsFor: 'as yet unclassified' stamp: 'dim 5/28/2017 21:37:46'!
+from: aDistance to: anotherDistance by: aStepDistance 
+
+	^ self new from: aDistance to: anotherDistance by: aStepDistance.! !
