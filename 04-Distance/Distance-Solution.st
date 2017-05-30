@@ -253,6 +253,16 @@ test44
 	
 	self assert:  sumOfIntervalDistances = (Metros quantity: 10).! !
 
+!DistanciaTest methodsFor: 'tests' stamp: 'DIM 5/30/2017 16:08:25'!
+test45
+
+	self 
+		should: [ tresMetros to: unMetro by: unMetro] 
+		raise:  Error		
+		withExceptionDo: [:anError | self assert: anError messageText equals: IntervaloDeDistancia wrongCreationParametersErrorText]
+		
+! !
+
 
 !DistanciaTest methodsFor: 'Set Up' stamp: 'ad 5/29/2017 10:11:10'!
 setUp
@@ -460,9 +470,9 @@ to: aDistance
 		from: self 
 		to: (aDistance convertTo: self class).! !
 
-!Distancia methodsFor: 'as yet unclassified' stamp: 'ad 5/29/2017 11:04:37'!
+!Distancia methodsFor: 'as yet unclassified' stamp: 'DIM 5/30/2017 16:08:47'!
 to: aDistance by: stepDistance
-	
+	 
 	^ IntervaloDeDistancia 
 		from: self 
 		to: (aDistance convertTo: self class) 
@@ -687,9 +697,9 @@ from: startDistance to: stopDistance
 	
 	distanceUnit _ startDistance class.! !
 
-!IntervaloDeDistancia methodsFor: 'private' stamp: 'ad 5/29/2017 11:45:56'!
+!IntervaloDeDistancia methodsFor: 'private' stamp: 'DIM 5/30/2017 16:15:27'!
 from: startDistance to: stopDistance by: aStepDistance
-	
+		
 	interval := Interval from: startDistance quantity to: stopDistance quantity by: aStepDistance quantity.
 	
 	distanceUnit := startDistance class.
@@ -724,7 +734,14 @@ from: aDistance to: anotherDistance
 
 	^ self new from: aDistance to: anotherDistance.! !
 
-!IntervaloDeDistancia class methodsFor: 'initialization' stamp: 'dim 5/28/2017 21:37:46'!
+!IntervaloDeDistancia class methodsFor: 'initialization' stamp: 'DIM 5/30/2017 16:15:43'!
 from: aDistance to: anotherDistance by: aStepDistance 
 
+	(aDistance > anotherDistance and: [aStepDistance quantity >= 0]) ifTrue: [^ IntervaloDeDistancia wrongCreationParametersErrorText].
+
 	^ self new from: aDistance to: anotherDistance by: aStepDistance.! !
+
+!IntervaloDeDistancia class methodsFor: 'initialization' stamp: 'DIM 5/30/2017 15:36:24'!
+wrongCreationParametersErrorText
+
+	^'The parameters provided do not produce an interval'.! !
