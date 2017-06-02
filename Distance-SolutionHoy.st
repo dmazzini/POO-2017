@@ -1,3 +1,208 @@
+!classDefinition: #Distance category: #'Distance-Solution'!
+Magnitude subclass: #Distance
+	instanceVariableNames: 'quantity amount unit'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Distance-Solution'!
+
+!Distance methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:02:28'!
+* aNumber
+
+	^ self performArithmeticOperation: #* withNumber: aNumber
+
+	! !
+
+!Distance methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:05:41'!
++ aDistance
+
+	^ self performArithmeticOperation: #+ with: aDistance
+	! !
+
+!Distance methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:07:42'!
+- aDistance
+
+	^ self performArithmeticOperation: #- with: aDistance
+	! !
+
+!Distance methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:02:48'!
+/  aNumber
+
+	^ self performArithmeticOperation: #/ withNumber: aNumber
+
+	! !
+
+!Distance methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:02:58'!
+//  aNumber
+
+	^ self performArithmeticOperation: #// withNumber: aNumber
+
+	! !
+
+!Distance methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:16:18'!
+< aDistance
+
+	^ self performComparisonOperation: #< with: aDistance 
+
+	! !
+
+!Distance methodsFor: 'arithmetic' stamp: 'DIM 6/1/2017 10:07:44'!
+= aDistance
+
+	(aDistance isKindOf: self class superclass) ifFalse:[^ false].
+
+	^ self performComparisonOperation: #= with: aDistance 
+	
+! !
+
+!Distance methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:20:54'!
+adaptToNumber: aNumber andSend: aSymbol 
+	
+	^ self * aNumber.! !
+
+!Distance methodsFor: 'arithmetic' stamp: 'ad 6/1/2017 23:22:59'!
+negated
+
+	 ^ Distance withAmount: (self amount * -1) andUnit: unit.! !
+
+!Distance methodsFor: 'arithmetic' stamp: 'ad 6/1/2017 23:23:09'!
+performArithmeticOperation: aSelector with: aDistance
+
+	^ Distance withAmount: (self amount perform: aSelector with: (aDistance convertTo: self unit) amount) 
+					andUnit: unit. 
+	! !
+
+!Distance methodsFor: 'arithmetic' stamp: 'ad 6/1/2017 23:23:13'!
+performArithmeticOperation: aSelector withNumber: aNumber
+
+	^ Distance withAmount: (self amount perform: aSelector with: aNumber) 
+					andUnit: unit. 
+
+	! !
+
+!Distance methodsFor: 'arithmetic' stamp: 'AD 6/1/2017 20:58:36'!
+performComparisonOperation: aSelector with: aDistance
+
+	^ self amount perform: aSelector with: (aDistance convertTo: self unit) amount
+	
+
+	! !
+
+
+!Distance methodsFor: 'private' stamp: 'dim 5/26/2017 00:24:43'!
+quantity: aQuantity
+
+	quantity := aQuantity 
+
+	! !
+
+
+!Distance methodsFor: 'accessing' stamp: 'AD 6/1/2017 20:41:42'!
+amount
+	
+	^ amount
+
+	! !
+
+!Distance methodsFor: 'accessing' stamp: 'dim 5/26/2017 00:24:15'!
+quantity
+	
+	^ quantity
+
+	! !
+
+!Distance methodsFor: 'accessing' stamp: 'AD 6/1/2017 20:41:49'!
+unit
+
+	^ unit.! !
+
+
+!Distance methodsFor: 'converting' stamp: 'ad 6/1/2017 23:23:04'!
+convertTo: aDistanceUnit
+
+	^ Distance 
+		withAmount: (self amount * self unit convertionFactorToMetres / aDistanceUnit convertionFactorToMetres ) 
+		andUnit: aDistanceUnit.! !
+
+
+!Distance methodsFor: 'printing' stamp: 'ad 6/1/2017 23:49:15'!
+printString
+	
+	^String streamContents: 
+        [:stream | 
+            stream 
+                 nextPutAll: (amount printString); 
+                 nextPutAll: ' '; 
+			 nextPutAll: self unit name asString.
+			 (amount > 1) ifTrue: [ stream nextPutAll: 's'] 
+	  ].
+			 ! !
+
+
+!Distance methodsFor: 'interval' stamp: 'ad 6/2/2017 00:04:53'!
+to: aDistance 
+
+	^ DistanceInterval 
+		from: self 
+		to: (aDistance convertTo: self unit).! !
+
+!Distance methodsFor: 'interval' stamp: 'ad 6/2/2017 00:04:45'!
+to: aDistance by: stepDistance
+	 
+	^ DistanceInterval 
+		from: self 
+		to: (aDistance convertTo: self unit) 
+		by: (stepDistance convertTo: self unit)! !
+
+!Distance methodsFor: 'interval' stamp: 'ad 5/30/2017 17:16:57'!
+to: aDistance by: stepDistance do: aBlockClosure
+	
+	(self to: aDistance by: stepDistance )
+			do: aBlockClosure .! !
+
+!Distance methodsFor: 'interval' stamp: 'ad 5/30/2017 17:17:01'!
+to: aDistance do: aBlockClosure
+
+	 (self to: aDistance )
+			do: aBlockClosure .! !
+
+
+!Distance methodsFor: 'binding' stamp: 'AD 6/1/2017 20:08:48'!
+hash
+
+	^ (self convertTo: Metros) quantity hash.  
+! !
+
+
+!Distance methodsFor: 'as yet unclassified' stamp: 'AD 6/1/2017 20:41:08'!
+initializeWithAmount: anAmount andUnit: aDistanceUnit
+
+	amount _ anAmount.
+	
+	unit _ aDistanceUnit.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Distance class' category: #'Distance-Solution'!
+Distance class
+	instanceVariableNames: ''!
+
+!Distance class methodsFor: 'convertion' stamp: 'DIM 5/30/2017 14:06:13'!
+convertionFactorToMetres
+
+	self subclassResponsibility.! !
+
+
+!Distance class methodsFor: 'initialization' stamp: 'DIM 5/26/2017 13:01:24'!
+quantity: aQuantity
+
+	^ self new quantity: aQuantity.! !
+
+!Distance class methodsFor: 'initialization' stamp: 'AD 6/1/2017 20:40:21'!
+withAmount: anAmount andUnit: aDistanceUnit
+
+	^ self new initializeWithAmount: anAmount andUnit: aDistanceUnit.! !
+
+
 !classDefinition: #DistanceUnit category: #'Distance-Solution'!
 Magnitude subclass: #DistanceUnit
 	instanceVariableNames: 'name convertionFactorToMeter'
@@ -14,6 +219,35 @@ initializeWithName: aNameSymbol andConvertionFactorToMeter: aConvertionNumber
 	
 	Smalltalk at: aNameSymbol put: self.! !
 
+
+!DistanceUnit methodsFor: 'accessing' stamp: 'ad 6/1/2017 23:31:02'!
+convertionFactorToMetres
+	
+	^ convertionFactorToMeter ! !
+
+!DistanceUnit methodsFor: 'accessing' stamp: 'ad 6/1/2017 23:50:56'!
+name
+	
+	^ name ! !
+
+!DistanceUnit methodsFor: 'accessing' stamp: 'ad 6/2/2017 00:01:56'!
+printString
+	
+	^ name asString ! !
+
+
+!DistanceUnit methodsFor: 'as yet unclassified' stamp: 'ad 6/1/2017 23:55:56'!
+= aDistanceUnit 
+
+	(aDistanceUnit isKindOf: self class) ifFalse:[^ false].
+	
+	^ self name = aDistanceUnit name! !
+
+!DistanceUnit methodsFor: 'as yet unclassified' stamp: 'ad 6/2/2017 00:00:38'!
+hash
+
+	^ self name asString size.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'DistanceUnit class' category: #'Distance-Solution'!
@@ -26,404 +260,9 @@ withName: aName andConvertionFactorToMeter: aConvertionNumber
 	^ self new initializeWithName: aName andConvertionFactorToMeter: aConvertionNumber.! !
 
 
-!classDefinition: #Distancia category: #'Distance-Solution'!
-Magnitude subclass: #Distancia
-	instanceVariableNames: 'quantity amount unit'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Distance-Solution'!
-
-!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:02:28'!
-* aNumber
-
-	^ self performArithmeticOperation: #* withNumber: aNumber
-
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:05:41'!
-+ aDistance
-
-	^ self performArithmeticOperation: #+ with: aDistance
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:07:42'!
-- aDistance
-
-	^ self performArithmeticOperation: #- with: aDistance
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:02:48'!
-/  aNumber
-
-	^ self performArithmeticOperation: #/ withNumber: aNumber
-
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:02:58'!
-//  aNumber
-
-	^ self performArithmeticOperation: #// withNumber: aNumber
-
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:16:18'!
-< aDistance
-
-	^ self performComparisonOperation: #< with: aDistance 
-
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'DIM 6/1/2017 10:07:44'!
-= aDistance
-
-	(aDistance isKindOf: self class superclass) ifFalse:[^ false].
-
-	^ self performComparisonOperation: #= with: aDistance 
-	
-! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:20:54'!
-adaptToNumber: aNumber andSend: aSymbol 
-	
-	^ self * aNumber.! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'AD 6/1/2017 20:47:13'!
-negated
-
-	 ^ Distancia withAmount: (self amount * -1) andUnit: unit.! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'AD 6/1/2017 20:58:06'!
-performArithmeticOperation: aSelector with: aDistance
-
-	^ Distancia withAmount: (self amount perform: aSelector with: (aDistance convertTo: self unit) amount) 
-					andUnit: unit. 
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'AD 6/1/2017 20:56:17'!
-performArithmeticOperation: aSelector withNumber: aNumber
-
-	^ Distancia withAmount: (self amount perform: aSelector with: aNumber) 
-					andUnit: unit. 
-
-	! !
-
-!Distancia methodsFor: 'arithmetic' stamp: 'AD 6/1/2017 20:58:36'!
-performComparisonOperation: aSelector with: aDistance
-
-	^ self amount perform: aSelector with: (aDistance convertTo: self unit) amount
-	
-
-	! !
-
-
-!Distancia methodsFor: 'private' stamp: 'dim 5/26/2017 00:24:43'!
-quantity: aQuantity
-
-	quantity := aQuantity 
-
-	! !
-
-
-!Distancia methodsFor: 'accessing' stamp: 'AD 6/1/2017 20:41:42'!
-amount
-	
-	^ amount
-
-	! !
-
-!Distancia methodsFor: 'accessing' stamp: 'dim 5/26/2017 00:24:15'!
-quantity
-	
-	^ quantity
-
-	! !
-
-!Distancia methodsFor: 'accessing' stamp: 'AD 6/1/2017 20:41:49'!
-unit
-
-	^ unit.! !
-
-
-!Distancia methodsFor: 'converting' stamp: 'AD 6/1/2017 20:44:53'!
-convertTo: aDistanceUnit
-
-	^ Distancia 
-		withAmount: (self amount * self unit convertionFactorToMetres / aDistanceUnit convertionFactorToMetres ) 
-		andUnit: aDistanceUnit.! !
-
-
-!Distancia methodsFor: 'printing' stamp: 'AD 6/1/2017 21:01:01'!
-printString
-	
-	^String streamContents: 
-        [:stream | 
-            stream 
-                 nextPutAll: (quantity printString); 
-                 nextPutAll: ' '; 
-                 "nextPutAll: (self class printString)."
-			 nextPut: self unit name.
-			 (quantity > 1) ifTrue: [ stream nextPutAll: 's'] 
-	  ].
-			 ! !
-
-
-!Distancia methodsFor: 'interval' stamp: 'AD 6/1/2017 21:03:44'!
-to: aDistance 
-
-	^ IntervaloDeDistancia 
-		from: self 
-		to: (aDistance convertTo: self unit).! !
-
-!Distancia methodsFor: 'interval' stamp: 'AD 6/1/2017 21:04:06'!
-to: aDistance by: stepDistance
-	 
-	^ IntervaloDeDistancia 
-		from: self 
-		to: (aDistance convertTo: self unit) 
-		by: (stepDistance convertTo: self unit)! !
-
-!Distancia methodsFor: 'interval' stamp: 'ad 5/30/2017 17:16:57'!
-to: aDistance by: stepDistance do: aBlockClosure
-	
-	(self to: aDistance by: stepDistance )
-			do: aBlockClosure .! !
-
-!Distancia methodsFor: 'interval' stamp: 'ad 5/30/2017 17:17:01'!
-to: aDistance do: aBlockClosure
-
-	 (self to: aDistance )
-			do: aBlockClosure .! !
-
-
-!Distancia methodsFor: 'binding' stamp: 'AD 6/1/2017 20:08:48'!
-hash
-
-	^ (self convertTo: Metros) quantity hash.  
-! !
-
-
-!Distancia methodsFor: 'as yet unclassified' stamp: 'AD 6/1/2017 20:41:08'!
-initializeWithAmount: anAmount andUnit: aDistanceUnit
-
-	amount _ anAmount.
-	
-	unit _ aDistanceUnit.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Distancia class' category: #'Distance-Solution'!
-Distancia class
-	instanceVariableNames: ''!
-
-!Distancia class methodsFor: 'convertion' stamp: 'DIM 5/30/2017 14:06:13'!
-convertionFactorToMetres
-
-	self subclassResponsibility.! !
-
-
-!Distancia class methodsFor: 'initialization' stamp: 'DIM 5/26/2017 13:01:24'!
-quantity: aQuantity
-
-	^ self new quantity: aQuantity.! !
-
-!Distancia class methodsFor: 'initialization' stamp: 'AD 6/1/2017 20:40:21'!
-withAmount: anAmount andUnit: aDistanceUnit
-
-	^ self new initializeWithAmount: anAmount andUnit: aDistanceUnit.! !
-
-
-!classDefinition: #Centimetros category: #'Distance-Solution'!
-Distancia subclass: #Centimetros
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Distance-Solution'!
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Centimetros class' category: #'Distance-Solution'!
-Centimetros class
-	instanceVariableNames: ''!
-
-!Centimetros class methodsFor: 'convertion' stamp: 'DIM 5/30/2017 14:06:58'!
-convertionFactorToMetres
-
-	^ 1/100.
-	
-	! !
-
-
-!Centimetros class methodsFor: 'printing' stamp: 'DIM 6/1/2017 09:57:40'!
-printString
-
-	^ 'centimeter'! !
-
-
-!classDefinition: #Decametros category: #'Distance-Solution'!
-Distancia subclass: #Decametros
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Distance-Solution'!
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Decametros class' category: #'Distance-Solution'!
-Decametros class
-	instanceVariableNames: ''!
-
-!Decametros class methodsFor: 'as yet unclassified' stamp: 'DIM 6/1/2017 09:40:14'!
-convertionFactorToMetres 
-
-	^ 10.
-	
-
-	! !
-
-!Decametros class methodsFor: 'as yet unclassified' stamp: 'DIM 6/1/2017 09:59:14'!
-printString
-
-	^ 'decameter'	
-
-	! !
-
-
-!classDefinition: #Decimetros category: #'Distance-Solution'!
-Distancia subclass: #Decimetros
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Distance-Solution'!
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Decimetros class' category: #'Distance-Solution'!
-Decimetros class
-	instanceVariableNames: ''!
-
-!Decimetros class methodsFor: 'convertion' stamp: 'DIM 5/30/2017 14:07:30'!
-convertionFactorToMetres 
-
-	^ 1/10.
-	
-
-	
-	
-	! !
-
-
-!Decimetros class methodsFor: 'printing' stamp: 'DIM 6/1/2017 09:57:53'!
-printString
-
-	^ 'decimeter'! !
-
-
-!classDefinition: #Hectometros category: #'Distance-Solution'!
-Distancia subclass: #Hectometros
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Distance-Solution'!
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Hectometros class' category: #'Distance-Solution'!
-Hectometros class
-	instanceVariableNames: ''!
-
-!Hectometros class methodsFor: 'convertion' stamp: 'DIM 5/30/2017 14:07:44'!
-convertionFactorToMetres 
-
-	^ 100.
-	! !
-
-
-!Hectometros class methodsFor: 'printing' stamp: 'DIM 6/1/2017 09:59:30'!
-printString
-
-	^ 'hectometer'! !
-
-
-!classDefinition: #Kilometros category: #'Distance-Solution'!
-Distancia subclass: #Kilometros
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Distance-Solution'!
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Kilometros class' category: #'Distance-Solution'!
-Kilometros class
-	instanceVariableNames: ''!
-
-!Kilometros class methodsFor: 'convertion' stamp: 'DIM 5/30/2017 14:08:02'!
-convertionFactorToMetres 
-
-	^ 1000.
-	! !
-
-
-!Kilometros class methodsFor: 'printing' stamp: 'DIM 6/1/2017 09:59:42'!
-printString
-
-	^ 'kilometer'! !
-
-
-!classDefinition: #Metros category: #'Distance-Solution'!
-Distancia subclass: #Metros
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Distance-Solution'!
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Metros class' category: #'Distance-Solution'!
-Metros class
-	instanceVariableNames: ''!
-
-!Metros class methodsFor: 'convertion' stamp: 'DIM 5/30/2017 14:08:11'!
-convertionFactorToMetres 
-
-	^ 1.! !
-
-
-!Metros class methodsFor: 'printing' stamp: 'DIM 6/1/2017 09:57:10'!
-printString
-
-	^ 'meter'! !
-
-
-!classDefinition: #Milimetros category: #'Distance-Solution'!
-Distancia subclass: #Milimetros
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Distance-Solution'!
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Milimetros class' category: #'Distance-Solution'!
-Milimetros class
-	instanceVariableNames: ''!
-
-!Milimetros class methodsFor: 'convertion' stamp: 'DIM 5/30/2017 14:08:21'!
-convertionFactorToMetres 
-
-	^ 1/1000.
-	! !
-
-
-!Milimetros class methodsFor: 'printing' stamp: 'DIM 6/1/2017 09:58:07'!
-printString
-
-	^ 'milimeter'! !
-
-
 !classDefinition: #DistanciaTest category: #'Distance-Solution'!
 TestCase subclass: #DistanciaTest
-	instanceVariableNames: 'ceroMetros unMetro dosMetros tresMetros cuatroMetros cincoMetros medioMetro unMetroYMedio cienCentimetros doscientosCentimetros milMetros unKilometro dosKilometros milMilimetros dosMilMilimetros unCentimetro diezMilimetros unMillonDeMilimetros cienMilCentimetros unMilimetro tresCentimetros cincoMilimetros diezKilometros cincoCentimetros anIntervalOfDistances seisMetros unMetroNegativo'
+	instanceVariableNames: 'ceroMetros unMetro dosMetros tresMetros cuatroMetros cincoMetros medioMetro unMetroYMedio cienCentimetros doscientosCentimetros milMetros unKilometro dosKilometros milMilimetros dosMilMilimetros unCentimetro diezMilimetros unMillonDeMilimetros cienMilCentimetros unMilimetro tresCentimetros cincoMilimetros diezKilometros cincoCentimetros anIntervalOfDistances seisMetros unMetroNegativo diezMetros'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Distance-Solution'!
@@ -634,12 +473,12 @@ test41AnIntervalFromOneMetroToDiezKilometrosByCincoCentimetrosContainsTwoMetrosA
 	
 	self assert:  (anIntervalOfDistances at: 21) = dosMetros.! !
 
-!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/30/2017 17:14:38'!
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 6/1/2017 23:40:56'!
 test42TheElementsOfAnIntervaloDeDistanciaFromUnMetroToTresMetrosSumSeisMetros
 
 	| sumOfIntervalDistances |
 	
-	sumOfIntervalDistances _ Metros quantity: 0.
+	sumOfIntervalDistances _ Distance withAmount: 0 andUnit: meter.
 	
 	(unMetro to: tresMetros) do: [:aDistance | 
 		sumOfIntervalDistances _ aDistance + sumOfIntervalDistances ].	
@@ -659,85 +498,90 @@ test43AnIntervaloDeDistanciasFromUnMetroToSeisMetrosHasThreeElementsOverTresMetr
 	
 	self assert:  amountOfElementsOverTresMetrosInInterval = 3.! !
 
-!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/30/2017 17:15:07'!
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 6/1/2017 23:43:20'!
 test44TheElementsOfAnIntervaloDeDistanciaFromUnMetroToTresMetrosByMedioMetroSumDiezMetros
 
 	| sumOfIntervalDistances |
 	
-	sumOfIntervalDistances _ Metros quantity: 0.
+	sumOfIntervalDistances _ ceroMetros.
 	
 	unMetro to: tresMetros by: medioMetro do: [:aDistance | 
 		sumOfIntervalDistances _ aDistance + sumOfIntervalDistances ].	
 	
-	self assert:  sumOfIntervalDistances = (Metros quantity: 10).! !
+	self assert:  sumOfIntervalDistances = diezMetros.! !
 
-!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/30/2017 17:04:47'!
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 6/2/2017 00:05:00'!
 test45CreatingAnIntervaloDeDistanciaWithAStepOfZeroMetrosShouldRaiseError
 
 	self 
 		should: [ unMetro to: tresMetros by: ceroMetros] 
 		raise:  Error		
 		withExceptionDo: [:anError | 
-			self assert: anError messageText equals: IntervaloDeDistancia wrongCreationParametersErrorText]
+			self assert: anError messageText equals: DistanceInterval wrongCreationParametersErrorText]
 		
 ! !
 
-!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/30/2017 17:16:06'!
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 6/2/2017 00:05:03'!
 test46CreatingAnIncreasingIntervaloDeDistanciaWithNegativeStepShouldRaiseError
 
 	self 
 		should: [ unMetro to: unKilometro by: unMetroNegativo] 
 		raise:  Error		
 		withExceptionDo: [:anError | 
-			self assert: anError messageText equals: IntervaloDeDistancia wrongCreationParametersErrorText]
+			self assert: anError messageText equals: DistanceInterval wrongCreationParametersErrorText]
 		
 ! !
 
-!DistanciaTest methodsFor: 'tests' stamp: 'ad 5/30/2017 17:05:57'!
+!DistanciaTest methodsFor: 'tests' stamp: 'ad 6/2/2017 00:04:57'!
 test47CreatingADecreasingIntervaloDeDistanciaWithPositiveStepShouldRaiseError
 
 	self 
 		should: [ tresMetros to: unMetro by: cincoMilimetros ] 
 		raise:  Error		
 		withExceptionDo: [:anError | 
-			self assert: anError messageText equals: IntervaloDeDistancia wrongCreationParametersErrorText]
+			self assert: anError messageText equals: DistanceInterval wrongCreationParametersErrorText]
 		
 ! !
 
 
-!DistanciaTest methodsFor: 'Set Up' stamp: 'ad 5/30/2017 16:53:55'!
+!DistanciaTest methodsFor: 'Set Up' stamp: 'ad 6/1/2017 23:43:55'!
 setUp
 
-	unMetroNegativo := Metros quantity: -1.
-	ceroMetros := Metros quantity: 0.
-	medioMetro := Metros quantity: 1/2.
-	unMetro := Metros quantity: 1.
-	unMetroYMedio := Metros quantity: 3/2.
-	dosMetros := Metros quantity: 2.
-	tresMetros := Metros quantity: 3.
-	cuatroMetros := Metros quantity: 4.
-	cincoMetros := Metros quantity: 5.
-	seisMetros := Metros quantity: 6.
-	milMetros := Metros quantity: 1000.
-	
-	unCentimetro := Centimetros quantity: 1.
-	tresCentimetros := Centimetros quantity: 3.
-	cincoCentimetros := Centimetros quantity: 5.
-	
-	cienCentimetros := Centimetros quantity: 100.
-	doscientosCentimetros := Centimetros quantity: 200.	
-	cienMilCentimetros := Centimetros quantity: 100000.
-	
-	unKilometro := Kilometros quantity: 1.
-	dosKilometros := Kilometros quantity: 2.
-	diezKilometros := Kilometros quantity: 10.
+	DistanceUnit withName: #meter andConvertionFactorToMeter: 1.
+	DistanceUnit withName: #centimeter andConvertionFactorToMeter: 1/100.
+	DistanceUnit withName: #milimeter andConvertionFactorToMeter: 1/1000.
+	DistanceUnit withName: #kilometer andConvertionFactorToMeter: 1000.
 
-	unMilimetro := Milimetros quantity: 1.	
-	cincoMilimetros := Milimetros quantity: 5.	
-	diezMilimetros := Milimetros quantity: 10.	
-	milMilimetros := Milimetros quantity: 1000.
-	dosMilMilimetros := Milimetros quantity: 2000.
-	unMillonDeMilimetros := Milimetros quantity: 1000000.	! !
+	unMetroNegativo := Distance withAmount: -1 andUnit: meter.
+	ceroMetros := Distance withAmount: 0 andUnit: meter.
+	medioMetro := Distance withAmount: 1/2 andUnit: meter.
+	unMetro := Distance withAmount: 1 andUnit: meter.
+	unMetroYMedio := Distance withAmount: 3/2 andUnit: meter.
+	dosMetros := Distance withAmount: 2 andUnit: meter.
+	tresMetros := Distance withAmount: 3 andUnit: meter.
+	cuatroMetros := Distance withAmount: 4 andUnit: meter.
+	cincoMetros := Distance withAmount: 5 andUnit: meter.
+	seisMetros := Distance withAmount: 6 andUnit: meter.
+	diezMetros := Distance withAmount: 10 andUnit: meter.
+	milMetros := Distance withAmount: 1000 andUnit: meter.
+	
+	unCentimetro := Distance withAmount: 1 andUnit: centimeter.
+	tresCentimetros := Distance withAmount: 3 andUnit: centimeter.
+	cincoCentimetros := Distance withAmount: 5 andUnit: centimeter.	
+	cienCentimetros := Distance withAmount: 100 andUnit: centimeter.
+	doscientosCentimetros := Distance withAmount: 200 andUnit: centimeter.
+	cienMilCentimetros := Distance withAmount: 100000 andUnit: centimeter.
+	
+	unKilometro := Distance withAmount: 1 andUnit: kilometer.
+	dosKilometros := Distance withAmount: 2 andUnit: kilometer.
+	diezKilometros := Distance withAmount: 10 andUnit: kilometer.
+
+	unMilimetro := Distance withAmount: 1 andUnit: milimeter.	
+	cincoMilimetros := Distance withAmount: 5 andUnit: milimeter.	
+	diezMilimetros := Distance withAmount: 10 andUnit: milimeter.	
+	milMilimetros := Distance withAmount: 1000 andUnit: milimeter.	
+	dosMilMilimetros := Distance withAmount: 2000 andUnit: milimeter.	
+	unMillonDeMilimetros := Distance withAmount: 1000000 andUnit: milimeter.	! !
 
 
 !classDefinition: #DistanceFactory category: #'Distance-Solution'!
@@ -747,138 +591,138 @@ Object subclass: #DistanceFactory
 	poolDictionaries: ''
 	category: 'Distance-Solution'!
 
-!DistanceFactory methodsFor: 'distance instances' stamp: 'DIM 5/26/2017 10:37:52'!
+!DistanceFactory methodsFor: 'distance instances' stamp: 'ad 6/1/2017 23:44:42'!
 minusOneMeter
 	
-	^ Metros quantity: -1.! !
+	^ Distance withAmount: -1 andUnit: meter.! !
 
-!DistanceFactory methodsFor: 'distance instances' stamp: 'DIM 5/26/2017 10:39:29'!
+!DistanceFactory methodsFor: 'distance instances' stamp: 'ad 6/1/2017 23:44:52'!
 oneCentimeter
 	
-	^ Centimetros quantity: 1.! !
+	^ Distance withAmount: 1 andUnit: centimeter.! !
 
-!DistanceFactory methodsFor: 'distance instances' stamp: 'DIM 5/26/2017 10:39:42'!
+!DistanceFactory methodsFor: 'distance instances' stamp: 'ad 6/1/2017 23:45:07'!
 oneHundredCentimeters
 	
-	^ Centimetros quantity: 100.! !
+	^ Distance withAmount: 100 andUnit: centimeter.! !
 
-!DistanceFactory methodsFor: 'distance instances' stamp: 'DIM 5/26/2017 10:40:00'!
+!DistanceFactory methodsFor: 'distance instances' stamp: 'ad 6/1/2017 23:45:19'!
 oneMeter
 	
-	^ Metros quantity: 1.! !
+	^ Distance withAmount: 1 andUnit: meter.! !
 
-!DistanceFactory methodsFor: 'distance instances' stamp: 'DIM 5/26/2017 10:40:21'!
+!DistanceFactory methodsFor: 'distance instances' stamp: 'ad 6/1/2017 23:45:43'!
 twoHundredCentimeters
 	
-	^ Centimetros quantity: 200.! !
+	^ Distance withAmount: 200 andUnit: centimeter.! !
 
-!DistanceFactory methodsFor: 'distance instances' stamp: 'DIM 5/26/2017 10:40:36'!
+!DistanceFactory methodsFor: 'distance instances' stamp: 'ad 6/1/2017 23:45:53'!
 twoMeters
 	
-	^ Metros quantity: 2.! !
+	^ Distance withAmount: 2 andUnit: meter.! !
 
-!DistanceFactory methodsFor: 'distance instances' stamp: 'DIM 5/26/2017 10:40:46'!
+!DistanceFactory methodsFor: 'distance instances' stamp: 'ad 6/1/2017 23:46:02'!
 zeroMeters
 	
-	^ Metros quantity: 0.! !
+	^ Distance withAmount: 0 andUnit: meter.! !
 
 
-!classDefinition: #IntervaloDeDistancia category: #'Distance-Solution'!
-Object subclass: #IntervaloDeDistancia
+!classDefinition: #DistanceInterval category: #'Distance-Solution'!
+Object subclass: #DistanceInterval
 	instanceVariableNames: 'interval distanceUnit from to by'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Distance-Solution'!
 
-!IntervaloDeDistancia methodsFor: 'private' stamp: 'DIM 6/1/2017 10:22:49'!
+!DistanceInterval methodsFor: 'private' stamp: 'ad 6/1/2017 23:35:59'!
 from: startDistance to: stopDistance
 
 	from _ startDistance.
 	to _ stopDistance.
-	by _ startDistance class quantity:1.
+	by _ Distance withAmount: 1 andUnit: startDistance unit.
 	
-	interval _ Interval from: startDistance quantity to: stopDistance quantity.
+	interval _ Interval from: startDistance amount to: stopDistance amount.
 	
-	distanceUnit _ startDistance class.! !
+	distanceUnit _ startDistance unit.! !
 
-!IntervaloDeDistancia methodsFor: 'private' stamp: 'DIM 6/1/2017 10:17:56'!
+!DistanceInterval methodsFor: 'private' stamp: 'ad 6/1/2017 23:38:46'!
 from: startDistance to: stopDistance by: aStepDistance
 
 	from _ startDistance.
 	to _ stopDistance.
 	by _ aStepDistance.
 			
-	interval := Interval from: startDistance quantity to: stopDistance quantity by: aStepDistance quantity.
+	interval := Interval from: startDistance amount to: stopDistance amount by: aStepDistance amount.
 	
-	distanceUnit := startDistance class.
+	distanceUnit := startDistance unit.
 	
 	! !
 
 
-!IntervaloDeDistancia methodsFor: 'accessing' stamp: 'ad 5/29/2017 11:45:23'!
+!DistanceInterval methodsFor: 'accessing' stamp: 'ad 6/1/2017 23:37:14'!
 at: anIndex
 	
-	^ distanceUnit quantity: (interval at: anIndex)! !
+	^ Distance withAmount: (interval at: anIndex) andUnit: distanceUnit ! !
 
 
-!IntervaloDeDistancia methodsFor: 'enumerating' stamp: 'ad 5/30/2017 17:17:26'!
+!DistanceInterval methodsFor: 'enumerating' stamp: 'ad 6/1/2017 23:40:04'!
 do: aBlockClosure
 
 	1 to: (interval size) do: [ :i |
-		aBlockClosure value: (distanceUnit quantity: (interval at: i)) ]	
+		aBlockClosure value: (Distance withAmount: (interval at: i) andUnit: distanceUnit ) ]
 	
 	! !
 
 
-!IntervaloDeDistancia methodsFor: 'as yet unclassified' stamp: 'DIM 6/1/2017 10:16:38'!
+!DistanceInterval methodsFor: 'as yet unclassified' stamp: 'DIM 6/1/2017 10:16:38'!
 by
 	
 	^ by! !
 
-!IntervaloDeDistancia methodsFor: 'as yet unclassified' stamp: 'DIM 6/1/2017 10:15:00'!
+!DistanceInterval methodsFor: 'as yet unclassified' stamp: 'DIM 6/1/2017 10:15:00'!
 from
 	
 	^ from! !
 
-!IntervaloDeDistancia methodsFor: 'as yet unclassified' stamp: 'DIM 6/1/2017 10:19:44'!
+!DistanceInterval methodsFor: 'as yet unclassified' stamp: 'DIM 6/1/2017 10:19:44'!
 size
 
 	^ interval size
 ! !
 
-!IntervaloDeDistancia methodsFor: 'as yet unclassified' stamp: 'DIM 6/1/2017 10:16:25'!
+!DistanceInterval methodsFor: 'as yet unclassified' stamp: 'DIM 6/1/2017 10:16:25'!
 to
 	
 	^ to! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'IntervaloDeDistancia class' category: #'Distance-Solution'!
-IntervaloDeDistancia class
+!classDefinition: 'DistanceInterval class' category: #'Distance-Solution'!
+DistanceInterval class
 	instanceVariableNames: ''!
 
-!IntervaloDeDistancia class methodsFor: 'initialization' stamp: 'dim 5/28/2017 21:37:59'!
+!DistanceInterval class methodsFor: 'initialization' stamp: 'dim 5/28/2017 21:37:59'!
 from: aDistance to: anotherDistance
 
 	^ self new from: aDistance to: anotherDistance.! !
 
-!IntervaloDeDistancia class methodsFor: 'initialization' stamp: 'ad 5/30/2017 17:25:13'!
+!DistanceInterval class methodsFor: 'initialization' stamp: 'ad 5/30/2017 17:25:13'!
 from: initialDistance to: stopDistance by: aStepDistance
 			
 	self isValidIntervalFrom: initialDistance to: stopDistance by: aStepDistance.
 
 	^ self new from: initialDistance to: stopDistance by: aStepDistance.! !
 
-!IntervaloDeDistancia class methodsFor: 'initialization' stamp: 'ad 5/30/2017 16:26:52'!
+!DistanceInterval class methodsFor: 'initialization' stamp: 'ad 5/30/2017 16:26:52'!
 wrongCreationParametersErrorText
 
 	^'The parameters provided do not induce an interval'.! !
 
 
-!IntervaloDeDistancia class methodsFor: 'validation' stamp: 'ad 5/30/2017 17:30:21'!
+!DistanceInterval class methodsFor: 'validation' stamp: 'ad 6/2/2017 00:05:10'!
 isValidIntervalFrom: initialDistance to: stopDistance by: step
 
- ^ 	( (initialDistance > stopDistance and: [step quantity >= 0] ) 
+ ^ 	( (initialDistance > stopDistance and: [step amount >= 0] ) 
 		or: 
-	  (initialDistance < stopDistance and: [step quantity <= 0] ) ) 
-			ifTrue: [self error: IntervaloDeDistancia wrongCreationParametersErrorText].! !
+	  (initialDistance < stopDistance and: [step amount <= 0] ) ) 
+			ifTrue: [self error: DistanceInterval wrongCreationParametersErrorText].! !
