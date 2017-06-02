@@ -88,14 +88,6 @@ performComparisonOperation: aSelector with: aDistance
 	! !
 
 
-!Distance methodsFor: 'private' stamp: 'dim 5/26/2017 00:24:43'!
-quantity: aQuantity
-
-	quantity := aQuantity 
-
-	! !
-
-
 !Distance methodsFor: 'accessing' stamp: 'AD 6/1/2017 20:41:42'!
 amount
 	
@@ -116,11 +108,11 @@ unit
 	^ unit.! !
 
 
-!Distance methodsFor: 'converting' stamp: 'ad 6/1/2017 23:23:04'!
+!Distance methodsFor: 'converting' stamp: 'ad 6/2/2017 00:13:30'!
 convertTo: aDistanceUnit
 
 	^ Distance 
-		withAmount: (self amount * self unit convertionFactorToMetres / aDistanceUnit convertionFactorToMetres ) 
+		withAmount: (self amount * self unit convertionFactorToMeter / aDistanceUnit convertionFactorToMeter ) 
 		andUnit: aDistanceUnit.! !
 
 
@@ -166,14 +158,14 @@ to: aDistance do: aBlockClosure
 			do: aBlockClosure .! !
 
 
-!Distance methodsFor: 'binding' stamp: 'AD 6/1/2017 20:08:48'!
+!Distance methodsFor: 'binding' stamp: 'ad 6/2/2017 00:11:23'!
 hash
 
-	^ (self convertTo: Metros) quantity hash.  
+	^ (self convertTo: meter) amount hash.  
 ! !
 
 
-!Distance methodsFor: 'as yet unclassified' stamp: 'AD 6/1/2017 20:41:08'!
+!Distance methodsFor: 'private' stamp: 'AD 6/1/2017 20:41:08'!
 initializeWithAmount: anAmount andUnit: aDistanceUnit
 
 	amount _ anAmount.
@@ -185,17 +177,6 @@ initializeWithAmount: anAmount andUnit: aDistanceUnit
 !classDefinition: 'Distance class' category: #'Distance-Solution'!
 Distance class
 	instanceVariableNames: ''!
-
-!Distance class methodsFor: 'convertion' stamp: 'DIM 5/30/2017 14:06:13'!
-convertionFactorToMetres
-
-	self subclassResponsibility.! !
-
-
-!Distance class methodsFor: 'initialization' stamp: 'DIM 5/26/2017 13:01:24'!
-quantity: aQuantity
-
-	^ self new quantity: aQuantity.! !
 
 !Distance class methodsFor: 'initialization' stamp: 'AD 6/1/2017 20:40:21'!
 withAmount: anAmount andUnit: aDistanceUnit
@@ -220,8 +201,8 @@ initializeWithName: aNameSymbol andConvertionFactorToMeter: aConvertionNumber
 	Smalltalk at: aNameSymbol put: self.! !
 
 
-!DistanceUnit methodsFor: 'accessing' stamp: 'ad 6/1/2017 23:31:02'!
-convertionFactorToMetres
+!DistanceUnit methodsFor: 'accessing' stamp: 'ad 6/2/2017 00:13:12'!
+convertionFactorToMeter
 	
 	^ convertionFactorToMeter ! !
 
