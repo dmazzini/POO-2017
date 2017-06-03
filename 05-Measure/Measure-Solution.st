@@ -183,6 +183,11 @@ TestCase subclass: #MeasureTest
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
 
+!MeasureTest methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:35:26'!
+oneHundredCentavosOfPeso
+
+	^ factory oneHundredCentavosOfPeso! !
+
 !MeasureTest methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:41:53'!
 oneHundredGrams
 
@@ -192,6 +197,11 @@ oneHundredGrams
 oneKilogram
 
 	^ factory oneKilogram.! !
+
+!MeasureTest methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:34:05'!
+onePeso
+	
+	^ factory onePeso! !
 
 !MeasureTest methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:09:29'!
 oneThousandGrams
@@ -207,11 +217,11 @@ setUp
 	
 	factory := factoryClass new.! !
 
-!MeasureTest methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:08:59'!
+!MeasureTest methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:33:38'!
 test01ObjectsRepresentingSameMeasureShouldBeEqual
 
 	self assert: self oneKilogram = self oneThousandGrams.
-	
+	self assert: self onePeso = self oneHundredCentavosOfPeso.
 	
 ! !
 
@@ -223,6 +233,11 @@ Object subclass: #MeasureFactory
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
 
+!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:47:38'!
+oneHundredCentavosOfPeso
+
+	^ Measure withAmount: 100 andUnit: centavoOfPeso.! !
+
 !MeasureFactory methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:03:38'!
 oneHundredGrams
 
@@ -232,6 +247,11 @@ oneHundredGrams
 oneKilogram
 
 	^ Measure withAmount: 1 andUnit: kilogram.! !
+
+!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:34:40'!
+onePeso
+
+	^ Measure withAmount: 1 andUnit: peso.! !
 
 !MeasureFactory methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:03:49'!
 oneThousandGrams
@@ -244,30 +264,20 @@ oneThousandGrams
 MeasureFactory class
 	instanceVariableNames: ''!
 
-!MeasureFactory class methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:02:35'!
+!MeasureFactory class methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:48:52'!
 initialize
-	|meter centimeter decimeter decameter hectometer millimeter kilometer
-	gram kilogram
-	|	
-	
-	meter _ MeasureUnit withName: #meter andConvertionFactorToStandard: 1.
-	centimeter _ MeasureUnit withName: #centimeter andConvertionFactorToStandard: 1/100.
-	decimeter  _ MeasureUnit withName: #decimeter andConvertionFactorToStandard: 1/10.
-	decameter  _ MeasureUnit withName: #decameter andConvertionFactorToStandard: 10.
-	hectometer _ MeasureUnit withName: #hectometer andConvertionFactorToStandard: 100.
-	millimeter _ MeasureUnit withName: #millimeter andConvertionFactorToStandard: 1/1000.
-	kilometer _ MeasureUnit withName: #kilometer andConvertionFactorToStandard: 1000.
-	gram _ MeasureUnit withName: #gram andConvertionFactorToStandard: 1.
-	kilogram _ MeasureUnit withName: #kilogram andConvertionFactorToStandard: 1000.
-
-	Smalltalk at: #meter put: meter.
-	Smalltalk at: #centimeter put: centimeter.
-	Smalltalk at: #millimeter put: millimeter.
-	Smalltalk at: #kilometer put: kilometer.
-	Smalltalk at: #decimeter put: decimeter.
-	Smalltalk at: #decameter put: decameter.
-	Smalltalk at: #hectometer put: hectometer.
-	Smalltalk at: #gram put: gram.
-	Smalltalk at: #kilogram put: kilogram.! !
+		
+	Smalltalk at: #meter put: (MeasureUnit withName: #meter andConvertionFactorToStandard: 1).
+	Smalltalk at: #centimeter put: (MeasureUnit withName: #centimeter andConvertionFactorToStandard: 1/100).
+	Smalltalk at: #millimeter put: (MeasureUnit withName: #millimeter andConvertionFactorToStandard: 1/1000).
+	Smalltalk at: #kilometer put: (MeasureUnit withName: #kilometer andConvertionFactorToStandard: 1000).
+	Smalltalk at: #decimeter put: (MeasureUnit withName: #decimeter andConvertionFactorToStandard: 1/10).
+	Smalltalk at: #decameter put: ( MeasureUnit withName: #decameter andConvertionFactorToStandard: 10).
+	Smalltalk at: #hectometer put: (MeasureUnit withName: #hectometer andConvertionFactorToStandard: 100).
+	Smalltalk at: #gram put: (MeasureUnit withName: #gram andConvertionFactorToStandard: 1).
+	Smalltalk at: #kilogram put: (MeasureUnit withName: #kilogram andConvertionFactorToStandard: 1000).
+	Smalltalk at: #peso put: ( MeasureUnit withName: #peso andConvertionFactorToStandard: 1).
+	Smalltalk at: #centavoOfPeso put: (MeasureUnit withName: #centavoOfPeso andConvertionFactorToStandard: 1/100).
+	! !
 
 MeasureFactory initialize!
