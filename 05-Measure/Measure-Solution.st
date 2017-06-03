@@ -1,99 +1,97 @@
-!classDefinition: #Weight category: #'Measure-Solution'!
-Magnitude subclass: #Weight
+!classDefinition: #Measure category: #'Measure-Solution'!
+Magnitude subclass: #Measure
 	instanceVariableNames: 'amount unit'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:45:03'!
-- aWeight
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:36:44'!
+- aMeasure
 
-	^ self performArithmeticOperation: #- with: aWeight
+	^ self performArithmeticOperation: #- with: aMeasure
 	! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:45:39'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:34:00'!
 /  aNumber
 
 	^ self performArithmeticOperation: #/ withNumber: aNumber
 ! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:45:52'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:34:00'!
 //  aNumber
 
 	^ self performArithmeticOperation: #// withNumber: aNumber! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:46:43'!
-< aWeight
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:36:58'!
+< aMeasure
 
-	^ self performComparisonOperation: #< with: aWeight 
+	^ self performComparisonOperation: #< with: aMeasure
 ! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:46:54'!
-= aWeight
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:05:32'!
+= aMeasure
 
-	(aWeight isKindOf: self class superclass) ifFalse:[^ false].
-
-	^ self performComparisonOperation: #= with: aWeight 
+	^ self performComparisonOperation: #= with: aMeasure
 	
 ! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:47:09'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:34:00'!
 adaptToNumber: aNumber andSend: aSymbol 
 	
 	^ self * aNumber.! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:47:28'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:34:00'!
 amount
 	
 	^ amount! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:48:21'!
-convertTo: aWeightUnit
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:07:16'!
+convertTo: aMeasureUnit
 
-	^ Weight 
-		withAmount: (self amount * self unit convertionFactorToGram / aWeightUnit convertionFactorToGram ) 
-		andUnit: aWeightUnit.! !
+	^ Measure 
+		withAmount: (self amount * self unit convertionFactorToStandard / aMeasureUnit convertionFactorToStandard ) 
+		andUnit: aMeasureUnit.! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:48:44'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:34:00'!
 hash
 
 	^ (self convertTo: gram) amount hash.  ! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:40:51'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:34:00'!
 initializeWithAmount: anAmount andUnit: aUnit
 
 	amount _ anAmount.
 	
 	unit _ aUnit.! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:49:12'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:40:30'!
 negated
 
-	 ^ Weight withAmount: (self amount * -1) andUnit: unit.! !
+	 ^ Measure withAmount: (self amount * -1) andUnit: unit.! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:49:48'!
-performArithmeticOperation: aSelector with: aWeight
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:38:49'!
+performArithmeticOperation: aSelector with: aMeasure
 
-	^ Weight withAmount: (self amount perform: aSelector with: (aWeight convertTo: self unit) amount) 
+	^ Measure withAmount: (self amount perform: aSelector with: (aMeasure convertTo: self unit) amount) 
 					andUnit: unit. 
 ! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:50:48'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:39:05'!
 performArithmeticOperation: aSelector withNumber: aNumber
 
-	^ Weight withAmount: (self amount perform: aSelector with: aNumber) 
+	^ Measure withAmount: (self amount perform: aSelector with: aNumber) 
 					andUnit: unit. 
 
 	! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:51:15'!
-performComparisonOperation: aSelector with: aWeight
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:39:17'!
+performComparisonOperation: aSelector with: aMeasure
 
-	^ self amount perform: aSelector with: (aWeight convertTo: self unit) amount
+	^ self amount perform: aSelector with: (aMeasure convertTo: self unit) amount
 	
 	! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:51:37'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:34:00'!
 printString
 	
 	^String streamContents: 
@@ -106,76 +104,76 @@ printString
 	  ].
 			 ! !
 
-!Weight methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:51:59'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:34:00'!
 unit
 
 	^ unit.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'Weight class' category: #'Measure-Solution'!
-Weight class
+!classDefinition: 'Measure class' category: #'Measure-Solution'!
+Measure class
 	instanceVariableNames: ''!
 
-!Weight class methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:39:58'!
+!Measure class methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:34:00'!
 withAmount: anAmount andUnit: aUnit
 
 	^ self new initializeWithAmount: anAmount andUnit: aUnit.! !
 
 
-!classDefinition: #WeightUnit category: #'Measure-Solution'!
-Magnitude subclass: #WeightUnit
-	instanceVariableNames: 'name convertionFactorToGram'
+!classDefinition: #MeasureUnit category: #'Measure-Solution'!
+Magnitude subclass: #MeasureUnit
+	instanceVariableNames: 'name convertionFactorToStandard'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
 
-!WeightUnit methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:56:03'!
+!MeasureUnit methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:42:05'!
 = aUnit 
 
 	(aUnit isKindOf: self class) ifFalse:[^ false].
 	
 	^ self name = aUnit name! !
 
-!WeightUnit methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:56:35'!
-convertionFactorToGram
+!MeasureUnit methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:44:18'!
+convertionFactorToStandard
 	
-	^ convertionFactorToGram! !
+	^ convertionFactorToStandard! !
 
-!WeightUnit methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:56:56'!
+!MeasureUnit methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:42:05'!
 hash
 
 	^ self name asString size.! !
 
-!WeightUnit methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:58:52'!
-initializeWithName: aNameSymbol andConvertionFactorToGram: aConvertionNumber
+!MeasureUnit methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:43:39'!
+initializeWithName: aNameSymbol andConvertionFactorToStandard: aConvertionNumber
 
 	name _ aNameSymbol.
 	
-	convertionFactorToGram _ aConvertionNumber.
+	convertionFactorToStandard _ aConvertionNumber.
 	
 	Smalltalk at: aNameSymbol put: self.! !
 
-!WeightUnit methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:57:44'!
+!MeasureUnit methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:42:05'!
 name
 	
 	^ name ! !
 
-!WeightUnit methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:57:56'!
+!MeasureUnit methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:42:05'!
 printString
 	
 	^ name asString ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'WeightUnit class' category: #'Measure-Solution'!
-WeightUnit class
+!classDefinition: 'MeasureUnit class' category: #'Measure-Solution'!
+MeasureUnit class
 	instanceVariableNames: ''!
 
-!WeightUnit class methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:58:35'!
-withName: aName andConvertionFactorToGram: aConvertionNumber
+!MeasureUnit class methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:43:02'!
+withName: aName andConvertionFactorToStandard: aConvertionNumber
 
-	^ self new initializeWithName: aName andConvertionFactorToGram: aConvertionNumber.! !
+	^ self new initializeWithName: aName andConvertionFactorToStandard: aConvertionNumber.! !
 
 
 !classDefinition: #MeasureTest category: #'Measure-Solution'!
@@ -225,20 +223,20 @@ Object subclass: #MeasureFactory
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
 
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:42:26'!
+!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:03:38'!
 oneHundredGrams
 
-	^ Weight withAmount: 100 andUnit: gram.! !
+	^ Measure withAmount: 100 andUnit: gram.! !
 
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 14:42:42'!
+!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:03:44'!
 oneKilogram
 
-	^ Weight withAmount: 1 andUnit: kilogram.! !
+	^ Measure withAmount: 1 andUnit: kilogram.! !
 
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:10:11'!
+!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:03:49'!
 oneThousandGrams
 
-	^ Weight withAmount: 1000 andUnit: gram.! !
+	^ Measure withAmount: 1000 andUnit: gram.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -246,21 +244,21 @@ oneThousandGrams
 MeasureFactory class
 	instanceVariableNames: ''!
 
-!MeasureFactory class methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 15:05:08'!
+!MeasureFactory class methodsFor: 'as yet unclassified' stamp: 'DIM 6/3/2017 16:02:35'!
 initialize
 	|meter centimeter decimeter decameter hectometer millimeter kilometer
 	gram kilogram
 	|	
 	
-	meter _ DistanceUnit withName: #meter andConvertionFactorToMeter: 1.
-	centimeter _ DistanceUnit withName: #centimeter andConvertionFactorToMeter: 1/100.
-	decimeter  _ DistanceUnit withName: #decimeter andConvertionFactorToMeter: 1/10.
-	decameter  _ DistanceUnit withName: #decameter andConvertionFactorToMeter: 10.
-	hectometer _ DistanceUnit withName: #hectometer andConvertionFactorToMeter: 100.
-	millimeter _ DistanceUnit withName: #millimeter andConvertionFactorToMeter: 1/1000.
-	kilometer _ DistanceUnit withName: #kilometer andConvertionFactorToMeter: 1000.
-	gram _ WeightUnit withName: #gram andConvertionFactorToGram: 1.
-	kilogram _ WeightUnit withName: #kilogram andConvertionFactorToGram: 1000.
+	meter _ MeasureUnit withName: #meter andConvertionFactorToStandard: 1.
+	centimeter _ MeasureUnit withName: #centimeter andConvertionFactorToStandard: 1/100.
+	decimeter  _ MeasureUnit withName: #decimeter andConvertionFactorToStandard: 1/10.
+	decameter  _ MeasureUnit withName: #decameter andConvertionFactorToStandard: 10.
+	hectometer _ MeasureUnit withName: #hectometer andConvertionFactorToStandard: 100.
+	millimeter _ MeasureUnit withName: #millimeter andConvertionFactorToStandard: 1/1000.
+	kilometer _ MeasureUnit withName: #kilometer andConvertionFactorToStandard: 1000.
+	gram _ MeasureUnit withName: #gram andConvertionFactorToStandard: 1.
+	kilogram _ MeasureUnit withName: #kilogram andConvertionFactorToStandard: 1000.
 
 	Smalltalk at: #meter put: meter.
 	Smalltalk at: #centimeter put: centimeter.
