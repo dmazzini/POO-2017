@@ -12,16 +12,16 @@ Magnitude subclass: #Measure
 
 	! !
 
-!Measure methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:05:41'!
-+ aDistance
+!Measure methodsFor: 'arithmetic' stamp: 'ad 6/4/2017 11:37:45'!
++ aMeasure
 
-	^ self performArithmeticOperation: #+ with: aDistance
+	^ self performArithmeticOperation: #+ with: aMeasure
 	! !
 
-!Measure methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:07:42'!
-- aDistance
+!Measure methodsFor: 'arithmetic' stamp: 'ad 6/4/2017 13:23:47'!
+- aMeasure
 
-	^ self performArithmeticOperation: #- with: aDistance
+	^ self + aMeasure negated
 	! !
 
 !Measure methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:02:48'!
@@ -43,12 +43,14 @@ adaptToNumber: aNumber andSend: aSymbol
 	
 	^ self * aNumber.! !
 
-!Measure methodsFor: 'arithmetic' stamp: 'ad 6/3/2017 16:41:21'!
+!Measure methodsFor: 'arithmetic' stamp: 'ad 6/4/2017 16:53:24'!
 performArithmeticOperation: aSelector with: aMeasure
 
+	(self isFromSameCategoryThan: aMeasure) ifFalse: [
+					^ CompoundMeasure from: (OrderedCollection with: self with: aMeasure) ]. 
+
 	^ self class withAmount: (self amount perform: aSelector with: (aMeasure convertTo: self unit) amount) 
-					andUnit: unit. 
-	! !
+					andUnit: unit.! !
 
 !Measure methodsFor: 'arithmetic' stamp: 'ad 6/3/2017 12:13:37'!
 performArithmeticOperation: aSelector withNumber: aNumber
@@ -74,20 +76,21 @@ amount
 
 	! !
 
+!Measure methodsFor: 'accessing' stamp: 'ad 6/4/2017 15:50:05'!
+category
+
+	^ unit category! !
+
 !Measure methodsFor: 'accessing' stamp: 'AD 6/1/2017 20:41:49'!
 unit
 
 	^ unit.! !
 
 
-!Measure methodsFor: 'converting' stamp: 'ad 6/3/2017 20:54:56'!
+!Measure methodsFor: 'converting' stamp: 'ad 6/4/2017 11:38:09'!
 convertTo: aUnit
 
 	(self unit category = aUnit category) ifFalse: [self error: self class canNotConvertErrorMessage].
-
-	"^ Measure 
-		withAmount: (self amount * self unit convertionFactor / aUnit convertionFactor ) 
-		andUnit: aUnit."
 		
 		^ Measure 
 		withAmount: ( aUnit inverseConvertionFormula value: (self unit convertionFormula value: self amount ) ) 
@@ -108,58 +111,58 @@ printString
 			 ! !
 
 
-!Measure methodsFor: 'interval' stamp: 'ad 6/2/2017 00:04:53'!
-to: aDistance 
+!Measure methodsFor: 'interval' stamp: 'ad 6/4/2017 17:01:01'!
+to: aMeasure 
 
-	^ DistanceInterval 
+	^ MeasureInterval 
 		from: self 
-		to: (aDistance convertTo: self unit).! !
+		to: (aMeasure convertTo: self unit).! !
 
-!Measure methodsFor: 'interval' stamp: 'ad 6/2/2017 00:04:45'!
-to: aDistance by: stepDistance
+!Measure methodsFor: 'interval' stamp: 'ad 6/4/2017 17:00:56'!
+to: aMeasure by: stepMeasure
 	 
-	^ DistanceInterval 
+	^ MeasureInterval 
 		from: self 
-		to: (aDistance convertTo: self unit) 
-		by: (stepDistance convertTo: self unit)! !
+		to: (aMeasure convertTo: self unit) 
+		by: (stepMeasure convertTo: self unit)! !
 
-!Measure methodsFor: 'interval' stamp: 'ad 5/30/2017 17:16:57'!
-to: aDistance by: stepDistance do: aBlockClosure
+!Measure methodsFor: 'interval' stamp: 'ad 6/4/2017 11:40:31'!
+to: aMeasure by: stepMeasure do: aBlockClosure
 	
-	(self to: aDistance by: stepDistance )
+	(self to: aMeasure by: stepMeasure )
 			do: aBlockClosure .! !
 
-!Measure methodsFor: 'interval' stamp: 'ad 5/30/2017 17:17:01'!
-to: aDistance do: aBlockClosure
+!Measure methodsFor: 'interval' stamp: 'ad 6/4/2017 11:40:36'!
+to: aMeasure do: aBlockClosure
 
-	 (self to: aDistance )
+	 (self to: aMeasure )
 			do: aBlockClosure .! !
 
 
-!Measure methodsFor: 'comparing' stamp: 'ad 5/26/2017 16:16:18'!
-< aDistance
+!Measure methodsFor: 'comparing' stamp: 'ad 6/4/2017 11:38:57'!
+< aMeasure
 
-	^ self performComparisonOperation: #< with: aDistance 
+	^ self performComparisonOperation: #< with: aMeasure 
 
 	! !
 
-!Measure methodsFor: 'comparing' stamp: 'ad 6/3/2017 19:12:21'!
+!Measure methodsFor: 'comparing' stamp: 'ad 6/4/2017 16:53:11'!
 = aMeasure
 
 	(aMeasure isKindOf: self class) ifFalse:[^ false].
 	
 	(self areEmptyMeasuresFromDifferentCategoriesWith: aMeasure) ifTrue: [^ true].
 	
-	(self isSameCategoryThan: aMeasure) ifFalse: [^false].
+	(self isFromSameCategoryThan: aMeasure) ifFalse: [^false].
 
 	^ self performComparisonOperation: #= with: aMeasure 
 	
 ! !
 
-!Measure methodsFor: 'comparing' stamp: 'ad 6/3/2017 19:12:03'!
+!Measure methodsFor: 'comparing' stamp: 'ad 6/4/2017 16:53:19'!
 areEmptyMeasuresFromDifferentCategoriesWith: aMeasure.
 	
-	^ ((self isSameCategoryThan: aMeasure) not) and: [self amount = 0 and: [aMeasure amount = 0]]! !
+	^ ((self isFromSameCategoryThan: aMeasure) not) and: [self amount = 0 and: [aMeasure amount = 0]]! !
 
 !Measure methodsFor: 'comparing' stamp: 'ad 6/3/2017 22:00:01'!
 hash
@@ -167,8 +170,8 @@ hash
 	^ (self unit convertionFormula value: self amount) hash
 ! !
 
-!Measure methodsFor: 'comparing' stamp: 'ad 6/3/2017 19:07:54'!
-isSameCategoryThan: aMeasure
+!Measure methodsFor: 'comparing' stamp: 'ad 6/4/2017 16:52:58'!
+isFromSameCategoryThan: aMeasure
 	
 	^ self unit category = (aMeasure unit category)! !
 
@@ -178,12 +181,12 @@ negated
 	 ^ self class withAmount: (self amount * -1) andUnit: unit.! !
 
 
-!Measure methodsFor: 'private' stamp: 'AD 6/1/2017 20:41:08'!
-initializeWithAmount: anAmount andUnit: aDistanceUnit
+!Measure methodsFor: 'private' stamp: 'ad 6/4/2017 11:39:32'!
+initializeWithAmount: anAmount andUnit: aMeasureUnit
 
 	amount _ anAmount.
 	
-	unit _ aDistanceUnit.! !
+	unit _ aMeasureUnit.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -205,32 +208,10 @@ canNotConvertErrorMessage
 
 !classDefinition: #MeasureUnit category: #'Measure-Solution'!
 Magnitude subclass: #MeasureUnit
-	instanceVariableNames: 'name category convertionFactor convertionFormula inverseFormula'
+	instanceVariableNames: 'name category convertionFormula inverseFormula'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
-
-!MeasureUnit methodsFor: 'private' stamp: 'ad 6/3/2017 12:34:34'!
-initializeWithName: aUnitNameSymbol inCategory: aCategoryNameSymbol andConvertionFactorToCategoryReferenceUnit: aConvertionFactor
-
-	name _ aUnitNameSymbol.
-	
-	category _ aCategoryNameSymbol.
-	
-	convertionFactor _ aConvertionFactor.
-	
-	Smalltalk at: aUnitNameSymbol put: self.! !
-
-!MeasureUnit methodsFor: 'private' stamp: 'ad 6/3/2017 20:04:07'!
-initializeWithName: aUnitNameSymbol inCategory: aCategoryNameSymbol andFormulaToConvertIntoCategoryReferenceUnit: aConvertionFormulaBlock
-
-	name _ aUnitNameSymbol.
-	
-	category _ aCategoryNameSymbol.
-	
-	convertionFormula _ aConvertionFormulaBlock.
-	
-	Smalltalk at: aUnitNameSymbol put: self.! !
 
 !MeasureUnit methodsFor: 'private' stamp: 'ad 6/3/2017 20:53:37'!
 initializeWithName: aUnitNameSymbol inCategory: aCategoryNameSymbol andFormulaToConvertIntoCategoryReferenceUnit: aConvertionFormulaBlock andInverseFormula: inverseFormulaBlock
@@ -250,11 +231,6 @@ initializeWithName: aUnitNameSymbol inCategory: aCategoryNameSymbol andFormulaTo
 category
 
 	^ category ! !
-
-!MeasureUnit methodsFor: 'accessing' stamp: 'ad 6/3/2017 12:32:31'!
-convertionFactor
-
-	^ convertionFactor ! !
 
 !MeasureUnit methodsFor: 'accessing' stamp: 'ad 6/3/2017 20:04:36'!
 convertionFormula
@@ -302,15 +278,15 @@ adaptToNumber: aNumber andSend: aSymbol
 MeasureUnit class
 	instanceVariableNames: ''!
 
-!MeasureUnit class methodsFor: 'initialization' stamp: 'ad 6/3/2017 12:30:21'!
+!MeasureUnit class methodsFor: 'initialization' stamp: 'ad 6/4/2017 11:25:12'!
 withName: aUnitNameSymbol inCategory: aCategoryNameSymbol andConvertionFactorToCategoryReferenceUnit: aConvertionFactor
 
- ^ self new initializeWithName: aUnitNameSymbol inCategory: aCategoryNameSymbol andConvertionFactorToCategoryReferenceUnit: aConvertionFactor! !
-
-!MeasureUnit class methodsFor: 'initialization' stamp: 'ad 6/3/2017 20:03:38'!
-withName: aUnitNameSymbol inCategory: aCategoryNameSymbol andFormulaToConvertIntoCategoryReferenceUnit: aConvertionFormulaBlock
-
- ^ self new initializeWithName: aUnitNameSymbol inCategory: aCategoryNameSymbol andFormulaToConvertIntoCategoryReferenceUnit: aConvertionFormulaBlock! !
+ ^ self withName: aUnitNameSymbol 
+			   inCategory: aCategoryNameSymbol 
+			   andFormulaToConvertIntoCategoryReferenceUnit: [:thisUnit |
+																			thisUnit * aConvertionFactor ]
+			   andInverseFormula: [ :referenceUnit |
+												referenceUnit / aConvertionFactor ].! !
 
 !MeasureUnit class methodsFor: 'initialization' stamp: 'ad 6/3/2017 20:52:44'!
 withName: aUnitNameSymbol inCategory: aCategoryNameSymbol andFormulaToConvertIntoCategoryReferenceUnit: aConvertionFormulaBlock andInverseFormula: inverseFormulaBlock
@@ -322,7 +298,7 @@ withName: aUnitNameSymbol inCategory: aCategoryNameSymbol andFormulaToConvertInt
 
 !classDefinition: #MeasureUnitTest category: #'Measure-Solution'!
 TestCase subclass: #MeasureUnitTest
-	instanceVariableNames: 'oneKilogram twoKilograms oneThousandGrams oneMiligram oneThousandMililiters oneLiter zeroMeters zeroLiters oneMeter'
+	instanceVariableNames: 'oneKilogram twoKilograms oneThousandGrams oneMiligram oneThousandMililiters oneLiter zeroMeters zeroLiters oneMeter threeKilograms'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
@@ -420,12 +396,62 @@ test17ZeroKelvinIsLesserThanZeroCelsius
 	
 	self assert: 0 * kelvin < (0 * celsius).! !
 
+!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 11:57:34'!
+test18OneLiterPlusOneKilogramEqualsOneLiterPlusOneKilogram
+	
+	self assert: oneLiter + oneKilogram = (oneLiter + oneKilogram ).
+	self assert: oneLiter + oneKilogram = (oneKilogram + oneLiter ).! !
 
-!MeasureUnitTest methodsFor: 'set up' stamp: 'ad 6/3/2017 20:38:26'!
+!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 12:08:58'!
+test19OneLiterPlusOneKilogramPlusOneMeterEqualsOneLiterPlusOneKilogramPlusOneMeter
+	
+	self assert: oneLiter + oneKilogram + oneMeter = (oneLiter + oneKilogram + oneMeter ).
+	self assert: oneLiter + oneKilogram + oneMeter = (oneKilogram + oneMeter + oneLiter ).! !
+
+!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 12:12:51'!
+test20OneLiterPlusOneKilogramPlusOneKilogramEqualsOneLiterPlusTwoKilograms
+	
+	self assert: oneLiter + oneKilogram + oneKilogram = (oneLiter + twoKilograms).! !
+
+!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 14:27:10'!
+test21OneLiterPlusOneKilogramMinusOneKilogramEqualsOneLiter
+	
+	self assert: oneLiter + oneKilogram - oneKilogram = oneLiter.
+	self assert: oneLiter - oneKilogram + oneKilogram = oneLiter.
+	self assert: oneKilogram + oneLiter - oneKilogram = oneLiter.
+	self assert: oneKilogram - oneKilogram + oneLiter = oneLiter.! !
+
+!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 14:54:52'!
+test22ZeroMetersPlusZeroLitersEqualsZeroLiters
+	
+	self assert: zeroMeters + zeroLiters = zeroLiters.! !
+
+!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 15:05:40'!
+test23OneLiterPlusOneKilogramEqualsOneLiterPlusOneThousandGrams
+	
+	self assert: oneLiter + oneKilogram = (oneLiter + oneThousandGrams).! !
+
+!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 16:18:12'!
+test24OneLiterPlusOneKilogramPlusOneThousandGramsEqualsOneLiterPlusTwoKilograms
+	
+	self assert: oneLiter + oneKilogram + oneThousandGrams = (oneLiter + twoKilograms).! !
+
+!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 16:59:02'!
+test25
+
+	| anIntervalOfMeasures |
+	
+	anIntervalOfMeasures _ oneKilogram to: threeKilograms.
+	
+	self assert:  (anIntervalOfMeasures at: 2) = twoKilograms.! !
+
+
+!MeasureUnitTest methodsFor: 'set up' stamp: 'ad 6/4/2017 16:58:38'!
 setUp
 
 	oneKilogram _ Measure withAmount: 1 andUnit: kilogram.
 	twoKilograms _ Measure withAmount: 2 andUnit: kilogram.
+	threeKilograms _ Measure withAmount: 3 andUnit: kilogram.
 	
 	oneThousandGrams _ Measure withAmount: 1000 andUnit: gram.
 	
@@ -439,6 +465,148 @@ setUp
 	oneMeter _ Measure withAmount: 1 andUnit: meter. 
 
 ! !
+
+
+!classDefinition: #CompoundMeasure category: #'Measure-Solution'!
+Object subclass: #CompoundMeasure
+	instanceVariableNames: 'measures'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Measure-Solution'!
+
+!CompoundMeasure methodsFor: 'private' stamp: 'ad 6/4/2017 16:16:11'!
+errorMeasureNotFound
+
+	self error: 'Measure not found'! !
+
+!CompoundMeasure methodsFor: 'private' stamp: 'ad 6/4/2017 16:18:27'!
+initializeWith: aDictionaryOfMeasures
+
+	measures _ aDictionaryOfMeasures.
+	
+	^ self removeEmptyMeasuresAndConvertToMeasureClassIfAmountOfMeasuresIsOne .! !
+
+!CompoundMeasure methodsFor: 'private' stamp: 'ad 6/4/2017 17:22:09'!
+removeEmptyMeasuresAndConvertToMeasureClassIfAmountOfMeasuresIsOne
+
+     | backUpUnit |
+
+	self measuresDo: [:aMeasure |
+							(aMeasure amount = 0) ifTrue: [
+														backUpUnit _ aMeasure unit.
+														measures removeKey: aMeasure unit]].
+
+	(measures size = 1) ifTrue: [
+		| assoc |
+		assoc _ measures associations last.
+		^ Measure withAmount: assoc value andUnit: assoc key ].
+	(measures size = 0) ifTrue: [
+		^ Measure withAmount: 0 andUnit: backUpUnit ].
+	
+	^ self! !
+
+
+!CompoundMeasure methodsFor: 'comparing' stamp: 'ad 6/4/2017 17:14:59'!
+= aCompoundMeasure
+
+	self == aCompoundMeasure ifTrue: [^ true].	"Any object is equal to itself"
+	(aCompoundMeasure isKindOf: self class) ifFalse: [^false].
+	(self measures size = aCompoundMeasure measures size) ifFalse: [^false].
+	self measuresDo: [:aMeasureFromSelf | | aMeasureFromOther |
+		aMeasureFromOther _ aCompoundMeasure measureFromCategory: aMeasureFromSelf category 																					ifAbsent:[^false].
+		(aMeasureFromSelf = aMeasureFromOther) ifFalse: [^false]].
+	^true! !
+
+!CompoundMeasure methodsFor: 'comparing' stamp: 'ad 6/4/2017 12:06:36'!
+hash
+
+	^ measures hash! !
+
+
+!CompoundMeasure methodsFor: 'accessing' stamp: 'ad 6/4/2017 16:04:04'!
+measureFromCategory: aCategoryName
+	
+	^ self measureFromCategory: aCategoryName ifAbsent: [self errorMeasureNotFound]! !
+
+!CompoundMeasure methodsFor: 'accessing' stamp: 'ad 6/4/2017 17:17:17'!
+measureFromCategory: aCategoryName ifAbsent: absentBlock 
+	
+	self measuresDo: [:aMeasure | 
+						aMeasure category = aCategoryName ifTrue: [^ aMeasure]].
+					
+	^ absentBlock value.! !
+
+!CompoundMeasure methodsFor: 'accessing' stamp: 'ad 6/4/2017 16:25:16'!
+measureFromCategory: aCategoryName ifAbsent: absentBlock ifPresent: presentBlock 
+	
+	self measuresDo: [:aMeasure | 
+						aMeasure category = aCategoryName ifTrue: [^ presentBlock value: aMeasure ]].
+					
+	^ absentBlock value.! !
+
+!CompoundMeasure methodsFor: 'accessing' stamp: 'ad 6/4/2017 16:24:56'!
+measureFromCategory: aCategoryName ifPresent: presentBlock ifAbsent: absentBlock
+	
+	self measuresDo: [:aMeasure | 
+						aMeasure category = aCategoryName ifTrue: [^ presentBlock value: aMeasure ]].
+					
+	^ absentBlock value.! !
+
+!CompoundMeasure methodsFor: 'accessing' stamp: 'ad 6/4/2017 12:05:09'!
+measures
+
+	^ measures! !
+
+
+!CompoundMeasure methodsFor: 'arithmetic' stamp: 'ad 6/4/2017 16:32:30'!
++ aMeasure
+									
+	self measureFromCategory: aMeasure category 
+					ifPresent: [:aMeasureFromCategory |  | newMeasure |
+								newMeasure _ aMeasureFromCategory + aMeasure.
+								measures removeKey: aMeasureFromCategory unit.
+								measures at: newMeasure unit put: newMeasure amount]
+					ifAbsent: [measures at: aMeasure unit put: aMeasure amount].
+	
+	^ self removeEmptyMeasuresAndConvertToMeasureClassIfAmountOfMeasuresIsOne.! !
+
+!CompoundMeasure methodsFor: 'arithmetic' stamp: 'ad 6/4/2017 12:48:04'!
+- aMeasure 
+	
+	^ self + (aMeasure negated)! !
+
+
+!CompoundMeasure methodsFor: 'enumerating' stamp: 'ad 6/4/2017 15:54:10'!
+measuresDo: aBlockClosure 
+
+		self measures size = 0 ifTrue: [^self].
+		
+		self measures associationsDo: [ :assoc |  | aMeasure |
+						aMeasure _ Measure withAmount: assoc value andUnit: assoc key.
+						aBlockClosure value: aMeasure]! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'CompoundMeasure class' category: #'Measure-Solution'!
+CompoundMeasure class
+	instanceVariableNames: ''!
+
+!CompoundMeasure class methodsFor: 'initialization' stamp: 'ad 6/4/2017 16:42:08'!
+from: aCollectionOfMeasures
+
+	| aDictionaryOfMeasures |
+	
+	aDictionaryOfMeasures _ Dictionary new.
+	
+	aCollectionOfMeasures do: [:aMeasure |
+					aDictionaryOfMeasures at: aMeasure unit put: aMeasure amount].
+
+	^ self new initializeWith: aDictionaryOfMeasures ! !
+
+!CompoundMeasure class methodsFor: 'initialization' stamp: 'ad 6/4/2017 16:49:43'!
+with: aDictionaryOfMeasures
+
+	^ self new initializeWith: aDictionaryOfMeasures ! !
 
 
 !classDefinition: #MeasureFactory category: #'Measure-Solution'!
@@ -459,67 +627,37 @@ finalSpeedStartingAt: aStartingSpeed accelerating: anAcceleration during: anAmou
 MeasureFactory class
 	instanceVariableNames: ''!
 
-!MeasureFactory class methodsFor: 'initialize' stamp: 'ad 6/3/2017 21:45:56'!
+!MeasureFactory class methodsFor: 'initialize' stamp: 'ad 6/4/2017 11:28:19'!
 initialize
 	
 	"Unidades de peso"
-	MeasureUnit withName: #gram inCategory: #weight 
-		andFormulaToConvertIntoCategoryReferenceUnit: [:aMeasureInGrams |
-																	aMeasureInGrams]
-		andInverseFormula: [:aMeasureInGrams |
-																	aMeasureInGrams].
-	MeasureUnit withName: #kilogram inCategory: #weight 
-		andFormulaToConvertIntoCategoryReferenceUnit: [:aMeasureInKilograms |
-																	aMeasureInKilograms * 1000]
-		andInverseFormula: [:aMeasureInGrams |
-																	aMeasureInGrams / 1000].
-	MeasureUnit withName: #miligram inCategory: #weight  
-		andFormulaToConvertIntoCategoryReferenceUnit: [:aMeasureInMiligrams |
-																	aMeasureInMiligrams / 1000]
-		andInverseFormula: [:aMeasureInGrams |
-																	aMeasureInGrams * 1000].
+	MeasureUnit withName: #gram inCategory: #weight
+		andConvertionFactorToCategoryReferenceUnit: 1.
+	MeasureUnit withName: #kilogram inCategory: #weight
+		andConvertionFactorToCategoryReferenceUnit: 1000.
+	MeasureUnit withName: #miligram inCategory: #weight
+		andConvertionFactorToCategoryReferenceUnit: (1/1000).
 	
 	"Unidades de volumen"
-	MeasureUnit withName: #liter inCategory: #volume   
-		andFormulaToConvertIntoCategoryReferenceUnit: [:aMeasureInLiters |
-																	aMeasureInLiters]
-		andInverseFormula: [:aMeasureInLiters |
-																	aMeasureInLiters].
-	MeasureUnit withName: #mililiter inCategory: #volume   
-		andFormulaToConvertIntoCategoryReferenceUnit: [:aMeasureInMililiters |
-																	aMeasureInMililiters / 1000]
-		andInverseFormula: [:aMeasureInLiters |
-																	aMeasureInLiters * 1000].
+	MeasureUnit withName: #liter inCategory: #volume
+		andConvertionFactorToCategoryReferenceUnit: 1.
+	MeasureUnit withName: #mililiter inCategory: #volume
+		andConvertionFactorToCategoryReferenceUnit: (1/1000).
 	
 	"Unidades de distancia"
 	
 	MeasureUnit withName: #meter inCategory: #distance
-		andFormulaToConvertIntoCategoryReferenceUnit: [:aMeasureInMeters |
-																	aMeasureInMeters]
-		andInverseFormula: [:aMeasureInMeters |
-																	aMeasureInMeters].
+		andConvertionFactorToCategoryReferenceUnit: 1.
 	MeasureUnit withName: #kilometer inCategory: #distance
-		andFormulaToConvertIntoCategoryReferenceUnit: [:aMeasureInKilometers |
-																	aMeasureInKilometers * 1000]
-		andInverseFormula: [:aMeasureInMeters |
-																	aMeasureInMeters / 1000].
+		andConvertionFactorToCategoryReferenceUnit: 1000.
 	
 	"Unidades de tiempo"
 	MeasureUnit withName: #second inCategory: #time
-		andFormulaToConvertIntoCategoryReferenceUnit: [:aMeasureInSeconds |
-																	aMeasureInSeconds]
-		andInverseFormula: [:aMeasureInSeconds |
-																	aMeasureInSeconds].
+		andConvertionFactorToCategoryReferenceUnit: 1.
 	MeasureUnit withName: #minute inCategory: #time
-		andFormulaToConvertIntoCategoryReferenceUnit: [:aMeasureInMinutes |
-																	aMeasureInMinutes * 60]
-		andInverseFormula: [:aMeasureInSeconds |
-																	aMeasureInSeconds / 60].
+		andConvertionFactorToCategoryReferenceUnit: 60.
 	MeasureUnit withName: #hour inCategory: #time
-		andFormulaToConvertIntoCategoryReferenceUnit: [:aMeasureInHours |
-																	aMeasureInHours * 3600]
-		andInverseFormula: [:aMeasureInSeconds |
-																	aMeasureInSeconds / 3600].
+		andConvertionFactorToCategoryReferenceUnit: 3600.
 	
 	
 	"Unidades de temperatura"
@@ -533,5 +671,105 @@ initialize
 																	aMeasureInCelsius + (5463/20)]
 		andInverseFormula: [:aMeasureInKelvin |
 																	aMeasureInKelvin  - (5463/20)].! !
+
+
+!classDefinition: #MeasureInterval category: #'Measure-Solution'!
+Object subclass: #MeasureInterval
+	instanceVariableNames: 'interval unit from to by'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Measure-Solution'!
+
+!MeasureInterval methodsFor: 'private' stamp: 'ad 6/4/2017 17:03:28'!
+from: startMeasure to: stopMeasure
+
+	from _ startMeasure.
+	to _ stopMeasure.
+	by _ Measure withAmount: 1 andUnit: startMeasure unit.
+	
+	interval _ Interval from: startMeasure amount to: stopMeasure amount.
+	
+	unit _ startMeasure unit.! !
+
+!MeasureInterval methodsFor: 'private' stamp: 'ad 6/4/2017 17:04:10'!
+from: startMeasure to: stopMeasure by: aStepMeasure
+
+	from _ startMeasure.
+	to _ stopMeasure.
+	by _ aStepMeasure.
+			
+	interval _ Interval from: startMeasure amount to: stopMeasure amount by: aStepMeasure amount.
+	
+	unit _ startMeasure unit.
+	
+	! !
+
+
+!MeasureInterval methodsFor: 'enumerating' stamp: 'ad 6/4/2017 17:02:45'!
+do: aBlockClosure
+
+	1 to: (interval size) do: [ :i |
+		aBlockClosure value: (Measure withAmount: (interval at: i) andUnit: unit ) ]
+	
+	! !
+
+
+!MeasureInterval methodsFor: 'accessing' stamp: 'ad 6/4/2017 17:02:39'!
+at: anIndex
+	
+	^ Measure withAmount: (interval at: anIndex) andUnit: unit ! !
+
+!MeasureInterval methodsFor: 'accessing' stamp: 'DIM 6/1/2017 10:16:38'!
+by
+	
+	^ by! !
+
+!MeasureInterval methodsFor: 'accessing' stamp: 'DIM 6/1/2017 10:15:00'!
+from
+	
+	^ from! !
+
+!MeasureInterval methodsFor: 'accessing' stamp: 'DIM 6/1/2017 10:19:44'!
+size
+
+	^ interval size
+! !
+
+!MeasureInterval methodsFor: 'accessing' stamp: 'DIM 6/1/2017 10:16:25'!
+to
+	
+	^ to! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'MeasureInterval class' category: #'Measure-Solution'!
+MeasureInterval class
+	instanceVariableNames: ''!
+
+!MeasureInterval class methodsFor: 'initialization' stamp: 'dim 5/28/2017 21:37:59'!
+from: aDistance to: anotherDistance
+
+	^ self new from: aDistance to: anotherDistance.! !
+
+!MeasureInterval class methodsFor: 'initialization' stamp: 'ad 5/30/2017 17:25:13'!
+from: initialDistance to: stopDistance by: aStepDistance
+			
+	self isValidIntervalFrom: initialDistance to: stopDistance by: aStepDistance.
+
+	^ self new from: initialDistance to: stopDistance by: aStepDistance.! !
+
+!MeasureInterval class methodsFor: 'initialization' stamp: 'ad 5/30/2017 16:26:52'!
+wrongCreationParametersErrorText
+
+	^'The parameters provided do not induce an interval'.! !
+
+
+!MeasureInterval class methodsFor: 'validation' stamp: 'ad 6/4/2017 17:01:50'!
+isValidIntervalFrom: initialMeasure to: stopMeasure by: step
+
+ ^ 	( (initialMeasure > stopMeasure and: [step amount >= 0] ) 
+		or: 
+	  (initialMeasure < stopMeasure and: [step amount <= 0] ) ) 
+			ifTrue: [self error: MeasureInterval wrongCreationParametersErrorText].! !
 
 MeasureFactory initialize!
