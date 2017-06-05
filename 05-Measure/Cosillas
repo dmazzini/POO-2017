@@ -1,9 +1,3 @@
-CompoundMeasure >> hash
-
-MeasureInterval >> initialize : validar misma categoria.
-
-Interval : Hace más tests (should raise error con distinta categoria)
-
 Measure pasa a ser SimpleMeasure.
 
 Se crea clase Measure abstracta hija de Magnitude, y SimpleMeasure y CompoundMeasure pasan a ser hijas.
@@ -28,9 +22,7 @@ MultipleMeasures : Lo que ya está hecho
 
 
 
-Collection de unidades que multiplican   m
-
-Collection de unidades que dividen       s    
+Diccionario con unidad y exponente como significado   
 
 
 
