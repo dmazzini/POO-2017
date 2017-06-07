@@ -5,10 +5,15 @@ Magnitude subclass: #Measure
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
 
-!Measure methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:02:28'!
-* aNumber
+!Measure methodsFor: 'arithmetic' stamp: 'ad 6/6/2017 16:35:40'!
+* aMultiplier
 
-	^ self performArithmeticOperation: #* withNumber: aNumber
+	(aMultiplier isKindOf: MeasureUnit) ifTrue: [^ Measure withAmount: self amount andUnit: (aMultiplier * self unit)].
+	
+	(aMultiplier isKindOf: Number) ifTrue: [^ aMultiplier * self].
+	
+	"case where aMultiplier is Measure"
+	^ self class withAmount: (self amount * aMultiplier amount) andUnit: (self unit * aMultiplier unit). 
 
 	! !
 
@@ -24,10 +29,10 @@ Magnitude subclass: #Measure
 	^ self + aMeasure negated
 	! !
 
-!Measure methodsFor: 'arithmetic' stamp: 'ad 5/26/2017 16:02:48'!
-/  aNumber
+!Measure methodsFor: 'arithmetic' stamp: 'DIM 6/6/2017 21:00:38'!
+/  aDivisor
 
-	^ self performArithmeticOperation: #/ withNumber: aNumber
+	^ (1/ aDivisor) * self
 
 	! !
 
@@ -38,10 +43,10 @@ Magnitude subclass: #Measure
 
 	! !
 
-!Measure methodsFor: 'arithmetic' stamp: 'dim 5/26/2017 00:20:54'!
+!Measure methodsFor: 'arithmetic' stamp: 'ad 6/6/2017 15:13:38'!
 adaptToNumber: aNumber andSend: aSymbol 
-	
-	^ self * aNumber.! !
+
+	^ self performArithmeticOperation: #* withNumber: aNumber! !
 
 !Measure methodsFor: 'arithmetic' stamp: 'ad 6/4/2017 16:53:24'!
 performArithmeticOperation: aSelector with: aMeasure
@@ -60,10 +65,10 @@ performArithmeticOperation: aSelector withNumber: aNumber
 
 	! !
 
-!Measure methodsFor: 'arithmetic' stamp: 'ad 6/3/2017 16:41:28'!
+!Measure methodsFor: 'arithmetic' stamp: 'ad 6/6/2017 16:29:35'!
 performComparisonOperation: aSelector with: aMeasure
 
-	^ self amount perform: aSelector with: (aMeasure convertTo: self unit) amount
+	^ self amount perform: aSelector with: ((aMeasure convertTo: self unit) amount)
 	
 
 	! !
@@ -87,14 +92,30 @@ unit
 	^ unit.! !
 
 
-!Measure methodsFor: 'converting' stamp: 'ad 6/4/2017 11:38:09'!
+!Measure methodsFor: 'converting' stamp: 'ad 6/5/2017 22:34:00'!
 convertTo: aUnit
 
-	(self unit category = aUnit category) ifFalse: [self error: self class canNotConvertErrorMessage].
+	(aUnit isFromSameCategoryThan: self unit) ifFalse: [self error: self class canNotConvertErrorMessage].
 		
-		^ Measure 
-		withAmount: ( aUnit inverseConvertionFormula value: (self unit convertionFormula value: self amount ) ) 
-		andUnit: aUnit.! !
+		
+		(self unit isKindOf: SingleUnit) 
+			ifTrue: [
+					^ Measure 
+					withAmount: ( aUnit inverseConvertionFormula value: (self unit convertionFormula value: self amount ) ) 
+					andUnit: aUnit.]
+				
+			ifFalse: [ | newAmount |
+				newAmount _ self amount.
+				self unit unitsDo: [ :aSingleUnitFromSelf |  | aSingleUnitFromOther unitRepetitions |
+								aSingleUnitFromOther _ aUnit singleUnitFromCategory: aSingleUnitFromSelf category ifAbsent: [self error: self class canNotConvertErrorMessage].
+								unitRepetitions _ self unit units at: aSingleUnitFromSelf.
+								(unitRepetitions > 0) 
+									ifTrue: [ unitRepetitions timesRepeat: 
+												[newAmount _ aSingleUnitFromOther inverseConvertionFormula value: (aSingleUnitFromSelf convertionFormula value: newAmount )]]
+									ifFalse: [ (-1 * unitRepetitions) timesRepeat: 
+												[ newAmount _ aSingleUnitFromOther convertionFormula value: (aSingleUnitFromSelf inverseConvertionFormula value: newAmount ) ] ] ].
+						^ Measure withAmount: newAmount andUnit: aUnit  ].
+		! !
 
 
 !Measure methodsFor: 'printing' stamp: 'ad 6/1/2017 23:49:15'!
@@ -111,20 +132,20 @@ printString
 			 ! !
 
 
-!Measure methodsFor: 'interval' stamp: 'ad 6/4/2017 17:01:01'!
+!Measure methodsFor: 'interval' stamp: 'ad 6/5/2017 13:54:48'!
 to: aMeasure 
 
 	^ MeasureInterval 
 		from: self 
-		to: (aMeasure convertTo: self unit).! !
+		to: aMeasure.! !
 
-!Measure methodsFor: 'interval' stamp: 'ad 6/4/2017 17:00:56'!
+!Measure methodsFor: 'interval' stamp: 'ad 6/5/2017 13:55:00'!
 to: aMeasure by: stepMeasure
 	 
 	^ MeasureInterval 
 		from: self 
-		to: (aMeasure convertTo: self unit) 
-		by: (stepMeasure convertTo: self unit)! !
+		to: aMeasure 
+		by: stepMeasure! !
 
 !Measure methodsFor: 'interval' stamp: 'ad 6/4/2017 11:40:31'!
 to: aMeasure by: stepMeasure do: aBlockClosure
@@ -170,10 +191,10 @@ hash
 	^ (self unit convertionFormula value: self amount) hash
 ! !
 
-!Measure methodsFor: 'comparing' stamp: 'ad 6/4/2017 16:52:58'!
+!Measure methodsFor: 'comparing' stamp: 'ad 6/5/2017 15:19:53'!
 isFromSameCategoryThan: aMeasure
 	
-	^ self unit category = (aMeasure unit category)! !
+	^ self unit isFromSameCategoryThan: aMeasure unit.! !
 
 !Measure methodsFor: 'comparing' stamp: 'ad 6/3/2017 12:13:50'!
 negated
@@ -206,104 +227,14 @@ canNotConvertErrorMessage
 	^ 'A unit can only be converted into units from the same categoty'! !
 
 
-!classDefinition: #MeasureUnit category: #'Measure-Solution'!
-Magnitude subclass: #MeasureUnit
-	instanceVariableNames: 'name category convertionFormula inverseFormula'
+!classDefinition: #MeasureTest category: #'Measure-Solution'!
+TestCase subclass: #MeasureTest
+	instanceVariableNames: 'oneKilogram twoKilograms oneThousandGrams oneMiligram oneThousandMililiters oneLiter zeroMeters zeroLiters oneMeter threeKilograms aMeasureInterval'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
 
-!MeasureUnit methodsFor: 'private' stamp: 'ad 6/3/2017 20:53:37'!
-initializeWithName: aUnitNameSymbol inCategory: aCategoryNameSymbol andFormulaToConvertIntoCategoryReferenceUnit: aConvertionFormulaBlock andInverseFormula: inverseFormulaBlock
-
-	name _ aUnitNameSymbol.
-	
-	category _ aCategoryNameSymbol.
-	
-	convertionFormula _ aConvertionFormulaBlock.
-	
-	inverseFormula _ inverseFormulaBlock .
-	
-	Smalltalk at: aUnitNameSymbol put: self.! !
-
-
-!MeasureUnit methodsFor: 'accessing' stamp: 'ad 6/3/2017 12:31:49'!
-category
-
-	^ category ! !
-
-!MeasureUnit methodsFor: 'accessing' stamp: 'ad 6/3/2017 20:04:36'!
-convertionFormula
-
-	^ convertionFormula ! !
-
-!MeasureUnit methodsFor: 'accessing' stamp: 'ad 6/3/2017 20:55:11'!
-inverseConvertionFormula
-	
-	^ inverseFormula ! !
-
-!MeasureUnit methodsFor: 'accessing' stamp: 'ad 6/3/2017 12:31:58'!
-name
-
-	^ name ! !
-
-
-!MeasureUnit methodsFor: 'comparing' stamp: 'ad 6/3/2017 16:23:31'!
-= aUnit 
-
-	(aUnit isKindOf: self class) ifFalse:[^ false].
-	
-	^ self name = aUnit name! !
-
-!MeasureUnit methodsFor: 'comparing' stamp: 'ad 6/3/2017 16:23:43'!
-hash
-
-	^ self name asString size.! !
-
-
-!MeasureUnit methodsFor: 'printing' stamp: 'ad 6/3/2017 16:24:32'!
-printString
-	
-	^ name asString ! !
-
-
-!MeasureUnit methodsFor: 'arithmetic' stamp: 'ad 6/3/2017 17:42:32'!
-adaptToNumber: aNumber andSend: aSymbol 
-	
-	^ Measure withAmount: aNumber andUnit: self. ! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'MeasureUnit class' category: #'Measure-Solution'!
-MeasureUnit class
-	instanceVariableNames: ''!
-
-!MeasureUnit class methodsFor: 'initialization' stamp: 'ad 6/4/2017 11:25:12'!
-withName: aUnitNameSymbol inCategory: aCategoryNameSymbol andConvertionFactorToCategoryReferenceUnit: aConvertionFactor
-
- ^ self withName: aUnitNameSymbol 
-			   inCategory: aCategoryNameSymbol 
-			   andFormulaToConvertIntoCategoryReferenceUnit: [:thisUnit |
-																			thisUnit * aConvertionFactor ]
-			   andInverseFormula: [ :referenceUnit |
-												referenceUnit / aConvertionFactor ].! !
-
-!MeasureUnit class methodsFor: 'initialization' stamp: 'ad 6/3/2017 20:52:44'!
-withName: aUnitNameSymbol inCategory: aCategoryNameSymbol andFormulaToConvertIntoCategoryReferenceUnit: aConvertionFormulaBlock andInverseFormula: inverseFormulaBlock
-
-	^ self new initializeWithName: aUnitNameSymbol inCategory: aCategoryNameSymbol andFormulaToConvertIntoCategoryReferenceUnit: aConvertionFormulaBlock andInverseFormula: inverseFormulaBlock
-
-! !
-
-
-!classDefinition: #MeasureUnitTest category: #'Measure-Solution'!
-TestCase subclass: #MeasureUnitTest
-	instanceVariableNames: 'oneKilogram twoKilograms oneThousandGrams oneMiligram oneThousandMililiters oneLiter zeroMeters zeroLiters oneMeter threeKilograms'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Measure-Solution'!
-
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:35:35'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:35:35'!
 test01OneKilogramEqualsOneKilogram
 	
 	| anotherOneKilogram |
@@ -312,53 +243,53 @@ test01OneKilogramEqualsOneKilogram
 	
 	self assert: oneKilogram = anotherOneKilogram.! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:36:04'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:36:04'!
 test02OneKilogramDoesNotEqualTwoKilograms
 	
 	self deny: oneKilogram = twoKilograms.! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:36:21'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:36:21'!
 test03OneKilogramEqualsOneThousandGrams
 	
 	self assert: oneKilogram = oneThousandGrams.! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:36:32'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:36:32'!
 test04OneKilogramIsGreaterThanOneMiligram
 	
 	self assert: oneKilogram > oneMiligram.! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:36:55'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:36:55'!
 test05OneKilogramMultipliedByTwoEqualsTwoKilograms
 	
 	self assert: oneKilogram * 2 = twoKilograms.
 	self assert: 2 * oneKilogram = twoKilograms.! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:37:17'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:37:17'!
 test06OneKilogramPlusOneThousandGramsEqualsTwoKilograms
 	
 	self assert: oneKilogram + oneThousandGrams = twoKilograms.! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:37:43'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:37:43'!
 test07TwoKilogramsMinusOneKilogramEqualsOneThousandGrams
 	
 	self assert: twoKilograms - oneKilogram = oneThousandGrams.! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:37:59'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:37:59'!
 test08OneLiterEqualsOneThousandMililiters
 	
 	self assert: oneLiter = oneThousandMililiters.! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:42:21'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:42:21'!
 test09OneLiterDoesNotEqualOneKilogram
 	
 	self deny: oneLiter = oneKilogram.! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:56:20'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 16:56:20'!
 test10OneKilogramConvertedToGramsEqualsOneThousandGrams
 	
 	self assert: ( (oneKilogram convertTo: gram) = oneThousandGrams)! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 17:03:56'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 17:03:56'!
 test11ConvertingAUnitToAnotherFromADifferentCategoryShouldRaiseError
 	
 	self should: [oneKilogram convertTo: liter]
@@ -366,54 +297,54 @@ test11ConvertingAUnitToAnotherFromADifferentCategoryShouldRaiseError
 			withExceptionDo: [ :anError | 
 					self assert: anError messageText equals: Measure canNotConvertErrorMessage ]! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 18:01:01'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 18:01:01'!
 test12OneKilogramAndOneThousandGramsHaveTheSameHash
 
 	self assert: oneKilogram hash = oneThousandGrams hash! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 18:00:21'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 18:00:21'!
 test13OneMultipliedByKilogramEqualsOneKilogram
 
 	self assert: 1 * kilogram = oneKilogram ! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 19:04:46'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 19:04:46'!
 test14ZeroMetersEqualsZeroLiters
 	
 	self assert: zeroMeters = zeroLiters.! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 21:55:16'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 21:55:16'!
 test15ZeroKelvinDoesNotEqualZeroCelsius										
 	
 	self deny: 0 * kelvin = (0 * celsius).! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 21:59:45'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 21:59:45'!
 test16ThreeHundredAndSomeMoreKelvinEqualsOneHundredCelsius
 	
 	self assert: (7463/20) * kelvin = (100 * celsius).! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/3/2017 21:58:26'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/3/2017 21:58:26'!
 test17ZeroKelvinIsLesserThanZeroCelsius
 	
 	self assert: 0 * kelvin < (0 * celsius).! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 11:57:34'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/4/2017 11:57:34'!
 test18OneLiterPlusOneKilogramEqualsOneLiterPlusOneKilogram
 	
 	self assert: oneLiter + oneKilogram = (oneLiter + oneKilogram ).
 	self assert: oneLiter + oneKilogram = (oneKilogram + oneLiter ).! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 12:08:58'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/4/2017 12:08:58'!
 test19OneLiterPlusOneKilogramPlusOneMeterEqualsOneLiterPlusOneKilogramPlusOneMeter
 	
 	self assert: oneLiter + oneKilogram + oneMeter = (oneLiter + oneKilogram + oneMeter ).
 	self assert: oneLiter + oneKilogram + oneMeter = (oneKilogram + oneMeter + oneLiter ).! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 12:12:51'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/4/2017 12:12:51'!
 test20OneLiterPlusOneKilogramPlusOneKilogramEqualsOneLiterPlusTwoKilograms
 	
 	self assert: oneLiter + oneKilogram + oneKilogram = (oneLiter + twoKilograms).! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 14:27:10'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/4/2017 14:27:10'!
 test21OneLiterPlusOneKilogramMinusOneKilogramEqualsOneLiter
 	
 	self assert: oneLiter + oneKilogram - oneKilogram = oneLiter.
@@ -421,23 +352,28 @@ test21OneLiterPlusOneKilogramMinusOneKilogramEqualsOneLiter
 	self assert: oneKilogram + oneLiter - oneKilogram = oneLiter.
 	self assert: oneKilogram - oneKilogram + oneLiter = oneLiter.! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 14:54:52'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/4/2017 14:54:52'!
 test22ZeroMetersPlusZeroLitersEqualsZeroLiters
 	
 	self assert: zeroMeters + zeroLiters = zeroLiters.! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 15:05:40'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/4/2017 15:05:40'!
 test23OneLiterPlusOneKilogramEqualsOneLiterPlusOneThousandGrams
 	
 	self assert: oneLiter + oneKilogram = (oneLiter + oneThousandGrams).! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 16:18:12'!
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/4/2017 16:18:12'!
 test24OneLiterPlusOneKilogramPlusOneThousandGramsEqualsOneLiterPlusTwoKilograms
 	
 	self assert: oneLiter + oneKilogram + oneThousandGrams = (oneLiter + twoKilograms).! !
 
-!MeasureUnitTest methodsFor: 'tests' stamp: 'ad 6/4/2017 16:59:02'!
-test25
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 13:36:52'!
+test25OneKilogramPlusOneLitersAndOneThousandMilitersPlusOneThousandGramsHaveTheSameHash
+
+	self assert: (oneKilogram + oneLiter) hash = (oneThousandMililiters + oneThousandGrams) hash! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 13:48:20'!
+test26AnIntervalOfMeasuresFromOneKilogramToThreeKilogramsHasTwoKilogramsAtSecondPosition
 
 	| anIntervalOfMeasures |
 	
@@ -445,24 +381,160 @@ test25
 	
 	self assert:  (anIntervalOfMeasures at: 2) = twoKilograms.! !
 
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 13:46:54'!
+test27TheElementsOfAMeasureIntervalFromOneKilogramToKilogramsByHalfKilogramSumTenKilograms
 
-!MeasureUnitTest methodsFor: 'set up' stamp: 'ad 6/4/2017 16:58:38'!
+	| sumOfIntervalMeasures |
+	
+	sumOfIntervalMeasures _ 0 * kilogram.
+	
+	oneKilogram to: threeKilograms by: ((1/2)*kilogram) do: [:aDistance | 
+		sumOfIntervalMeasures _ aDistance + sumOfIntervalMeasures ].	
+	
+	self assert:  sumOfIntervalMeasures = (10*kilogram).! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 14:17:22'!
+test28CreatingAnIntervalWithMeasuresFromDifferentCategoriesShouldRaiseError
+	
+	self should: [oneKilogram to: oneThousandMililiters]
+			raise: Error - MessageNotUnderstood
+			withExceptionDo: [ :anError | 
+					self assert: anError messageText equals: 
+											MeasureInterval measuresFromDifferentCategoryErrorMessage ]! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 14:17:41'!
+test29CreatingAnIncreasingMeasureIntervalWithNegativeStepShouldRaiseError
+
+	self 
+		should: [ oneMiligram to: oneKilogram by: (-1 * gram)] 
+		raise:  Error		
+		withExceptionDo: [:anError | 
+			self assert: anError messageText equals: MeasureInterval wrongCreationParametersErrorMessage]! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 20:30:18'!
+test30AnIntervalFromOneMeterToTenKilometersByFiveCentimetersContainsTwoMetersAtPosition21
+	
+	aMeasureInterval _ (oneMeter ) to: (10*kilometer ) by: (5*centimeter).
+	
+	self assert:  (aMeasureInterval at: 21) = (2*meter).! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 21:28:41'!
+test31OneSquareMeterEqualsOneSquareMeter
+
+	self assert: 1 * (meter*meter) = (1 * (meter*meter)).! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 21:30:10'!
+test32OneMeterPerSecondEqualsOneMeterPerSecond
+
+	self assert: 1 * (meter/second) = (1 * (meter/second)).! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 21:49:05'!
+test33ZeroMetersPerSecondEqualsZeroMetersPerSecond
+
+	self assert: 0 * (meter/second) = (0 * (meter/gram)).! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 22:17:59'!
+test34OneMeterPerSecondEqualsTheSameSpeedInKilometersPerHour
+
+	self assert: 1 * (meter/second) = ((3600/1000) * (kilometer/hour)).! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 22:27:17'!
+test35OneMeterPerSecondPlusOneMeterPerSecondEqualsTwoMetersPerSecond
+
+	self assert: 1 * (meter/second) + (1 * (meter/second)) = (2 * (meter/second)).! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 22:30:28'!
+test36OneMeterPerSecondPlusSameSpeedInKilometersPerHourEqualsTwoMetersPerSecond
+
+	self assert: 1 * (meter/second) + ((3600/1000) * (kilometer/hour)) = (2 * (meter/second)).! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 22:32:09'!
+test37OneCubicMeterEqualsOneCubicMeter
+
+	self assert: 1 * (meter*meter*meter) = (1 * (meter*meter*meter)).! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/6/2017 16:50:39'!
+test38OneCubicMeterEqualsOneCubicMeter
+
+	self assert: 1 * (meter*meter*meter) = ((1 * (meter*meter)) *meter).
+	self assert: 1 * (meter*meter*meter) = ((1 * meter) * (meter *meter)).
+	self assert: 1 * (meter*meter*meter) = ((meter*meter*meter) * 1).
+	self assert: 1 * (meter*meter*meter) = ((meter*meter) * (meter * 1)).! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/6/2017 14:59:19'!
+test39OneMultipliedByMeterEqualsMeterMultipliedByOne
+
+	self assert: 1 * meter = (meter*1).! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'ad 6/6/2017 15:37:18'!
+test40OneMeterPerSecondEqualsOneMeterPerSecond
+
+	self assert: 1 * (meter/second) = ((1 * meter) / second).! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'DIM 6/6/2017 19:25:42'!
+test41MeterMultipliedByMeterAndDividedBySecondEqualsTheSameUnitCreatedDifferently
+
+	self assert: meter * meter /second = (meter / second * meter)! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'DIM 6/6/2017 19:48:08'!
+test42TwoEqualCompoundUnitsHaveTheSameHash
+
+	self assert: (meter * meter /second) hash = (meter / second * meter) hash! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'DIM 6/6/2017 19:56:34'!
+test43OneMeterQuarticEqualsOneMeterQuartic
+
+	|aCompoundUnit anotherCompUnit|
+	
+	aCompoundUnit  _ meter * meter.
+	anotherCompUnit  _ meter * meter.
+	
+	self assert: meter*meter*meter*meter = (aCompoundUnit *anotherCompUnit).
+
+! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'DIM 6/6/2017 20:42:52'!
+test44TwoEqualCompoundMeasuresWithCompoundUnitsCreatedDifferentlyAreEqual
+
+	self assert: 1 * meter / second + (5 * liter / kelvin * kilogram) = (5 * liter / kelvin * kilogram + (1 * meter / second))! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'DIM 6/6/2017 20:00:34'!
+test45OneMeterMultipliedByMeterAndDividedBySecondEqualsTheSameMeasureCreatedDifferently
+
+	self assert: 1 * meter * meter /second = (meter / second * meter * 1).
+	self assert: meter * meter * (1/second) = (meter / second * meter * 1).! !
+
+!MeasureTest methodsFor: 'tests' stamp: 'DIM 6/6/2017 21:28:32'!
+test46FinalSpeedIsTheExpectedOne
+
+	|initialSpeed expectedFinalSpeed acceleration time measureFactory|
+	
+	measureFactory _ MeasureFactory new.
+	initialSpeed _ 1 * kilometer/hour.
+	acceleration _ 5 * kilometer /hour/hour.
+	time _ 5 * hour.
+	expectedFinalSpeed  _ 26 * kilometer/hour.
+	
+	self assert: expectedFinalSpeed = (measureFactory finalSpeedStartingAt:initialSpeed  accelerating:acceleration  during:time). ! !
+
+
+!MeasureTest methodsFor: 'set up' stamp: 'ad 6/4/2017 18:58:00'!
 setUp
 
-	oneKilogram _ Measure withAmount: 1 andUnit: kilogram.
-	twoKilograms _ Measure withAmount: 2 andUnit: kilogram.
-	threeKilograms _ Measure withAmount: 3 andUnit: kilogram.
+	oneKilogram _ 1 * kilogram.
+	twoKilograms _ 2 * kilogram.
+	threeKilograms _ 3 * kilogram.
 	
-	oneThousandGrams _ Measure withAmount: 1000 andUnit: gram.
+	oneThousandGrams _ 1000 * gram.
 	
-	oneMiligram _ Measure withAmount: 1 andUnit: miligram.
+	oneMiligram _ 1 * miligram.
 	
-	zeroLiters _ Measure withAmount: 0 andUnit: liter. 
-	oneLiter _ Measure withAmount: 1 andUnit: liter. 
-	oneThousandMililiters _ Measure withAmount: 1000 andUnit: mililiter. 
+	zeroLiters _ 0 * liter. 
+	oneLiter _ 1 * liter. 
+	oneThousandMililiters _ 1000 * mililiter. 
 	
-	zeroMeters _ Measure withAmount: 0 andUnit: meter. 
-	oneMeter _ Measure withAmount: 1 andUnit: meter. 
+	zeroMeters _ 0 * meter. 
+	oneMeter _ 1 * meter. 
 
 ! !
 
@@ -506,49 +578,44 @@ removeEmptyMeasuresAndConvertToMeasureClassIfAmountOfMeasuresIsOne
 	^ self! !
 
 
-!CompoundMeasure methodsFor: 'comparing' stamp: 'ad 6/4/2017 17:14:59'!
+!CompoundMeasure methodsFor: 'comparing' stamp: 'DIM 6/6/2017 20:08:16'!
 = aCompoundMeasure
 
 	self == aCompoundMeasure ifTrue: [^ true].	"Any object is equal to itself"
 	(aCompoundMeasure isKindOf: self class) ifFalse: [^false].
 	(self measures size = aCompoundMeasure measures size) ifFalse: [^false].
 	self measuresDo: [:aMeasureFromSelf | | aMeasureFromOther |
-		aMeasureFromOther _ aCompoundMeasure measureFromCategory: aMeasureFromSelf category 																					ifAbsent:[^false].
+		aMeasureFromOther _ aCompoundMeasure measureFromSameCategoryThan: aMeasureFromSelf
+										ifAbsent:[^false].
 		(aMeasureFromSelf = aMeasureFromOther) ifFalse: [^false]].
 	^true! !
 
-!CompoundMeasure methodsFor: 'comparing' stamp: 'ad 6/4/2017 12:06:36'!
+!CompoundMeasure methodsFor: 'comparing' stamp: 'ad 6/5/2017 13:34:44'!
 hash
 
-	^ measures hash! !
-
-
-!CompoundMeasure methodsFor: 'accessing' stamp: 'ad 6/4/2017 16:04:04'!
-measureFromCategory: aCategoryName
+	| sumOfAllMeasuresHashes |
 	
-	^ self measureFromCategory: aCategoryName ifAbsent: [self errorMeasureNotFound]! !
-
-!CompoundMeasure methodsFor: 'accessing' stamp: 'ad 6/4/2017 17:17:17'!
-measureFromCategory: aCategoryName ifAbsent: absentBlock 
+	sumOfAllMeasuresHashes _ 0.
 	
-	self measuresDo: [:aMeasure | 
-						aMeasure category = aCategoryName ifTrue: [^ aMeasure]].
+	self measuresDo: [:aMeasure |
+					sumOfAllMeasuresHashes _ sumOfAllMeasuresHashes + aMeasure hash].	
+
+	^ sumOfAllMeasuresHashes hash! !
+
+
+!CompoundMeasure methodsFor: 'accessing' stamp: 'DIM 6/6/2017 20:23:39'!
+measureFromSameCategoryThan: aMeasure ifAbsent: absentBlock 
+	
+	self measuresDo: [:aMeasureFromSelf | 
+						(aMeasureFromSelf isFromSameCategoryThan: aMeasure) ifTrue: [^ aMeasureFromSelf ]].
 					
 	^ absentBlock value.! !
 
-!CompoundMeasure methodsFor: 'accessing' stamp: 'ad 6/4/2017 16:25:16'!
-measureFromCategory: aCategoryName ifAbsent: absentBlock ifPresent: presentBlock 
+!CompoundMeasure methodsFor: 'accessing' stamp: 'DIM 6/6/2017 20:22:49'!
+measureFromSameCategoryThan: aMeasure ifPresent: presentBlock ifAbsent: absentBlock 
 	
-	self measuresDo: [:aMeasure | 
-						aMeasure category = aCategoryName ifTrue: [^ presentBlock value: aMeasure ]].
-					
-	^ absentBlock value.! !
-
-!CompoundMeasure methodsFor: 'accessing' stamp: 'ad 6/4/2017 16:24:56'!
-measureFromCategory: aCategoryName ifPresent: presentBlock ifAbsent: absentBlock
-	
-	self measuresDo: [:aMeasure | 
-						aMeasure category = aCategoryName ifTrue: [^ presentBlock value: aMeasure ]].
+	self measuresDo: [:aMeasureFromSelf | 
+						(aMeasureFromSelf isFromSameCategoryThan: aMeasure) ifTrue: [^ presentBlock value: aMeasureFromSelf ]].
 					
 	^ absentBlock value.! !
 
@@ -558,10 +625,10 @@ measures
 	^ measures! !
 
 
-!CompoundMeasure methodsFor: 'arithmetic' stamp: 'ad 6/4/2017 16:32:30'!
+!CompoundMeasure methodsFor: 'arithmetic' stamp: 'DIM 6/6/2017 20:15:04'!
 + aMeasure
 									
-	self measureFromCategory: aMeasure category 
+	self measureFromSameCategoryThan: aMeasure 
 					ifPresent: [:aMeasureFromCategory |  | newMeasure |
 								newMeasure _ aMeasureFromCategory + aMeasure.
 								measures removeKey: aMeasureFromCategory unit.
@@ -616,10 +683,10 @@ Object subclass: #MeasureFactory
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
 
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'ad 6/3/2017 11:07:01'!
+!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'DIM 6/6/2017 20:51:05'!
 finalSpeedStartingAt: aStartingSpeed accelerating: anAcceleration during: anAmountOfTime
 
- ^ aStartingSpeed + anAcceleration * anAmountOfTime ! !
+ ^ aStartingSpeed + (anAcceleration * anAmountOfTime) ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -627,46 +694,48 @@ finalSpeedStartingAt: aStartingSpeed accelerating: anAcceleration during: anAmou
 MeasureFactory class
 	instanceVariableNames: ''!
 
-!MeasureFactory class methodsFor: 'initialize' stamp: 'ad 6/4/2017 11:28:19'!
+!MeasureFactory class methodsFor: 'initialize' stamp: 'ad 6/5/2017 22:34:34'!
 initialize
 	
 	"Unidades de peso"
-	MeasureUnit withName: #gram inCategory: #weight
+	SingleUnit withName: #gram inCategory: #weight
 		andConvertionFactorToCategoryReferenceUnit: 1.
-	MeasureUnit withName: #kilogram inCategory: #weight
+	SingleUnit withName: #kilogram inCategory: #weight
 		andConvertionFactorToCategoryReferenceUnit: 1000.
-	MeasureUnit withName: #miligram inCategory: #weight
+	SingleUnit withName: #miligram inCategory: #weight
 		andConvertionFactorToCategoryReferenceUnit: (1/1000).
 	
 	"Unidades de volumen"
-	MeasureUnit withName: #liter inCategory: #volume
+	SingleUnit withName: #liter inCategory: #volume
 		andConvertionFactorToCategoryReferenceUnit: 1.
-	MeasureUnit withName: #mililiter inCategory: #volume
+	SingleUnit withName: #mililiter inCategory: #volume
 		andConvertionFactorToCategoryReferenceUnit: (1/1000).
 	
 	"Unidades de distancia"
 	
-	MeasureUnit withName: #meter inCategory: #distance
+	SingleUnit withName: #meter inCategory: #distance
 		andConvertionFactorToCategoryReferenceUnit: 1.
-	MeasureUnit withName: #kilometer inCategory: #distance
+	SingleUnit withName: #kilometer inCategory: #distance
 		andConvertionFactorToCategoryReferenceUnit: 1000.
+	SingleUnit withName: #centimeter inCategory: #distance
+		andConvertionFactorToCategoryReferenceUnit: (1/100).
 	
 	"Unidades de tiempo"
-	MeasureUnit withName: #second inCategory: #time
+	SingleUnit withName: #second inCategory: #time
 		andConvertionFactorToCategoryReferenceUnit: 1.
-	MeasureUnit withName: #minute inCategory: #time
+	SingleUnit withName: #minute inCategory: #time
 		andConvertionFactorToCategoryReferenceUnit: 60.
-	MeasureUnit withName: #hour inCategory: #time
+	SingleUnit withName: #hour inCategory: #time
 		andConvertionFactorToCategoryReferenceUnit: 3600.
 	
 	
 	"Unidades de temperatura"
-	MeasureUnit withName: #kelvin inCategory: #temperature
+	SingleUnit withName: #kelvin inCategory: #temperature
 		andFormulaToConvertIntoCategoryReferenceUnit: [:aMeasureInKelvin |
 																	aMeasureInKelvin]
 		andInverseFormula: [:aMeasureInKelvin |
 																	aMeasureInKelvin].	
-	MeasureUnit withName: #celsius inCategory: #temperature
+	SingleUnit withName: #celsius inCategory: #temperature
 		andFormulaToConvertIntoCategoryReferenceUnit: [:aMeasureInCelsius |
 																	aMeasureInCelsius + (5463/20)]
 		andInverseFormula: [:aMeasureInKelvin |
@@ -746,30 +815,376 @@ to
 MeasureInterval class
 	instanceVariableNames: ''!
 
-!MeasureInterval class methodsFor: 'initialization' stamp: 'dim 5/28/2017 21:37:59'!
-from: aDistance to: anotherDistance
+!MeasureInterval class methodsFor: 'initialization' stamp: 'ad 6/5/2017 13:57:24'!
+from: aMeasure to: anotherMeasure
 
-	^ self new from: aDistance to: anotherDistance.! !
+	^ self from: aMeasure to: anotherMeasure by: (Measure withAmount: 1 andUnit: aMeasure unit).! !
 
-!MeasureInterval class methodsFor: 'initialization' stamp: 'ad 5/30/2017 17:25:13'!
-from: initialDistance to: stopDistance by: aStepDistance
+!MeasureInterval class methodsFor: 'initialization' stamp: 'ad 6/5/2017 14:27:52'!
+from: initialMeasure to: stopMeasure by: stepMeasure
 			
-	self isValidIntervalFrom: initialDistance to: stopDistance by: aStepDistance.
+	self isValidIntervalFrom: initialMeasure to: stopMeasure by: stepMeasure.
 
-	^ self new from: initialDistance to: stopDistance by: aStepDistance.! !
+	^ self new from: initialMeasure to: (stopMeasure convertTo: initialMeasure unit) by: (stepMeasure convertTo: initialMeasure unit).! !
 
-!MeasureInterval class methodsFor: 'initialization' stamp: 'ad 5/30/2017 16:26:52'!
-wrongCreationParametersErrorText
+
+!MeasureInterval class methodsFor: 'validation' stamp: 'ad 6/5/2017 14:16:15'!
+isValidIntervalFrom: initialMeasure to: stopMeasure by: step
+
+	( (initialMeasure isFromSameCategoryThan: stopMeasure)
+		and:
+	  [stopMeasure isFromSameCategoryThan: step] )
+			ifFalse: [self error: MeasureInterval measuresFromDifferentCategoryErrorMessage].
+
+ 	( (initialMeasure > stopMeasure and: [step amount >= 0] ) 
+		or: 
+	  (initialMeasure < stopMeasure and: [step amount <= 0] ) ) 
+			ifTrue: [self error: MeasureInterval wrongCreationParametersErrorMessage].! !
+
+
+!MeasureInterval class methodsFor: 'error messages' stamp: 'ad 6/5/2017 14:05:01'!
+measuresFromDifferentCategoryErrorMessage
+
+	^ 'Can not create interval with measures from different categoris'! !
+
+!MeasureInterval class methodsFor: 'error messages' stamp: 'ad 6/5/2017 14:05:53'!
+wrongCreationParametersErrorMessage
 
 	^'The parameters provided do not induce an interval'.! !
 
+
+!classDefinition: #MeasureUnit category: #'Measure-Solution'!
+Object subclass: #MeasureUnit
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Measure-Solution'!
 
-!MeasureInterval class methodsFor: 'validation' stamp: 'ad 6/4/2017 17:01:50'!
-isValidIntervalFrom: initialMeasure to: stopMeasure by: step
+!MeasureUnit methodsFor: 'arithmetic' stamp: 'ad 6/6/2017 16:18:45'!
+* aMultiplier
 
- ^ 	( (initialMeasure > stopMeasure and: [step amount >= 0] ) 
-		or: 
-	  (initialMeasure < stopMeasure and: [step amount <= 0] ) ) 
-			ifTrue: [self error: MeasureInterval wrongCreationParametersErrorText].! !
+	self subclassResponsibility 
+
+	! !
+
+!MeasureUnit methodsFor: 'arithmetic' stamp: 'DIM 6/6/2017 19:51:16'!
+/ aUnit 
+	
+	^ self * aUnit inverse.! !
+
+!MeasureUnit methodsFor: 'arithmetic' stamp: 'ad 6/6/2017 16:55:29'!
+adaptToNumber: aNumber andSend: aSelector
+
+	(aSelector = #* ) ifTrue: [ ^ Measure withAmount: aNumber andUnit: self ].
+	
+	"case aSelector is #/"
+	^ Measure withAmount: aNumber andUnit: (self inverse)! !
+
+
+!MeasureUnit methodsFor: 'comparing' stamp: 'ad 6/6/2017 16:19:20'!
+isFromSameCategoryThan: aUnit
+
+	self subclassResponsibility! !
+
+
+!MeasureUnit methodsFor: 'private' stamp: 'ad 6/6/2017 17:10:41'!
+inverse
+
+	self subclassResponsibility ! !
+
+
+!classDefinition: #CompoundUnit category: #'Measure-Solution'!
+MeasureUnit subclass: #CompoundUnit
+	instanceVariableNames: 'units'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Measure-Solution'!
+
+!CompoundUnit methodsFor: 'private' stamp: 'ad 6/5/2017 23:04:41'!
+convertToSingleUnitClassIfAmountOfUnitsIsOne
+
+	(units size = 1) ifTrue: [
+		| assoc |
+		assoc _ units associations last.
+		(assoc value = 1) ifTrue: [^ assoc key] ].
+	
+	(units size = 0) ifTrue: [
+		^ 1 ].
+	
+	^ self! !
+
+!CompoundUnit methodsFor: 'private' stamp: 'DIM 6/6/2017 19:46:51'!
+from: aUnitDictionary 
+	
+	units _ aUnitDictionary.
+	
+
+	
+	! !
+
+!CompoundUnit methodsFor: 'private' stamp: 'ad 6/6/2017 17:00:38'!
+inverse
+
+	| aDictionaryOfUnits |
+	
+	aDictionaryOfUnits _ Dictionary newFrom: self units.
+	
+	aDictionaryOfUnits associationsDo: [:assoc |
+				aDictionaryOfUnits at: assoc key put: (assoc value * -1)].
+			
+	^ self class from: aDictionaryOfUnits.! !
+
+
+!CompoundUnit methodsFor: 'comparing' stamp: 'ad 6/5/2017 15:45:03'!
+isFromSameCategoryThan: aUnit
+
+	(aUnit isKindOf: self class) ifFalse: [^ false].
+	
+	(self units size = aUnit units size) ifFalse: [^false].
+	
+	self unitsDo: [:aSingleUnitFromSelf |   | aSingleUnitFromOther |
+							aSingleUnitFromOther _ aUnit singleUnitFromCategory: aSingleUnitFromSelf category ifAbsent: [^ false].
+							((self units at: aSingleUnitFromSelf) = (aUnit units at: aSingleUnitFromOther )) ifFalse: [^ false]].
+						
+	^ true.! !
+
+
+!CompoundUnit methodsFor: 'arithmetic' stamp: 'DIM 6/6/2017 21:22:58'!
+* aMultiplier
+
+	(aMultiplier isKindOf: SingleUnit) ifTrue: [	| aDictionaryOfUnits |	
+			aDictionaryOfUnits _ Dictionary newFrom: self units.
+	
+			self singleUnitFromCategory: aMultiplier category 
+						ifAbsent: [ aDictionaryOfUnits at: aMultiplier put: 1]
+						ifPresent: [ :aSingleUnitFromSelf |  | oldValue |
+										oldValue _ self units at: aSingleUnitFromSelf.
+										(oldValue = -1) ifTrue: [aDictionaryOfUnits removeKey: aSingleUnitFromSelf]
+										                       ifFalse: [aDictionaryOfUnits at: aSingleUnitFromSelf 
+																						 put: (oldValue + 1) ]].										
+			^ self class from: aDictionaryOfUnits].
+		
+	(aMultiplier isKindOf: Number) ifTrue: [	^ Measure withAmount: aMultiplier andUnit: self. ].
+	
+	(aMultiplier isKindOf: Measure) ifTrue: [	^ aMultiplier * self].	
+	
+	(aMultiplier isKindOf: self class) ifTrue: [	| aDictionaryOfUnits |	
+			aDictionaryOfUnits _ Dictionary newFrom: self units.
+	
+			aMultiplier unitsDo: [ :aUnitFromOther |
+					self singleUnitFromCategory:  aUnitFromOther category 
+							ifAbsent: [ aDictionaryOfUnits at: aUnitFromOther put: ( aMultiplier units at:aUnitFromOther )]
+							ifPresent: [ :aSingleUnitFromSelf |  | oldValue newValue |
+										oldValue _ self units at: aSingleUnitFromSelf.
+										newValue _ oldValue + aMultiplier units at:aUnitFromOther .
+										(newValue = 0) ifTrue: [aDictionaryOfUnits removeKey: aSingleUnitFromSelf]
+										                       ifFalse: [aDictionaryOfUnits at: aSingleUnitFromSelf 
+																						 put: newValue ]].													
+			].
+			^ self class from: aDictionaryOfUnits.
+		].
+	
+	self error: 'Should implement'.	
+	
+
+
+
+	! !
+
+!CompoundUnit methodsFor: 'arithmetic' stamp: 'ad 6/6/2017 17:14:02'!
+= aCompoundUnit
+
+	(aCompoundUnit isKindOf: self class) ifFalse: [^false].
+	
+	^ self units = aCompoundUnit units.! !
+
+!CompoundUnit methodsFor: 'arithmetic' stamp: 'ad 6/6/2017 17:28:41'!
+hash
+
+	| sumOfSingleUnitHashes |
+	
+	sumOfSingleUnitHashes _ 0.
+	
+	self unitsDo: [ :aSingleUnit | | aMultiplier |
+				aMultiplier _ self units at: aSingleUnit.
+				sumOfSingleUnitHashes _ (aSingleUnit hash * aMultiplier)].
+			
+	^ sumOfSingleUnitHashes.! !
+
+
+!CompoundUnit methodsFor: 'accessing' stamp: 'ad 6/5/2017 15:43:30'!
+singleUnitFromCategory: aCategory ifAbsent: absentBlock 
+	
+	self unitsDo: [:aSingleUnit | 
+						aSingleUnit category = aCategory ifTrue: [^ aSingleUnit]].
+					
+	^ absentBlock value.
+
+	! !
+
+!CompoundUnit methodsFor: 'accessing' stamp: 'ad 6/5/2017 22:38:50'!
+singleUnitFromCategory: aCategory ifAbsent: absentBlock ifPresent: presentBlock
+	
+	self unitsDo: [:aSingleUnit | 
+						aSingleUnit category = aCategory ifTrue: [^presentBlock value: aSingleUnit]].
+					
+	^ absentBlock value.
+
+	! !
+
+!CompoundUnit methodsFor: 'accessing' stamp: 'ad 6/5/2017 15:29:24'!
+units
+
+	^ units! !
+
+
+!CompoundUnit methodsFor: 'enumerating' stamp: 'ad 6/5/2017 15:41:40'!
+unitsDo: aBlockClosure 
+
+	self units size = 0 ifTrue: [^self].
+	
+	self units associationsDo: [ :assoc |
+										aBlockClosure value: assoc key].! !
+
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'CompoundUnit class' category: #'Measure-Solution'!
+CompoundUnit class
+	instanceVariableNames: ''!
+
+!CompoundUnit class methodsFor: 'initialization' stamp: 'DIM 6/6/2017 19:47:17'!
+from: aUnitDictionary
+
+	^ (self new from: aUnitDictionary) convertToSingleUnitClassIfAmountOfUnitsIsOne.! !
+
+
+!classDefinition: #SingleUnit category: #'Measure-Solution'!
+MeasureUnit subclass: #SingleUnit
+	instanceVariableNames: 'name category convertionFormula inverseFormula'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Measure-Solution'!
+
+!SingleUnit methodsFor: 'private' stamp: 'ad 6/3/2017 20:53:37'!
+initializeWithName: aUnitNameSymbol inCategory: aCategoryNameSymbol andFormulaToConvertIntoCategoryReferenceUnit: aConvertionFormulaBlock andInverseFormula: inverseFormulaBlock
+
+	name _ aUnitNameSymbol.
+	
+	category _ aCategoryNameSymbol.
+	
+	convertionFormula _ aConvertionFormulaBlock.
+	
+	inverseFormula _ inverseFormulaBlock .
+	
+	Smalltalk at: aUnitNameSymbol put: self.! !
+
+!SingleUnit methodsFor: 'private' stamp: 'ad 6/6/2017 16:57:30'!
+inverse
+
+	| aDictionaryOfUnits |
+	
+	aDictionaryOfUnits _ Dictionary new.
+	
+	aDictionaryOfUnits at: self put: -1.
+	
+	^ CompoundUnit from: aDictionaryOfUnits.! !
+
+
+!SingleUnit methodsFor: 'accessing' stamp: 'ad 6/3/2017 12:31:49'!
+category
+
+	^ category ! !
+
+!SingleUnit methodsFor: 'accessing' stamp: 'ad 6/3/2017 20:04:36'!
+convertionFormula
+
+	^ convertionFormula ! !
+
+!SingleUnit methodsFor: 'accessing' stamp: 'ad 6/3/2017 20:55:11'!
+inverseConvertionFormula
+	
+	^ inverseFormula ! !
+
+!SingleUnit methodsFor: 'accessing' stamp: 'ad 6/3/2017 12:31:58'!
+name
+
+	^ name ! !
+
+
+!SingleUnit methodsFor: 'comparing' stamp: 'ad 6/3/2017 16:23:31'!
+= aUnit 
+
+	(aUnit isKindOf: self class) ifFalse:[^ false].
+	
+	^ self name = aUnit name! !
+
+!SingleUnit methodsFor: 'comparing' stamp: 'ad 6/3/2017 16:23:43'!
+hash
+
+	^ self name asString size.! !
+
+!SingleUnit methodsFor: 'comparing' stamp: 'ad 6/5/2017 15:49:57'!
+isFromSameCategoryThan: aUnit
+
+	(aUnit isKindOf: self class) ifFalse: [^false].
+	
+	^ self category = aUnit category.! !
+
+
+!SingleUnit methodsFor: 'printing' stamp: 'ad 6/3/2017 16:24:32'!
+printString
+	
+	^ name asString ! !
+
+
+!SingleUnit methodsFor: 'arithmetic' stamp: 'ad 6/6/2017 16:39:49'!
+* aMultiplier
+
+	| aUnitDictionary |
+
+	(aMultiplier isKindOf: Number) ifTrue: [^ aMultiplier * self].
+	
+	(aMultiplier isKindOf: Measure) ifTrue: [^ Measure withAmount: aMultiplier amount andUnit: (aMultiplier unit * self)].		
+	
+	(aMultiplier isKindOf: SingleUnit ) 
+			ifTrue: [
+					aUnitDictionary _ Dictionary new.	
+					(aMultiplier isFromSameCategoryThan: self) 
+									ifFalse: [ aUnitDictionary at: self put: 1; at: aMultiplier put: 1]
+									ifTrue: [ aUnitDictionary at: self put: 2].
+					^ CompoundUnit from: aUnitDictionary ].
+				
+	"case aMultiplier is CompoundUnit"		
+	^ aMultiplier * self! !
+
+
+!SingleUnit methodsFor: 'as yet unclassified' stamp: 'ad 6/6/2017 15:50:58'!
+isZero
+	
+	^ false.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'SingleUnit class' category: #'Measure-Solution'!
+SingleUnit class
+	instanceVariableNames: ''!
+
+!SingleUnit class methodsFor: 'initialization' stamp: 'ad 6/4/2017 11:25:12'!
+withName: aUnitNameSymbol inCategory: aCategoryNameSymbol andConvertionFactorToCategoryReferenceUnit: aConvertionFactor
+
+ ^ self withName: aUnitNameSymbol 
+			   inCategory: aCategoryNameSymbol 
+			   andFormulaToConvertIntoCategoryReferenceUnit: [:thisUnit |
+																			thisUnit * aConvertionFactor ]
+			   andInverseFormula: [ :referenceUnit |
+												referenceUnit / aConvertionFactor ].! !
+
+!SingleUnit class methodsFor: 'initialization' stamp: 'ad 6/3/2017 20:52:44'!
+withName: aUnitNameSymbol inCategory: aCategoryNameSymbol andFormulaToConvertIntoCategoryReferenceUnit: aConvertionFormulaBlock andInverseFormula: inverseFormulaBlock
+
+	^ self new initializeWithName: aUnitNameSymbol inCategory: aCategoryNameSymbol andFormulaToConvertIntoCategoryReferenceUnit: aConvertionFormulaBlock andInverseFormula: inverseFormulaBlock
+
+! !
 
 MeasureFactory initialize!
