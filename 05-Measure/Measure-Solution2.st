@@ -438,10 +438,10 @@ test31OneSquareMeterEqualsOneSquareMeter
 
 	self assert: 1 * (meter*meter) = (1 * (meter*meter)).! !
 
-!MeasureTest methodsFor: 'tests' stamp: 'DIM 6/7/2017 18:58:51'!
+!MeasureTest methodsFor: 'tests' stamp: 'DIM 6/7/2017 21:50:56'!
 test32OneMeterPerSecondEqualsOneMeterPerSecond
 
-	self assert: (1 * (meter/second)) = (1 * (meter/second)).! !
+	self assert: 1 * (meter/second) = (1 * (meter/second)).! !
 
 !MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 21:49:05'!
 test33ZeroMetersPerSecondEqualsZeroMetersPerSecond
