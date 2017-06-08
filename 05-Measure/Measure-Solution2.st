@@ -94,7 +94,7 @@ unit
 	^ unit.! !
 
 
-!Measure methodsFor: 'converting' stamp: 'ad 6/7/2017 16:17:29'!
+!Measure methodsFor: 'converting' stamp: 'DIM 6/7/2017 20:24:11'!
 convertTo: aUnit
 
 	(aUnit isFromSameCategoryThan: self unit) ifFalse: [self error: self class canNotConvertErrorMessage].
@@ -112,8 +112,7 @@ convertTo: aUnit
 								aSingleUnitFromOther _ aUnit singleUnitFromCategory: aSingleUnitFromSelf category ifAbsent: [self error: self class canNotConvertErrorMessage].
 								unitRepetitions _ self unit units at: aSingleUnitFromSelf.
 								(unitRepetitions > 0) 
-									ifTrue: [ unitRepetitions timesRepeat: 
-												"[newAmount _ aSingleUnitFromOther inverseConvertionFormula value: (aSingleUnitFromSelf convertionFormula value: newAmount )]]"
+									ifTrue: [ unitRepetitions timesRepeat: 												
 												[newAmount _ aSingleUnitFromSelf convert: newAmount toEquivalentIn: aSingleUnitFromOther ]]
 									ifFalse: [ (-1 * unitRepetitions) timesRepeat: 
 												[ newAmount _ aSingleUnitFromOther convertionFormula value: (aSingleUnitFromSelf inverseConvertionFormula value: newAmount ) ] ] ].
@@ -439,10 +438,10 @@ test31OneSquareMeterEqualsOneSquareMeter
 
 	self assert: 1 * (meter*meter) = (1 * (meter*meter)).! !
 
-!MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 21:30:10'!
+!MeasureTest methodsFor: 'tests' stamp: 'DIM 6/7/2017 18:58:51'!
 test32OneMeterPerSecondEqualsOneMeterPerSecond
 
-	self assert: 1 * (meter/second) = (1 * (meter/second)).! !
+	self assert: (1 * (meter/second)) = (1 * (meter/second)).! !
 
 !MeasureTest methodsFor: 'tests' stamp: 'ad 6/5/2017 21:49:05'!
 test33ZeroMetersPerSecondEqualsZeroMetersPerSecond
@@ -919,13 +918,13 @@ initializeWithName: aUnitNameSymbol inCategory: aCategoryNameSymbol andFormulaTo
 	
 	Smalltalk at: aUnitNameSymbol put: self.! !
 
-!MeasureUnit methodsFor: 'private' stamp: 'ad 6/6/2017 17:00:38'!
+!MeasureUnit methodsFor: 'private' stamp: 'DIM 6/7/2017 20:07:08'!
 inverse
 
 	| aDictionaryOfUnits |
 	
-	aDictionaryOfUnits _ Dictionary newFrom: self units.
-	
+	"aDictionaryOfUnits _ Dictionary newFrom: self units."
+	aDictionaryOfUnits _ self units copy.
 	aDictionaryOfUnits associationsDo: [:assoc |
 				aDictionaryOfUnits at: assoc key put: (assoc value * -1)].
 			
@@ -937,7 +936,7 @@ isZero
 	^false! !
 
 
-!MeasureUnit methodsFor: 'comparing' stamp: 'ad 6/5/2017 15:45:03'!
+!MeasureUnit methodsFor: 'comparing' stamp: 'DIM 6/7/2017 21:09:29'!
 isFromSameCategoryThan: aUnit
 
 	(aUnit isKindOf: self class) ifFalse: [^ false].
@@ -946,12 +945,12 @@ isFromSameCategoryThan: aUnit
 	
 	self unitsDo: [:aSingleUnitFromSelf |   | aSingleUnitFromOther |
 							aSingleUnitFromOther _ aUnit singleUnitFromCategory: aSingleUnitFromSelf category ifAbsent: [^ false].
-							((self units at: aSingleUnitFromSelf) = (aUnit units at: aSingleUnitFromOther )) ifFalse: [^ false]].
+							( aSingleUnitFromSelf category = (aSingleUnitFromOther category)) ifFalse: [^ false]].
 						
 	^ true.! !
 
 
-!MeasureUnit methodsFor: 'arithmetic' stamp: 'DIM 6/6/2017 21:22:58'!
+!MeasureUnit methodsFor: 'arithmetic' stamp: 'DIM 6/7/2017 21:42:35'!
 * aMultiplier
 
 	(aMultiplier isKindOf: SingleUnit) ifTrue: [	| aDictionaryOfUnits |	
@@ -971,7 +970,7 @@ isFromSameCategoryThan: aUnit
 	(aMultiplier isKindOf: Measure) ifTrue: [	^ aMultiplier * self].	
 	
 	(aMultiplier isKindOf: self class) ifTrue: [	| aDictionaryOfUnits |	
-			aDictionaryOfUnits _ Dictionary newFrom: self units.
+			aDictionaryOfUnits _ self units copy.
 	
 			aMultiplier unitsDo: [ :aUnitFromOther |
 					self singleUnitFromCategory:  aUnitFromOther category 
