@@ -729,10 +729,20 @@ decimeter
 
 	^ decimeter! !
 
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:27:26'!
+eightCubicMeters
+
+	^ 8 * meter * meter * meter! !
+
 !MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:13:23'!
 fahrenheit
 
 	^ fahrenheit! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:27:38'!
+fourSquaredMeters
+
+	^ 4 * meter * meter! !
 
 !MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 21:55:50'!
 hectometer
@@ -764,15 +774,161 @@ millimeter
 
 	^ millimeter! !
 
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:19:56'!
+minusOneMeter
+
+	^ -1 * meter! !
+
 !MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 21:58:53'!
 minute
 
 	^ minute! !
 
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:23:24'!
+oneCelsius
+
+	^ 1 * celsius! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:21:30'!
+oneCentimeter
+
+	^ 1 * centimeter! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:25:08'!
+oneDay
+
+	^ 1 * day! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:25:18'!
+oneHour
+
+	^ 1 * hour! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:21:51'!
+oneHundredCentimeters
+
+	^ 100 * centimeter! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:28:06'!
+oneHundredTwentyOneMetersPerSecond
+
+	^ 121 * meter/second! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:22:04'!
+oneMeter
+
+	^ 1 * meter! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:28:45'!
+oneMeterPerSecond
+
+	^ 1 * meter/second! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:25:31'!
+oneMinute
+
+	^ 1 * minute! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:25:41'!
+oneSecond
+
+	^ 1 * second! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:28:59'!
+oneSquaredMeter
+
+	^ 1 * meter * meter! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:29:13'!
+oneSquaredSecond
+
+	^ 1 * second * second! !
+
 !MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 21:58:59'!
 second
 
 	^ second! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:25:53'!
+sixtyMinutes
+
+	^ 60 * minute ! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:26:05'!
+sixtyOneSeconds
+
+	^ 61 * second ! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:26:17'!
+sixtySeconds
+
+	^ 60 * second ! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:24:22'!
+thirtyTwoFahrenheits
+
+	^ 32 * fahrenheit ! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:26:33'!
+twentyFourHours
+
+	^ 24 * hour! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:24:36'!
+twoCelsius
+
+	^ 2 * celsius ! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:22:36'!
+twoHundredCentimeters
+
+	^ 200 * centimeter! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:22:53'!
+twoMeters
+
+	^ 2 * meter! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:29:37'!
+twoMetersBySecond
+
+	^ 2 * meter / second! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:30:45'!
+twoMetersPerSquaredSecond
+
+	^ 2 * meter / second / second ! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:31:31'!
+twoMetersTimesSecond
+
+"no entiendo cual es esta medida"
+	^ 2 * meter / second  ! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:26:44'!
+twoSeconds
+
+	^ 2 * second! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:24:47'!
+zeroCelsius
+
+	^ 0 * celsius ! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:24:55'!
+zeroKelvin
+
+	^ 0 * kelvin ! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:23:03'!
+zeroMeters
+
+	^ 0 * meter! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:26:51'!
+zeroSeconds
+
+	^ 0 * second! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
