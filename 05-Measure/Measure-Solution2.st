@@ -704,10 +704,75 @@ finalSpeedStartingAt: aStartingSpeed accelerating: anAcceleration during: anAmou
  ^ aStartingSpeed + (anAcceleration * anAmountOfTime) ! !
 
 
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 21:57:16'!
+celsius
+
+	^ celsius! !
+
 !MeasureFactory methodsFor: 'measure instances' stamp: 'ad 6/7/2017 15:05:49'!
 centimeter
 
 	^ centimeter! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:02:33'!
+day
+
+	^ day! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 21:55:24'!
+decameter
+
+	^ decameter! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 21:55:37'!
+decimeter
+
+	^ decimeter! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 22:13:23'!
+fahrenheit
+
+	^ fahrenheit! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 21:55:50'!
+hectometer
+
+	^ hectometer! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 21:58:46'!
+hour
+
+	^ hour! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 21:58:20'!
+kelvin
+
+	^ kelvin! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 21:56:01'!
+kilometer
+
+	^ kilometer! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 21:56:08'!
+meter
+
+	^ meter! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 21:56:15'!
+millimeter
+
+	^ millimeter! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 21:58:53'!
+minute
+
+	^ minute! !
+
+!MeasureFactory methodsFor: 'measure instances' stamp: 'DIM 6/7/2017 21:58:59'!
+second
+
+	^ second! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -715,7 +780,7 @@ centimeter
 MeasureFactory class
 	instanceVariableNames: ''!
 
-!MeasureFactory class methodsFor: 'initialize' stamp: 'ad 6/7/2017 15:36:05'!
+!MeasureFactory class methodsFor: 'initialize' stamp: 'DIM 6/7/2017 22:12:37'!
 initialize
 	
 	"Unidades de peso"
@@ -748,7 +813,8 @@ initialize
 		andConvertionFactorToCategoryReferenceUnit: 60.
 	MeasureUnit withName: #hour inCategory: #time
 		andConvertionFactorToCategoryReferenceUnit: 3600.
-	
+	MeasureUnit withName: #day inCategory: #time
+		andConvertionFactorToCategoryReferenceUnit: 86400.
 	
 	"Unidades de temperatura"
 	MeasureUnit withName: #kelvin inCategory: #temperature
@@ -760,7 +826,13 @@ initialize
 		andFormulaToConvertIntoCategoryReferenceUnit: [:aMeasureInCelsius |
 																	aMeasureInCelsius + (5463/20)]
 		andInverseFormula: [:aMeasureInKelvin |
-																	aMeasureInKelvin  - (5463/20)].! !
+																	aMeasureInKelvin  - (5463/20)].
+																
+	MeasureUnit withName: #fahrenheit inCategory: #temperature
+		andFormulaToConvertIntoCategoryReferenceUnit: [:aMeasureInFahrenheit |
+																	(aMeasureInFahrenheit + (45967/100)) * (5/9)]
+		andInverseFormula: [:aMeasureInKelvin |
+																	(aMeasureInKelvin *(9/5))  - (45967/100)].																! !
 
 
 !classDefinition: #MeasureInterval category: #'Measure-Solution'!
