@@ -64,7 +64,7 @@ test06TheAmountOfAProductAfterAddingThreeOfItIsThree
 	
 ! !
 
-!CartTest methodsFor: 'tests' stamp: 'ad 6/12/2017 12:39:48'!
+!CartTest methodsFor: 'tests' stamp: 'AD 6/13/2017 21:21:58'!
 test07AddingANegativeAmountOfAProductShouldRaiseError
 	
 	aCart _ Cart new.	
@@ -72,73 +72,39 @@ test07AddingANegativeAmountOfAProductShouldRaiseError
 	self should: [aCart add: -1 of: aProduct.]
 		  raise: Error - MessageNotUnderstood
 		  withExceptionDo: [:anError |
-						self assert: anError messageText equals: Cart negativeAmountErrorMessage]
+						self assert: anError messageText equals: Cart negativeOrZeroAmountErrorMessage.
+						self assert: aCart isEmpty .]
 	
 ! !
 
-!CartTest methodsFor: 'tests' stamp: 'ad 6/12/2017 12:37:13'!
-test08ACartShouldBeEmptyAfterAddingAndRemovingAProduct
+!CartTest methodsFor: 'tests' stamp: 'AD 6/13/2017 21:12:51'!
+test08ACartWithProductsPrintsThem
+
+	| aString |
 	
-	aCart _ Cart new.	
+	aCart _ Cart new.
 	
-	aCart add: aProduct.
-	aCart remove: aProduct.
+	aCart add: 3 of: aProduct.	
 	
-	self assert: aCart isEmpty.
+	aString _ String streamContents: [:aStream |
+				aCart printOn: aStream.	].
+	
+	self assert: aString equals: '''aProduct'' ''aProduct'' ''aProduct'''.
 					
 	
 	
 ! !
 
-!CartTest methodsFor: 'tests' stamp: 'ad 6/12/2017 12:37:16'!
-test09RemovingAProductThatIsNotInTheCartShouldRaiseError
+!CartTest methodsFor: 'tests' stamp: 'AD 6/13/2017 21:16:10'!
+test09AddingANonWholeNumberAmountOfAProductShouldRaiseError
 	
 	aCart _ Cart new.	
 	
-	self should: [aCart remove: aProduct]
+	self should: [aCart add: 5/3 of: aProduct.]
 		  raise: Error - MessageNotUnderstood
 		  withExceptionDo: [:anError |
-						self assert: anError messageText equals: Cart productNotFoundErrorMessage]
-	
-! !
-
-!CartTest methodsFor: 'tests' stamp: 'ad 6/12/2017 12:39:53'!
-test10WhenAddingThreeAndRemovingTwoOfAProductThereShouldBeOnlyOneLeft
-	
-	aCart _ Cart new.	
-	
-	aCart add: 3 of: aProduct.
-	aCart remove: 2 of: aProduct.
-	
-	self assert: (aCart amountOf: aProduct) = 1.
-					
-	
-	
-! !
-
-!CartTest methodsFor: 'tests' stamp: 'ad 6/12/2017 12:39:28'!
-test11RemovingANegativeAmountOfAProductShouldRaiseError
-	
-	aCart _ Cart new.	
-	
-	self should: [aCart remove: -1 of: aProduct.]
-		  raise: Error - MessageNotUnderstood
-		  withExceptionDo: [:anError |
-						self assert: anError messageText equals: Cart negativeAmountErrorMessage]
-	
-! !
-
-!CartTest methodsFor: 'tests' stamp: 'ad 6/12/2017 12:39:57'!
-test12ACartShouldBeEmptyAfterAddingAndRemovingAllOfAProduct
-	
-	aCart _ Cart new.	
-	
-	aCart add: 7 of: aProduct.
-	aCart removeAll: aProduct.
-	
-	self assert: aCart isEmpty.
-					
-	
+						self assert: anError messageText equals: Cart nonWholeNumberErrorMessage.
+						self assert: aCart isEmpty .]
 	
 ! !
 
@@ -167,35 +133,13 @@ add: aProduct
 
 	products add: aProduct.! !
 
-!Cart methodsFor: 'adding' stamp: 'ad 6/12/2017 12:39:36'!
+!Cart methodsFor: 'adding' stamp: 'AD 6/13/2017 21:21:53'!
 add: anAmount of: aProduct
 
-	(anAmount < 0) ifTrue: [self error: self class negativeAmountErrorMessage ].
+	(anAmount isKindOf: Integer) ifFalse: [self error: self class nonWholeNumberErrorMessage ].
+	(anAmount > 0) ifFalse: [self error: self class negativeOrZeroAmountErrorMessage ].
 		
 	anAmount timesRepeat: [self add: aProduct ]! !
-
-
-!Cart methodsFor: 'removing' stamp: 'ad 6/12/2017 12:42:17'!
-remove: aProduct
-
-	self remove: aProduct ifAbsent: [self error: self class productNotFoundErrorMessage ]! !
-
-!Cart methodsFor: 'removing' stamp: 'ad 6/12/2017 12:42:48'!
-remove: aProduct ifAbsent: absentBlock
-
-	products remove: aProduct ifAbsent: absentBlock.! !
-
-!Cart methodsFor: 'removing' stamp: 'ad 6/12/2017 12:38:04'!
-remove: anAmount of: aProduct
-
-	(anAmount < 0) ifTrue: [self error: self class negativeAmountErrorMessage ].
-
-	anAmount timesRepeat: [self remove: aProduct]! !
-
-!Cart methodsFor: 'removing' stamp: 'ad 6/12/2017 12:38:42'!
-removeAll: aProduct 
-	
-	self remove: (self amountOf: aProduct) of: aProduct  ! !
 
 
 !Cart methodsFor: 'testing' stamp: 'ad 6/12/2017 11:24:30'!
@@ -214,16 +158,49 @@ amountOf: aProduct
 
 	^ products occurrencesOf: aProduct.! !
 
+!Cart methodsFor: 'accessing' stamp: 'AD 6/13/2017 21:06:01'!
+products
+
+	^ products copy.! !
+
+
+!Cart methodsFor: 'printing' stamp: 'AD 6/13/2017 19:44:46'!
+printOn: aStream
+
+	| iter |
+	
+	iter _ 1.
+
+	self productsDo: [:aProduct | 
+			aProduct printOn: aStream.
+			(iter = products size) ifFalse: [ 
+					aStream nextPutAll: ' '.].
+			iter _ iter + 1.]! !
+
+
+!Cart methodsFor: 'enumerating' stamp: 'AD 6/13/2017 19:18:27'!
+productsDo: aBlock
+
+	products do: [:aProduct |
+				aBlock value: aProduct ].
+
+	! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Cart class' category: #TusLibros!
 Cart class
 	instanceVariableNames: ''!
 
-!Cart class methodsFor: 'error messages' stamp: 'ad 6/12/2017 12:26:13'!
-negativeAmountErrorMessage
+!Cart class methodsFor: 'error messages' stamp: 'AD 6/13/2017 21:21:44'!
+negativeOrZeroAmountErrorMessage
 	
-	^ 'Can not add or remove a negative amount of a product'! !
+	^ 'Can not add a negative or zero amount'! !
+
+!Cart class methodsFor: 'error messages' stamp: 'AD 6/13/2017 21:20:24'!
+nonWholeNumberErrorMessage
+	
+	^ 'Can not add a non whole number amount.'! !
 
 !Cart class methodsFor: 'error messages' stamp: 'ad 6/12/2017 12:14:17'!
 productNotFoundErrorMessage
