@@ -12,22 +12,31 @@ test01ANewCartShouldBeEmpty
 	
 	self assert: aCart isEmpty.! !
 
-!CartTest methodsFor: 'tests' stamp: 'ad 6/12/2017 12:34:01'!
+!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:11:27'!
 test02WhenAProductIsAddedTheCartShouldNotBeEmpty
+	|aCatalog|
 	
-	aCart _ Cart new.
+	aCatalog _ Set new.
 	
+	aCatalog add: aProduct.
+
+	aCart _ Cart with: aCatalog.
+
 	aCart add: aProduct.
 	
 	self deny: aCart isEmpty.! !
 
-!CartTest methodsFor: 'tests' stamp: 'ad 6/12/2017 12:34:03'!
+!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:12:21'!
 test03ACartIncludesAnAddedProduct
+	|aCatalog|
 	
-	aCart _ Cart new.
+	aCatalog _ Set new.
 	
+	aCatalog add: aProduct.
+
+	aCart _ Cart with: aCatalog.
+
 	aCart add: aProduct.
-	
 	self assert: (aCart includes: aProduct).
 	
 ! !
@@ -41,11 +50,15 @@ test04ACartDoesNotIncludeAProductThatHasntBeenAdded
 	
 ! !
 
-!CartTest methodsFor: 'tests' stamp: 'ad 6/12/2017 12:34:10'!
+!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:12:51'!
 test05TheAmountOfAProductAfterAddingItTwiceIsTwo
+	|aCatalog|
 	
-	aCart _ Cart new.
+	aCatalog _ Set new.
 	
+	aCatalog add: aProduct.
+
+	aCart _ Cart with: aCatalog.
 	aCart add: aProduct.
 	aCart add: aProduct.
 	
@@ -53,10 +66,15 @@ test05TheAmountOfAProductAfterAddingItTwiceIsTwo
 	
 ! !
 
-!CartTest methodsFor: 'tests' stamp: 'ad 6/12/2017 12:39:44'!
+!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:13:26'!
 test06TheAmountOfAProductAfterAddingThreeOfItIsThree
+	|aCatalog|
 	
-	aCart _ Cart new.
+	aCatalog _ Set new.
+	
+	aCatalog add: aProduct.
+
+	aCart _ Cart with: aCatalog.
 	
 	aCart add: 3 of: aProduct.
 	
@@ -64,11 +82,16 @@ test06TheAmountOfAProductAfterAddingThreeOfItIsThree
 	
 ! !
 
-!CartTest methodsFor: 'tests' stamp: 'AD 6/13/2017 21:21:58'!
+!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:22:42'!
 test07AddingANegativeAmountOfAProductShouldRaiseError
+	|aCatalog|
 	
-	aCart _ Cart new.	
+	aCatalog _ Set new.
 	
+	aCatalog add: aProduct.
+
+	aCart _ Cart with: aCatalog.	
+
 	self should: [aCart add: -1 of: aProduct.]
 		  raise: Error - MessageNotUnderstood
 		  withExceptionDo: [:anError |
@@ -77,13 +100,16 @@ test07AddingANegativeAmountOfAProductShouldRaiseError
 	
 ! !
 
-!CartTest methodsFor: 'tests' stamp: 'AD 6/13/2017 21:12:51'!
+!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:14:03'!
 test08ACartWithProductsPrintsThem
 
-	| aString |
+	|aCatalog aString|
 	
-	aCart _ Cart new.
+	aCatalog _ Set new.
 	
+	aCatalog add: aProduct.
+
+	aCart _ Cart with: aCatalog.
 	aCart add: 3 of: aProduct.	
 	
 	aString _ String streamContents: [:aStream |
@@ -95,15 +121,51 @@ test08ACartWithProductsPrintsThem
 	
 ! !
 
-!CartTest methodsFor: 'tests' stamp: 'AD 6/13/2017 21:16:10'!
+!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:23:13'!
 test09AddingANonWholeNumberAmountOfAProductShouldRaiseError
+	|aCatalog|
 	
-	aCart _ Cart new.	
+	aCatalog _ Set new.
 	
+	aCatalog add: aProduct.
+
+	aCart _ Cart with: aCatalog.
 	self should: [aCart add: 5/3 of: aProduct.]
 		  raise: Error - MessageNotUnderstood
 		  withExceptionDo: [:anError |
 						self assert: anError messageText equals: Cart nonWholeNumberErrorMessage.
+						self assert: aCart isEmpty .]
+	
+! !
+
+!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:05:31'!
+test10AddingAProductThatNotBelongToCatalogShouldRaiseError
+	|aCatalog|
+
+	aCatalog _ Set new.
+		
+	aCart _ Cart with: aCatalog.	
+
+	self should: [aCart add: aProduct.]
+		  raise: Error - MessageNotUnderstood
+		  withExceptionDo: [:anError |
+						self assert: anError messageText equals: Cart productNotFoundErrorMessage.
+						self assert: aCart isEmpty .]
+	
+! !
+
+!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:16:11'!
+test11AddingMoreThanOneProductThatNotBelongToCatalogShouldRaiseError
+	|aCatalog|
+
+	aCatalog _ Set new.
+		
+	aCart _ Cart with: aCatalog.	
+
+	self should: [aCart add: 3 of: aProduct.]
+		  raise: Error - MessageNotUnderstood
+		  withExceptionDo: [:anError |
+						self assert: anError messageText equals: Cart productNotFoundErrorMessage.
 						self assert: aCart isEmpty .]
 	
 ! !
@@ -117,7 +179,7 @@ setUp
 
 !classDefinition: #Cart category: #TusLibros!
 Object subclass: #Cart
-	instanceVariableNames: 'products'
+	instanceVariableNames: 'products catalog'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -127,19 +189,25 @@ initialize
 
 	products _ Bag new.! !
 
+!Cart methodsFor: 'initialization' stamp: 'dim 6/14/2017 18:57:33'!
+initializeWith: aCatalog
 
-!Cart methodsFor: 'adding' stamp: 'ad 6/12/2017 12:33:48'!
+	catalog _ aCatalog.
+	products  _ Bag new.! !
+
+
+!Cart methodsFor: 'adding' stamp: 'dim 6/14/2017 19:20:45'!
 add: aProduct
 
-	products add: aProduct.! !
+	self add: 1 of: aProduct.! !
 
-!Cart methodsFor: 'adding' stamp: 'AD 6/13/2017 21:21:53'!
+!Cart methodsFor: 'adding' stamp: 'dim 6/14/2017 19:20:27'!
 add: anAmount of: aProduct
-
+	(catalog includes: aProduct) ifFalse: [ self error:  self class productNotFoundErrorMessage ].
+		
 	(anAmount isKindOf: Integer) ifFalse: [self error: self class nonWholeNumberErrorMessage ].
 	(anAmount > 0) ifFalse: [self error: self class negativeOrZeroAmountErrorMessage ].
-		
-	anAmount timesRepeat: [self add: aProduct ]! !
+			products add: aProduct withOccurrences: anAmount.! !
 
 
 !Cart methodsFor: 'testing' stamp: 'ad 6/12/2017 11:24:30'!
@@ -186,6 +254,7 @@ productsDo: aBlock
 
 	! !
 
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Cart class' category: #TusLibros!
@@ -206,3 +275,9 @@ nonWholeNumberErrorMessage
 productNotFoundErrorMessage
 	
 	^ 'Product not found'! !
+
+
+!Cart class methodsFor: 'class initialization' stamp: 'dim 6/14/2017 18:56:09'!
+with: aCatalog
+ 
+	^self new initializeWith: aCatalog ! !
