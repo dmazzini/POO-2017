@@ -1,180 +1,210 @@
 !classDefinition: #CartTest category: #TusLibros!
 TestCase subclass: #CartTest
-	instanceVariableNames: 'aCart aProduct'
+	instanceVariableNames: 'aCart aProduct anEmptyCatalog aCatalogWithAProduct anExpiredCard today'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CartTest methodsFor: 'tests' stamp: 'ad 6/12/2017 11:26:56'!
+!CartTest methodsFor: 'tests' stamp: 'ad 6/16/2017 14:59:42'!
 test01ANewCartShouldBeEmpty
-	
+
 	aCart _ Cart new.
 	
 	self assert: aCart isEmpty.! !
 
-!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:11:27'!
+!CartTest methodsFor: 'tests' stamp: 'ad 6/16/2017 15:00:56'!
 test02WhenAProductIsAddedTheCartShouldNotBeEmpty
-	|aCatalog|
-	
-	aCatalog _ Set new.
-	
-	aCatalog add: aProduct.
 
-	aCart _ Cart with: aCatalog.
+	aCart _ Cart with: aCatalogWithAProduct.
 
 	aCart add: aProduct.
 	
 	self deny: aCart isEmpty.! !
 
-!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:12:21'!
+!CartTest methodsFor: 'tests' stamp: 'ad 6/16/2017 15:01:16'!
 test03ACartIncludesAnAddedProduct
-	|aCatalog|
-	
-	aCatalog _ Set new.
-	
-	aCatalog add: aProduct.
 
-	aCart _ Cart with: aCatalog.
+	aCart _ Cart with: aCatalogWithAProduct.
 
 	aCart add: aProduct.
-	self assert: (aCart includes: aProduct).
 	
-! !
+	self assert: (aCart includes: aProduct).! !
 
-!CartTest methodsFor: 'tests' stamp: 'ad 6/12/2017 11:28:40'!
+!CartTest methodsFor: 'tests' stamp: 'ad 6/16/2017 15:01:33'!
 test04ACartDoesNotIncludeAProductThatHasntBeenAdded
-	
+
 	aCart _ Cart new.
 	
 	self deny: (aCart includes: aProduct).
-	
 ! !
 
-!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:12:51'!
+!CartTest methodsFor: 'tests' stamp: 'ad 6/16/2017 16:37:26'!
 test05TheAmountOfAProductAfterAddingItTwiceIsTwo
-	|aCatalog|
-	
-	aCatalog _ Set new.
-	
-	aCatalog add: aProduct.
 
-	aCart _ Cart with: aCatalog.
-	aCart add: aProduct.
-	aCart add: aProduct.
+	aCart _ Cart with: aCatalogWithAProduct.
 	
-	self assert: (aCart amountOf: aProduct) = 2.
+	aCart add: aProduct; add: aProduct.
 	
-! !
+	self assert: (aCart amountOf: aProduct) = 2.! !
 
-!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:13:26'!
+!CartTest methodsFor: 'tests' stamp: 'ad 6/16/2017 15:02:40'!
 test06TheAmountOfAProductAfterAddingThreeOfItIsThree
-	|aCatalog|
-	
-	aCatalog _ Set new.
-	
-	aCatalog add: aProduct.
 
-	aCart _ Cart with: aCatalog.
+	aCart _ Cart with: aCatalogWithAProduct.
 	
 	aCart add: 3 of: aProduct.
 	
-	self assert: (aCart amountOf: aProduct) = 3.
-	
-! !
+	self assert: (aCart amountOf: aProduct) = 3.! !
 
-!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:22:42'!
+!CartTest methodsFor: 'tests' stamp: 'ad 6/16/2017 15:03:06'!
 test07AddingANegativeAmountOfAProductShouldRaiseError
-	|aCatalog|
-	
-	aCatalog _ Set new.
-	
-	aCatalog add: aProduct.
 
-	aCart _ Cart with: aCatalog.	
-
+	aCart _ Cart with: aCatalogWithAProduct.
+	
 	self should: [aCart add: -1 of: aProduct.]
 		  raise: Error - MessageNotUnderstood
 		  withExceptionDo: [:anError |
 						self assert: anError messageText equals: Cart negativeOrZeroAmountErrorMessage.
-						self assert: aCart isEmpty .]
-	
-! !
+						self assert: aCart isEmpty .]! !
 
-!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:14:03'!
+!CartTest methodsFor: 'tests' stamp: 'ad 6/16/2017 15:03:56'!
 test08ACartWithProductsPrintsThem
 
-	|aCatalog aString|
-	
-	aCatalog _ Set new.
-	
-	aCatalog add: aProduct.
+	| aString |
 
-	aCart _ Cart with: aCatalog.
-	aCart add: 3 of: aProduct.	
+	aCart _ Cart with: aCatalogWithAProduct.
+	
+	aCart add: 3 of: aProduct.
 	
 	aString _ String streamContents: [:aStream |
 				aCart printOn: aStream.	].
-	
-	self assert: aString equals: '''aProduct'' ''aProduct'' ''aProduct'''.
-					
-	
-	
-! !
+			
+	self assert: aString equals: '''aProduct'' ''aProduct'' ''aProduct'''.! !
 
-!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:23:13'!
+!CartTest methodsFor: 'tests' stamp: 'ad 6/16/2017 15:04:17'!
 test09AddingANonWholeNumberAmountOfAProductShouldRaiseError
-	|aCatalog|
-	
-	aCatalog _ Set new.
-	
-	aCatalog add: aProduct.
 
-	aCart _ Cart with: aCatalog.
-	self should: [aCart add: 5/3 of: aProduct.]
+	aCart _ Cart with: aCatalogWithAProduct.
+	
+	self should: [aCart add: 5/3 of: aProduct.]	
 		  raise: Error - MessageNotUnderstood
 		  withExceptionDo: [:anError |
 						self assert: anError messageText equals: Cart nonWholeNumberErrorMessage.
-						self assert: aCart isEmpty .]
-	
-! !
+						self assert: aCart isEmpty .]! !
 
-!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:05:31'!
-test10AddingAProductThatNotBelongToCatalogShouldRaiseError
-	|aCatalog|
-
-	aCatalog _ Set new.
+!CartTest methodsFor: 'tests' stamp: 'ad 6/16/2017 15:09:21'!
+test10AddingAProductThatDoesntBelongToTheCatalogShouldRaiseError
 		
-	aCart _ Cart with: aCatalog.	
-
+	aCart _ Cart with: anEmptyCatalog.	
+	
 	self should: [aCart add: aProduct.]
 		  raise: Error - MessageNotUnderstood
 		  withExceptionDo: [:anError |
-						self assert: anError messageText equals: Cart productNotFoundErrorMessage.
-						self assert: aCart isEmpty .]
-	
-! !
+						self assert: anError messageText equals: Cart productNotOnCatalogErrorMessage.
+						self assert: aCart isEmpty .]! !
 
-!CartTest methodsFor: 'tests' stamp: 'dim 6/14/2017 19:16:11'!
-test11AddingMoreThanOneProductThatNotBelongToCatalogShouldRaiseError
-	|aCatalog|
+!CartTest methodsFor: 'tests' stamp: 'ad 6/16/2017 16:11:49'!
+test11CanNotCreateACachierWithAnEmptyCart
 
-	aCatalog _ Set new.
+	| aCard |
 		
-	aCart _ Cart with: aCatalog.	
-
-	self should: [aCart add: 3 of: aProduct.]
-		  raise: Error - MessageNotUnderstood
-		  withExceptionDo: [:anError |
-						self assert: anError messageText equals: Cart productNotFoundErrorMessage.
-						self assert: aCart isEmpty .]
+	aCart _ Cart with: anEmptyCatalog.
 	
-! !
+	aCard _ Card new.
+	
+	self should: [Cashier with: aCart payingWith: aCard on: today.]
+			raise: Error - MessageNotUnderstood 
+			withExceptionDo: [:anError |
+					self assert: anError messageText equals: Cashier emptyCartErrorMessage] ! !
+
+!CartTest methodsFor: 'tests' stamp: 'ad 6/16/2017 16:11:35'!
+test12CanNotCreateACachierWithAnExpiredCard
+		
+	aCart _ Cart with: aCatalogWithAProduct.
+	
+	aCart add: 'aProduct'.
+	
+	self should: [Cashier with: aCart payingWith: anExpiredCard on: today.]
+			raise: Error - MessageNotUnderstood 
+			withExceptionDo: [:anError |
+					self assert: anError messageText equals: Cashier expiredCardErrorMessage.] ! !
+
+!CartTest methodsFor: 'tests' stamp: 'ad 6/16/2017 16:38:09'!
+test13CreatingACardWithANumberWithMoreThanSixteenDigitsShouldRaiseEror
+	
+	self should: [Card number: 12345678901234567 forOwner: 'Jaime'  thatExpiresOn: 'december' of: 2017.]
+			raise: Error - MessageNotUnderstood 
+			withExceptionDo: [:anError |
+					self assert: anError messageText equals: Card invalidNumberErrorMessage.] ! !
 
 
-!CartTest methodsFor: 'set up' stamp: 'ad 6/12/2017 11:27:29'!
+!CartTest methodsFor: 'set up' stamp: 'ad 6/16/2017 16:12:01'!
 setUp
 
-	aProduct _ 'aProduct'! !
+	aProduct _ 'aProduct'.
+	
+	anEmptyCatalog _ Set new.
+	
+	aCatalogWithAProduct _ Set with: 'aProduct'.	
+	
+	anExpiredCard _ Card number: 0000000000000000 forOwner: 'Owner' thatExpiresOn: 'march' of: 2017.
+	
+	today _ Date today.! !
+
+
+!classDefinition: #Card category: #TusLibros!
+Object subclass: #Card
+	instanceVariableNames: 'number owner expMonth expYear'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!Card methodsFor: 'private' stamp: 'ad 6/16/2017 16:03:57'!
+initializeWithNumber: aCardNumber forOwner: aName thatExpiresOn: aMonthNameOrIndex of: aYear
+
+	number _ aCardNumber.
+	
+	owner _ aName.
+	
+	
+	expMonth _ aMonthNameOrIndex isInteger 
+				ifTrue: [aMonthNameOrIndex]
+				ifFalse: [Month indexOfMonth: aMonthNameOrIndex].
+	
+	expYear _ aYear.! !
+
+
+!Card methodsFor: 'testing' stamp: 'ad 6/16/2017 16:09:49'!
+isExpiredOn: aDate
+
+	^ (expYear <= aDate yearNumber) and: (expMonth < aDate monthIndex). ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Card class' category: #TusLibros!
+Card class
+	instanceVariableNames: ''!
+
+!Card class methodsFor: 'initialization' stamp: 'ad 6/16/2017 16:23:49'!
+number: aCardNumber forOwner: aName thatExpiresOn: aMonthNameOrIndex of: aYear.
+
+	(self isValidCardNumber: aCardNumber) ifFalse: [self error: self invalidNumberErrorMessage].
+
+	^ self new initializeWithNumber: aCardNumber forOwner: aName thatExpiresOn: aMonthNameOrIndex of: aYear.
+	
+	! !
+
+
+!Card class methodsFor: 'error messages' stamp: 'ad 6/16/2017 16:22:11'!
+invalidNumberErrorMessage
+
+	^ 'Card number should contain 16 digits'! !
+
+
+!Card class methodsFor: 'validation' stamp: 'ad 6/16/2017 16:28:44'!
+isValidCardNumber: aCardNumber
+	
+	^ (aCardNumber isKindOf: Integer) and: [aCardNumber asString size <= 16].! !
 
 
 !classDefinition: #Cart category: #TusLibros!
@@ -201,9 +231,9 @@ add: aProduct
 
 	self add: 1 of: aProduct.! !
 
-!Cart methodsFor: 'adding' stamp: 'dim 6/14/2017 19:20:27'!
+!Cart methodsFor: 'adding' stamp: 'ad 6/16/2017 15:09:18'!
 add: anAmount of: aProduct
-	(catalog includes: aProduct) ifFalse: [ self error:  self class productNotFoundErrorMessage ].
+	(catalog includes: aProduct) ifFalse: [ self error:  self class productNotOnCatalogErrorMessage ].
 		
 	(anAmount isKindOf: Integer) ifFalse: [self error: self class nonWholeNumberErrorMessage ].
 	(anAmount > 0) ifFalse: [self error: self class negativeOrZeroAmountErrorMessage ].
@@ -254,7 +284,6 @@ productsDo: aBlock
 
 	! !
 
-
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Cart class' category: #TusLibros!
@@ -271,13 +300,45 @@ nonWholeNumberErrorMessage
 	
 	^ 'Can not add a non whole number amount.'! !
 
-!Cart class methodsFor: 'error messages' stamp: 'ad 6/12/2017 12:14:17'!
-productNotFoundErrorMessage
-	
-	^ 'Product not found'! !
+!Cart class methodsFor: 'error messages' stamp: 'ad 6/16/2017 15:09:08'!
+productNotOnCatalogErrorMessage
+
+	^ 'Product not listed on catalog'! !
 
 
 !Cart class methodsFor: 'class initialization' stamp: 'dim 6/14/2017 18:56:09'!
 with: aCatalog
  
 	^self new initializeWith: aCatalog ! !
+
+
+!classDefinition: #Cashier category: #TusLibros!
+Object subclass: #Cashier
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Cashier class' category: #TusLibros!
+Cashier class
+	instanceVariableNames: ''!
+
+!Cashier class methodsFor: 'initialization' stamp: 'ad 6/16/2017 15:48:00'!
+with: aCart payingWith: aCard on: aDate
+
+	aCart isEmpty ifTrue: [self error: self emptyCartErrorMessage].
+	
+	(aCard isExpiredOn: aDate ) ifTrue: [self error: self expiredCardErrorMessage].! !
+
+
+!Cashier class methodsFor: 'error messages' stamp: 'ad 6/16/2017 15:30:23'!
+emptyCartErrorMessage
+
+	^ 'Can not create a cashier with an empty cart.'! !
+
+!Cashier class methodsFor: 'error messages' stamp: 'ad 6/16/2017 15:45:04'!
+expiredCardErrorMessage
+
+	^ 'Can not create a cashier with an expired card.'! !
