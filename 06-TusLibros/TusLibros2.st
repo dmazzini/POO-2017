@@ -1,6 +1,6 @@
 !classDefinition: #CartTest category: #TusLibros!
 TestCase subclass: #CartTest
-	instanceVariableNames: 'aCart aProduct anEmptyCatalog aCatalogWithAProduct anExpiredCard today aNotExpiredCard aCatalogWithTwoProducts'
+	instanceVariableNames: 'aCart aProduct anEmptyCatalog aCatalogWithAProduct anExpiredCard today aNotExpiredCard aCatalogWithTwoProducts aCatalogWithThreeProducts'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -151,28 +151,30 @@ test14CheckoutTotalShouldBeEqualToTheSumOfTheAmountsOfTheItemsInTheCart
 	
 	self assert: aCashier checkout = ((aCatalogWithAProduct at: aProduct) * 2).! !
 
-!CartTest methodsFor: 'tests' stamp: 'dim 6/21/2017 08:50:59'!
-test15
+!CartTest methodsFor: 'tests' stamp: 'DIM 6/21/2017 13:33:04'!
+test15CheckoutTotalShouldBeEqualToTheSumOfTheAmountsOfTheItemsOfDifferentProductsInTheCart
 
-	| aCashier aProductA aProductB|
+	| aCashier aProductA aProductB aProductC |
 	
 	aProductA _ 'aProductA'.
 	aProductB _ 'aProductB'.
+	aProductC _ 'aProductC'.
 	
-	aCart _ Cart with: aCatalogWithTwoProducts.
+	aCart _ Cart with: aCatalogWithThreeProducts.
 	
 	aCart add: 1 of: aProductA.
-	aCart add: 1 of: aProductB.
+	aCart add: 2 of: aProductB.
+	aCart add: 3 of: aProductC.	
 	
 	aCashier _ Cashier with: aCart payingWith: aNotExpiredCard on: today.
 	
-	self assert: aCashier checkout = ((aCatalogWithTwoProducts at: aProductA) + (aCatalogWithTwoProducts at: aProductB)).! !
+	self assert: aCashier checkout = ((aCatalogWithThreeProducts at: aProductA) + ((aCatalogWithThreeProducts at: aProductB) *2) + ((aCatalogWithThreeProducts at: aProductC) *3) ).! !
 
 
-!CartTest methodsFor: 'set up' stamp: 'dim 6/21/2017 08:49:56'!
+!CartTest methodsFor: 'set up' stamp: 'DIM 6/21/2017 13:27:11'!
 setUp
 
-	|dictWithaProduct dictWithTwoProducts |
+	|dictWithaProduct dictWithTwoProducts dictWithThreeProducts|
 	
 	aProduct _ 'aProduct'.
 	
@@ -186,6 +188,12 @@ setUp
 	dictWithTwoProducts at:'aProductA' put:5.
 	dictWithTwoProducts at:'aProductB' put:10.	
 	aCatalogWithTwoProducts _ dictWithTwoProducts.	
+
+	dictWithThreeProducts _ Dictionary new.
+	dictWithThreeProducts at:'aProductA' put:5.
+	dictWithThreeProducts at:'aProductB' put:10.	
+	dictWithThreeProducts at:'aProductC' put:20.	
+	aCatalogWithThreeProducts _ dictWithThreeProducts.	
 
 
 	today _ Date today.
@@ -281,7 +289,7 @@ Object subclass: #Cart
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Cart methodsFor: 'initialization' stamp: 'ad 6/12/2017 11:24:42'!
+!Cart methodsFor: 'initialization' stamp: 'DIM 6/21/2017 10:54:32'!
 initialize
 
 	products _ Bag new.! !
@@ -298,57 +306,81 @@ add: aProduct
 
 	self add: 1 of: aProduct.! !
 
-!Cart methodsFor: 'adding' stamp: 'dim 6/20/2017 19:32:17'!
+!Cart methodsFor: 'adding' stamp: 'DIM 6/21/2017 10:54:09'!
 add: anAmount of: aProduct
-	(catalog includesKey: aProduct) ifFalse: [ self error:  self class productNotOnCatalogErrorMessage ].
+
+	(catalog includesKey: aProduct) ifFalse: [ self error:  self class productNotOnCatalogErrorMessage ].
 		
 	(anAmount isKindOf: Integer) ifFalse: [self error: self class nonWholeNumberErrorMessage ].
+	
 	(anAmount > 0) ifFalse: [self error: self class negativeOrZeroAmountErrorMessage ].
-			products add: aProduct withOccurrences: anAmount.! !
+	
+	products add: aProduct withOccurrences: anAmount.! !
 
 
-!Cart methodsFor: 'testing' stamp: 'ad 6/12/2017 11:24:30'!
+!Cart methodsFor: 'testing' stamp: 'DIM 6/21/2017 10:54:23'!
 includes: aProduct
 
 	^ products includes: aProduct.! !
 
-!Cart methodsFor: 'testing' stamp: 'ad 6/12/2017 11:24:48'!
+!Cart methodsFor: 'testing' stamp: 'DIM 6/21/2017 10:53:44'!
 isEmpty
 
 	^ products isEmpty.! !
 
 
-!Cart methodsFor: 'accessing' stamp: 'ad 6/12/2017 11:25:11'!
+!Cart methodsFor: 'accessing' stamp: 'DIM 6/21/2017 10:52:36'!
 amountOf: aProduct
 
 	^ products occurrencesOf: aProduct.! !
 
-!Cart methodsFor: 'accessing' stamp: 'AD 6/13/2017 21:06:01'!
+!Cart methodsFor: 'accessing' stamp: 'DIM 6/21/2017 10:52:27'!
 products
 
 	^ products copy.! !
 
 
-!Cart methodsFor: 'printing' stamp: 'AD 6/13/2017 19:44:46'!
+!Cart methodsFor: 'printing' stamp: 'DIM 6/21/2017 13:23:28'!
+amountSum
+
+	| amountSum |
+	
+	amountSum _ 0.
+	
+	self productsDo: [:aProduct |
+		
+			amountSum _ amountSum  + catalog at:aProduct .
+		].			
+		
+	^ amountSum.
+				
+	! !
+
+!Cart methodsFor: 'printing' stamp: 'DIM 6/21/2017 10:53:32'!
 printOn: aStream
 
-	| iter |
+	| iter |	
 	
 	iter _ 1.
-
-	self productsDo: [:aProduct | 
+	
+	self productsDo: [:aProduct |
+		
 			aProduct printOn: aStream.
+			
 			(iter = products size) ifFalse: [ 
+				
 					aStream nextPutAll: ' '.].
+				
 			iter _ iter + 1.]! !
 
 
-!Cart methodsFor: 'enumerating' stamp: 'AD 6/13/2017 19:18:27'!
+!Cart methodsFor: 'enumerating' stamp: 'DIM 6/21/2017 10:54:48'!
 productsDo: aBlock
 
 	products do: [:aProduct |
+		
 				aBlock value: aProduct ].
-
+			
 	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -357,14 +389,14 @@ productsDo: aBlock
 Cart class
 	instanceVariableNames: ''!
 
-!Cart class methodsFor: 'error messages' stamp: 'AD 6/13/2017 21:21:44'!
+!Cart class methodsFor: 'error messages' stamp: 'DIM 6/21/2017 10:55:04'!
 negativeOrZeroAmountErrorMessage
-	
+
 	^ 'Can not add a negative or zero amount'! !
 
-!Cart class methodsFor: 'error messages' stamp: 'AD 6/13/2017 21:20:24'!
+!Cart class methodsFor: 'error messages' stamp: 'DIM 6/21/2017 11:01:18'!
 nonWholeNumberErrorMessage
-	
+
 	^ 'Can not add a non whole number amount.'! !
 
 !Cart class methodsFor: 'error messages' stamp: 'ad 6/16/2017 15:09:08'!
@@ -386,10 +418,10 @@ Object subclass: #Cashier
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Cashier methodsFor: 'as yet unclassified' stamp: 'dim 6/20/2017 19:41:05'!
+!Cashier methodsFor: 'as yet unclassified' stamp: 'DIM 6/21/2017 13:23:57'!
 checkout
 
-	^ 10.! !
+	^ cart amountSum.! !
 
 !Cashier methodsFor: 'as yet unclassified' stamp: 'dim 6/20/2017 19:23:35'!
 initializeWith: aCart payingWith: aCard on: aDate 
