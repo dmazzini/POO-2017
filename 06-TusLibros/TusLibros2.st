@@ -1,6 +1,6 @@
 !classDefinition: #CartTest category: #TusLibros!
 TestCase subclass: #CartTest
-	instanceVariableNames: 'aCart aProduct anEmptyCatalog aCatalogWithAProduct anExpiredCard today aNotExpiredCard'
+	instanceVariableNames: 'aCart aProduct anEmptyCatalog aCatalogWithAProduct anExpiredCard today aNotExpiredCard aCatalogWithTwoProducts'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -137,8 +137,8 @@ test13CreatingACardWithANumberWithMoreThanSixteenDigitsShouldRaiseEror
 			withExceptionDo: [:anError |
 					self assert: anError messageText equals: Card invalidNumberErrorMessage.] ! !
 
-!CartTest methodsFor: 'tests' stamp: 'dim 6/20/2017 19:26:03'!
-test14
+!CartTest methodsFor: 'tests' stamp: 'dim 6/21/2017 08:45:48'!
+test14CheckoutTotalShouldBeEqualToTheSumOfTheAmountsOfTheItemsInTheCart
 
 	| aCashier aProduct |
 	
@@ -151,11 +151,28 @@ test14
 	
 	self assert: aCashier checkout = ((aCatalogWithAProduct at: aProduct) * 2).! !
 
+!CartTest methodsFor: 'tests' stamp: 'dim 6/21/2017 08:50:59'!
+test15
 
-!CartTest methodsFor: 'set up' stamp: 'dim 6/20/2017 19:40:18'!
+	| aCashier aProductA aProductB|
+	
+	aProductA _ 'aProductA'.
+	aProductB _ 'aProductB'.
+	
+	aCart _ Cart with: aCatalogWithTwoProducts.
+	
+	aCart add: 1 of: aProductA.
+	aCart add: 1 of: aProductB.
+	
+	aCashier _ Cashier with: aCart payingWith: aNotExpiredCard on: today.
+	
+	self assert: aCashier checkout = ((aCatalogWithTwoProducts at: aProductA) + (aCatalogWithTwoProducts at: aProductB)).! !
+
+
+!CartTest methodsFor: 'set up' stamp: 'dim 6/21/2017 08:49:56'!
 setUp
 
-	|dictWithaProduct|
+	|dictWithaProduct dictWithTwoProducts |
 	
 	aProduct _ 'aProduct'.
 	
@@ -164,6 +181,12 @@ setUp
 	dictWithaProduct _ Dictionary new.
 	dictWithaProduct at:'aProduct' put:5.
 	aCatalogWithAProduct _ dictWithaProduct.	
+
+	dictWithTwoProducts _ Dictionary new.
+	dictWithTwoProducts at:'aProductA' put:5.
+	dictWithTwoProducts at:'aProductB' put:10.	
+	aCatalogWithTwoProducts _ dictWithTwoProducts.	
+
 
 	today _ Date today.
 		
