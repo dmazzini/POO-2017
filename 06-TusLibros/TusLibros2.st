@@ -129,10 +129,10 @@ test12CanNotCreateACashierWithAnExpiredCard
 			withExceptionDo: [:anError |
 					self assert: anError messageText equals: Cashier expiredCardErrorMessage.] ! !
 
-!CartTest methodsFor: 'tests' stamp: 'ad 6/16/2017 16:38:09'!
+!CartTest methodsFor: 'tests' stamp: 'DIM 6/22/2017 11:00:25'!
 test13CreatingACardWithANumberWithMoreThanSixteenDigitsShouldRaiseEror
 	
-	self should: [Card number: 12345678901234567 forOwner: 'Jaime'  thatExpiresOn: 'december' of: 2017.]
+	self should: [Card number: 12345678901234567 forOwner: 'Jaime'  thatExpiresOn:(Month month: today monthIndex year: today yearNumber + 1).]
 			raise: Error - MessageNotUnderstood 
 			withExceptionDo: [:anError |
 					self assert: anError messageText equals: Card invalidNumberErrorMessage.] ! !
@@ -221,20 +221,6 @@ initializeWithNumber: aCardNumber forOwner: aName thatExpiresOn: aMonthOfYear
 	
 	expireOn _ aMonthOfYear.! !
 
-!Card methodsFor: 'private' stamp: 'ad 6/16/2017 16:03:57'!
-initializeWithNumber: aCardNumber forOwner: aName thatExpiresOn: aMonthNameOrIndex of: aYear
-
-	number _ aCardNumber.
-	
-	owner _ aName.
-	
-	
-	expMonth _ aMonthNameOrIndex isInteger 
-				ifTrue: [aMonthNameOrIndex]
-				ifFalse: [Month indexOfMonth: aMonthNameOrIndex].
-	
-	expYear _ aYear.! !
-
 
 !Card methodsFor: 'testing' stamp: 'dim 6/20/2017 19:12:19'!
 isExpiredOn: aDate
@@ -257,15 +243,6 @@ number: aCardNumber forOwner: aName thatExpiresOn: aMonthOfaYear.
 	(self isValidCardNumber: aCardNumber) ifFalse: [self error: self invalidNumberErrorMessage].
 
 	^ self new initializeWithNumber: aCardNumber forOwner: aName thatExpiresOn: aMonthOfaYear.
-	
-	! !
-
-!Card class methodsFor: 'initialization' stamp: 'ad 6/16/2017 16:23:49'!
-number: aCardNumber forOwner: aName thatExpiresOn: aMonthNameOrIndex of: aYear.
-
-	(self isValidCardNumber: aCardNumber) ifFalse: [self error: self invalidNumberErrorMessage].
-
-	^ self new initializeWithNumber: aCardNumber forOwner: aName thatExpiresOn: aMonthNameOrIndex of: aYear.
 	
 	! !
 
