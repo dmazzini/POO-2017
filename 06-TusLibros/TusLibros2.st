@@ -103,7 +103,7 @@ test10AddingAProductThatDoesntBelongToTheCatalogShouldRaiseError
 						self assert: anError messageText equals: Cart productNotOnCatalogErrorMessage.
 						self assert: aCart isEmpty .]! !
 
-!CartTest methodsFor: 'tests' stamp: 'dim 6/20/2017 18:19:18'!
+!CartTest methodsFor: 'tests' stamp: 'ad 6/22/2017 12:40:11'!
 test11CanNotCreateACashierWithAnEmptyCart
 
 	| aCard |
@@ -112,19 +112,19 @@ test11CanNotCreateACashierWithAnEmptyCart
 	
 	aCard _ Card new.
 	
-	self should: [Cashier with: aCart payingWith: aCard on: today.]
+	self should: [Cashier for: aCart payingWith: aCard on: today.]
 			raise: Error - MessageNotUnderstood 
 			withExceptionDo: [:anError |
 					self assert: anError messageText equals: Cashier emptyCartErrorMessage] ! !
 
-!CartTest methodsFor: 'tests' stamp: 'dim 6/20/2017 18:19:39'!
+!CartTest methodsFor: 'tests' stamp: 'ad 6/22/2017 12:40:15'!
 test12CanNotCreateACashierWithAnExpiredCard
 		
 	aCart _ Cart with: aCatalogWithAProduct.
 	
 	aCart add: 'aProduct'.
 	
-	self should: [Cashier with: aCart payingWith: anExpiredCard on: today.]
+	self should: [Cashier for: aCart payingWith: anExpiredCard on: today.]
 			raise: Error - MessageNotUnderstood 
 			withExceptionDo: [:anError |
 					self assert: anError messageText equals: Cashier expiredCardErrorMessage.] ! !
@@ -137,22 +137,22 @@ test13CreatingACardWithANumberWithMoreThanSixteenDigitsShouldRaiseEror
 			withExceptionDo: [:anError |
 					self assert: anError messageText equals: Card invalidNumberErrorMessage.] ! !
 
-!CartTest methodsFor: 'tests' stamp: 'dim 6/21/2017 08:45:48'!
-test14CheckoutTotalShouldBeEqualToTheSumOfTheAmountsOfTheItemsInTheCart
+!CartTest methodsFor: 'tests' stamp: 'ad 6/22/2017 12:48:44'!
+test14CheckoutTotalForACartWithOneProductShouldBeEqualToThatProductPrice
 
 	| aCashier aProduct |
 	
 	aProduct _ 'aProduct'.
 	aCart _ Cart with: aCatalogWithAProduct.
 	
-	aCart add: 2 of: aProduct.
+	aCart add: aProduct.
 	
-	aCashier _ Cashier with: aCart payingWith: aNotExpiredCard on: today.
+	aCashier _ Cashier for: aCart payingWith: aNotExpiredCard on: today.
 	
-	self assert: aCashier checkout = ((aCatalogWithAProduct at: aProduct) * 2).! !
+	self assert: aCashier checkout = (aCatalogWithAProduct at: aProduct).! !
 
-!CartTest methodsFor: 'tests' stamp: 'DIM 6/21/2017 13:33:04'!
-test15CheckoutTotalShouldBeEqualToTheSumOfTheAmountsOfTheItemsOfDifferentProductsInTheCart
+!CartTest methodsFor: 'tests' stamp: 'ad 6/22/2017 12:47:30'!
+test15CheckoutTotalShouldBeEqualToTheSumOfAllCartsProductsPrices
 
 	| aCashier aProductA aProductB aProductC |
 	
@@ -166,7 +166,7 @@ test15CheckoutTotalShouldBeEqualToTheSumOfTheAmountsOfTheItemsOfDifferentProduct
 	aCart add: 2 of: aProductB.
 	aCart add: 3 of: aProductC.	
 	
-	aCashier _ Cashier with: aCart payingWith: aNotExpiredCard on: today.
+	aCashier _ Cashier for: aCart payingWith: aNotExpiredCard on: today.
 	
 	self assert: aCashier checkout = ((aCatalogWithThreeProducts at: aProductA) + ((aCatalogWithThreeProducts at: aProductB) *2) + ((aCatalogWithThreeProducts at: aProductC) *3) ).! !
 
@@ -316,22 +316,22 @@ products
 
 	^ products copy.! !
 
+!Cart methodsFor: 'accessing' stamp: 'ad 6/22/2017 12:38:03'!
+totalPrice
 
-!Cart methodsFor: 'printing' stamp: 'DIM 6/21/2017 13:23:28'!
-amountSum
-
-	| amountSum |
+	| totalPrice |
 	
-	amountSum _ 0.
+	totalPrice _ 0.
 	
 	self productsDo: [:aProduct |
 		
-			amountSum _ amountSum  + catalog at:aProduct .
+			totalPrice _ totalPrice  + catalog at:aProduct .
 		].			
 		
-	^ amountSum.
+	^ totalPrice.
 				
 	! !
+
 
 !Cart methodsFor: 'printing' stamp: 'DIM 6/21/2017 10:53:32'!
 printOn: aStream
@@ -395,17 +395,18 @@ Object subclass: #Cashier
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Cashier methodsFor: 'as yet unclassified' stamp: 'DIM 6/21/2017 13:23:57'!
-checkout
-
-	^ cart amountSum.! !
-
-!Cashier methodsFor: 'as yet unclassified' stamp: 'dim 6/20/2017 19:23:35'!
-initializeWith: aCart payingWith: aCard on: aDate 
+!Cashier methodsFor: 'private' stamp: 'ad 6/22/2017 12:40:49'!
+initializeFor: aCart payingWith: aCard on: aDate 
 
 	cart _ aCart.
 	card _ aCard.
 	date _ aDate.! !
+
+
+!Cashier methodsFor: 'checkout' stamp: 'ad 6/22/2017 12:38:18'!
+checkout
+
+	^ cart totalPrice.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -413,14 +414,14 @@ initializeWith: aCart payingWith: aCard on: aDate
 Cashier class
 	instanceVariableNames: ''!
 
-!Cashier class methodsFor: 'initialization' stamp: 'dim 6/20/2017 19:21:04'!
-with: aCart payingWith: aCard on: aDate
+!Cashier class methodsFor: 'initialization' stamp: 'ad 6/22/2017 12:39:54'!
+for: aCart payingWith: aCard on: aDate
 
 	aCart isEmpty ifTrue: [self error: self emptyCartErrorMessage].
 	
 	(aCard isExpiredOn: aDate ) ifTrue: [self error: self expiredCardErrorMessage].
 	
-	^ self new initializeWith: aCart payingWith: aCard on: aDate.! !
+	^ self new initializeFor: aCart payingWith: aCard on: aDate.! !
 
 
 !Cashier class methodsFor: 'error messages' stamp: 'ad 6/16/2017 15:30:23'!
