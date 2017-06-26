@@ -516,7 +516,8 @@ test16CanNotCheckoutACartWithAnExpiredCard
 	
 ! !
 
-!TusLibrosRestInterfaceTest methodsFor: 'checkout cart' stamp: 'DIM 6/26/2017 10:18:19'!
+
+!TusLibrosRestInterfaceTest methodsFor: 'list purchases' stamp: 'DIM 6/26/2017 10:18:19'!
 test17ListOfPurchasesOfAUserShouldIncludeAllBooksPurchased
 
 	| cartId anotherCartId listOfPurchasesOfAUser |
@@ -548,6 +549,38 @@ test17ListOfPurchasesOfAUserShouldIncludeAllBooksPurchased
 	
 	
 ! !
+
+!TusLibrosRestInterfaceTest methodsFor: 'list purchases' stamp: 'DIM 6/26/2017 14:48:37'!
+test18CanNotListPurchasesOfAnInvalidUser
+
+	self 
+		should: [ tusLibrosInterface purchasesOf: invalidUser withPassword: validUserPassword. ]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [ :anError |
+				self assert: anError messageText = TusLibrosRestInterface invalidUserErrorMessage.
+			]
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+! !
+
+!TusLibrosRestInterfaceTest methodsFor: 'list purchases' stamp: 'DIM 6/26/2017 14:50:25'!
+test19CanNotListPurchasesOfAValidUserAndInvalidPassword
+
+	self 
+		should: [  tusLibrosInterface purchasesOf: validUser withPassword: invalidPassword.] 
+		raise:  Error - MessageNotUnderstood 
+		withExceptionDo: [:anError |
+					self assert: anError messageText equals: TusLibrosRestInterface invalidPasswordErrorMessage.				
+			].! !
 
 
 !classDefinition: #Card category: #TusLibros!
@@ -1150,10 +1183,14 @@ listCart: aCartId
 	^ (carts at:aCartId) listCart.! !
 
 
-!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'DIM 6/26/2017 10:16:54'!
+!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'DIM 6/26/2017 14:51:14'!
 purchasesOf: aUser withPassword: aPassword
 
 	| salesOfAUser purchases |
+	
+	(validUsers includesKey: aUser) ifFalse: [^ self error: self class invalidUserErrorMessage].	
+	
+	((validUsers at: aUser) = aPassword) ifFalse: [ ^ self error: self class invalidPasswordErrorMessage].
 	
 	salesOfAUser _ salesBook select: [ :aSale |  aSale user = aUser].
 	
