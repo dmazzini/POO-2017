@@ -516,6 +516,39 @@ test16CanNotCheckoutACartWithAnExpiredCard
 	
 ! !
 
+!TusLibrosRestInterfaceTest methodsFor: 'checkout cart' stamp: 'DIM 6/26/2017 10:18:19'!
+test17ListOfPurchasesOfAUserShouldIncludeAllBooksPurchased
+
+	| cartId anotherCartId listOfPurchasesOfAUser |
+	
+	cartId _ tusLibrosInterface createCartFor: validUser withPassword: validUserPassword.
+	
+	tusLibrosInterface add: 1 of: aValidBook toCart: cartId. 
+	tusLibrosInterface add: 3 of: anotherValidBook toCart: cartId. 	
+	
+	tusLibrosInterface checkOutCart: cartId cardNumber: aCardNumber cardExpiration: notExpiredDate cardOwner: cardOwner. 
+	
+	anotherCartId _ tusLibrosInterface createCartFor: validUser withPassword: validUserPassword.
+	
+	tusLibrosInterface add: 4 of: aValidBook toCart: anotherCartId. 
+	tusLibrosInterface add: 3 of: anotherValidBook toCart: anotherCartId. 	
+	
+	tusLibrosInterface checkOutCart: anotherCartId cardNumber: aCardNumber cardExpiration: notExpiredDate cardOwner: cardOwner. 
+	
+	listOfPurchasesOfAUser _ tusLibrosInterface purchasesOf: validUser withPassword: validUserPassword.
+	
+	self assert: (listOfPurchasesOfAUser at: aValidBook) = 5.
+	self assert: (listOfPurchasesOfAUser at: anotherValidBook) = 6.	
+	
+
+	
+	
+	
+	
+	
+	
+! !
+
 
 !classDefinition: #Card category: #TusLibros!
 Object subclass: #Card
@@ -891,6 +924,11 @@ itemSaleOf: aProduct
 	^ itemsSale at: aProduct.
 	! !
 
+!Sale methodsFor: 'accessing' stamp: 'DIM 6/26/2017 10:17:25'!
+itemsSale
+
+	^ itemsSale.! !
+
 !Sale methodsFor: 'accessing' stamp: 'DIM 6/24/2017 18:24:39'!
 total
 
@@ -1110,6 +1148,31 @@ listCart: aCartId
 
 	(carts includesKey: aCartId) ifFalse: [ self error: self class cartDoesNotExistErrorMessage].
 	^ (carts at:aCartId) listCart.! !
+
+
+!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'DIM 6/26/2017 10:16:54'!
+purchasesOf: aUser withPassword: aPassword
+
+	| salesOfAUser purchases |
+	
+	salesOfAUser _ salesBook select: [ :aSale |  aSale user = aUser].
+	
+	purchases _ Dictionary new.
+		
+	salesOfAUser do: [ :aSale | 
+			aSale itemsSale do: [ :itemSale | 
+					(purchases includesKey: itemSale product) 
+					ifTrue:  [ | aQuantity |
+							aQuantity _ purchases at: itemSale product.
+							purchases at: itemSale product put: aQuantity + itemSale quantity.
+						]
+					ifFalse: [
+							purchases at: itemSale product put: itemSale quantity.
+						].
+				].
+		].
+	
+	^ purchases.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
