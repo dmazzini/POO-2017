@@ -216,10 +216,10 @@ test18CashierShouldNotInvokeMerchantProcessorIfTheCardIsExpired
 	
 		! !
 
-!CartTest methodsFor: 'tests' stamp: 'DIM 6/24/2017 20:11:59'!
+!CartTest methodsFor: 'tests' stamp: 'DIM 6/26/2017 07:37:14'!
 test19SuccessfulCheckoutRegistersTheSale
 
-	| aCashier aSale |
+	| aCashier aSale anItemSale |
 	
 	aCart _ cartFactory createCartWithCatalogWithOneProduct.
 	aCart add: aProductA.
@@ -227,8 +227,12 @@ test19SuccessfulCheckoutRegistersTheSale
 	aCashier _ Cashier for: aCart payingWith: aNotExpiredCard to: merchantProcessorWithoutDebitBehavior registeringIn: aSalesBook on: today.
 	
 	aSale _ aCashier checkout .
+	anItemSale _ aSale itemSaleOf: aProductA.
 	
-	self assert: aSalesBook first = aSale.! !
+	self assert: aSalesBook first = aSale.
+	self assert: anItemSale product = aProductA.
+	self assert: anItemSale quantity = 1.
+	self assert: anItemSale unitPrice = 5.! !
 
 
 !CartTest methodsFor: 'set up' stamp: 'DIM 6/24/2017 20:07:07'!
@@ -619,6 +623,24 @@ catalog
 
 	^ catalog.! !
 
+!Cart methodsFor: 'accessing' stamp: 'DIM 6/26/2017 07:59:25'!
+itemsForSale
+
+	| saleItems |
+	
+	saleItems _ Dictionary new.
+	
+	self productsDo: [ :aProduct |
+			| aSaleItem |
+			aSaleItem _ SaleItem withProduct: aProduct quantity: (self amountOf: aProduct) unitPrice: (catalog at: aProduct).	
+			saleItems at: aProduct put: aSaleItem.	
+		].
+	
+	^ saleItems
+
+	
+	! !
+
 !Cart methodsFor: 'accessing' stamp: 'DIM 6/21/2017 10:52:27'!
 products
 
@@ -738,6 +760,16 @@ Object subclass: #Cashier
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
+!Cashier methodsFor: 'private' stamp: 'DIM 6/25/2017 19:14:18'!
+initializeFor: aCart payingWith: aCard to: aMerchantProcessor registeringIn: aSalesBook forAUser: aUser on: aDate 
+
+	cart _ aCart.
+	card _ aCard.
+	merchantProcessor _ aMerchantProcessor.
+	date _ aDate.
+	salesBook _ aSalesBook.
+	user _ aUser.! !
+
 !Cashier methodsFor: 'private' stamp: 'DIM 6/23/2017 19:11:24'!
 initializeFor: aCart payingWith: aCard to: aMerchantProcessor registeringIn: aSalesBook on: aDate 
 
@@ -748,32 +780,33 @@ initializeFor: aCart payingWith: aCard to: aMerchantProcessor registeringIn: aSa
 	salesBook _ aSalesBook.! !
 
 
-!Cashier methodsFor: 'checkout' stamp: 'DIM 6/25/2017 19:17:01'!
+!Cashier methodsFor: 'checkout' stamp: 'DIM 6/26/2017 07:40:00'!
 checkout
 	| totalPrice aSale |
 	
 	totalPrice  _ cart totalPrice.
+	aSale _ Sale total: totalPrice user: user itemsSale: cart itemsForSale.
+
 	merchantProcessor debit: totalPrice from: card.
-	aSale _ Sale total: totalPrice user: user.
+
 	salesBook add: aSale.
 	^ aSale.! !
-
-
-!Cashier methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 19:14:18'!
-initializeFor: aCart payingWith: aCard to: aMerchantProcessor registeringIn: aSalesBook forAUser: aUser on: aDate 
-
-	cart _ aCart.
-	card _ aCard.
-	merchantProcessor _ aMerchantProcessor.
-	date _ aDate.
-	salesBook _ aSalesBook.
-	user _ aUser.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Cashier class' category: #TusLibros!
 Cashier class
 	instanceVariableNames: ''!
+
+!Cashier class methodsFor: 'initialization' stamp: 'DIM 6/25/2017 19:13:04'!
+for: aCart payingWith: aCard to: aMerchantProcessor registeringIn: aSalesBook forAUser: aUser on: aDate 
+
+	aCart isEmpty ifTrue: [self error: self emptyCartErrorMessage].
+	
+	(aCard isExpiredOn: aDate ) ifTrue: [self error: self expiredCardErrorMessage].
+	
+	^ self new initializeFor: aCart payingWith: aCard to: aMerchantProcessor registeringIn: aSalesBook forAUser: aUser on: aDate.
+! !
 
 !Cashier class methodsFor: 'initialization' stamp: 'DIM 6/23/2017 19:09:32'!
 for: aCart payingWith: aCard to: aMerchantProcessor registeringIn: aSalesBook on: aDate 
@@ -805,17 +838,6 @@ emptyCartErrorMessage
 expiredCardErrorMessage
 
 	^ 'Can not create a cashier with an expired card.'! !
-
-
-!Cashier class methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 19:13:04'!
-for: aCart payingWith: aCard to: aMerchantProcessor registeringIn: aSalesBook forAUser: aUser on: aDate 
-
-	aCart isEmpty ifTrue: [self error: self emptyCartErrorMessage].
-	
-	(aCard isExpiredOn: aDate ) ifTrue: [self error: self expiredCardErrorMessage].
-	
-	^ self new initializeFor: aCart payingWith: aCard to: aMerchantProcessor registeringIn: aSalesBook forAUser: aUser on: aDate.
-! !
 
 
 !classDefinition: #MerchantProcessorSimulator category: #TusLibros!
@@ -850,16 +872,24 @@ with: aDebitBlock
 
 !classDefinition: #Sale category: #TusLibros!
 Object subclass: #Sale
-	instanceVariableNames: 'total user'
+	instanceVariableNames: 'total user itemsSale'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Sale methodsFor: 'private' stamp: 'DIM 6/24/2017 18:23:58'!
-initializeWithTotal: aTotal
+!Sale methodsFor: 'private' stamp: 'DIM 6/26/2017 07:55:02'!
+initializeWithTotal: aTotal user: aUser itemsSale: anItemsSale
 
-	total _ aTotal.! !
+	itemsSale _ anItemsSale.
+	total _ aTotal.
+	user _ aUser.! !
 
+
+!Sale methodsFor: 'accessing' stamp: 'DIM 6/26/2017 07:57:29'!
+itemSaleOf: aProduct
+
+	^ itemsSale at: aProduct.
+	! !
 
 !Sale methodsFor: 'accessing' stamp: 'DIM 6/24/2017 18:24:39'!
 total
@@ -871,29 +901,59 @@ user
 
 	^ user.! !
 
-
-!Sale methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 19:19:43'!
-initializeWithTotal: aTotal user: aUser 
-
-	total _ aTotal.
-	user _ aUser.! !
-
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Sale class' category: #TusLibros!
 Sale class
 	instanceVariableNames: ''!
 
-!Sale class methodsFor: 'initialization' stamp: 'DIM 6/24/2017 18:23:12'!
-total: aTotal
+!Sale class methodsFor: 'initialization' stamp: 'DIM 6/26/2017 07:39:16'!
+total: aTotal user: aUser itemsSale: anItemsSale
 
-	^ self new initializeWithTotal: aTotal.! !
+	^ self new initializeWithTotal: aTotal user: aUser itemsSale: anItemsSale.! !
+
+
+!classDefinition: #SaleItem category: #TusLibros!
+Object subclass: #SaleItem
+	instanceVariableNames: 'product quantity unitPrice'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!SaleItem methodsFor: 'private' stamp: 'DIM 6/26/2017 07:47:18'!
+initializeWith: aProduct quantity: aQuantity unitPrice: aUnitPrice
+ 
+	product _ aProduct.
+	quantity _ aQuantity.
+	unitPrice _ aUnitPrice.
+	! !
 
 
-!Sale class methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 19:18:33'!
-total: aTotal user: aUser 
+!SaleItem methodsFor: 'accessing' stamp: 'DIM 6/26/2017 07:57:52'!
+product
 
-	^ self new initializeWithTotal: aTotal user: aUser.! !
+	^ product.! !
+
+!SaleItem methodsFor: 'accessing' stamp: 'DIM 6/26/2017 07:58:11'!
+quantity
+
+	 ^ quantity.! !
+
+!SaleItem methodsFor: 'accessing' stamp: 'DIM 6/26/2017 07:58:32'!
+unitPrice
+
+	^ unitPrice.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'SaleItem class' category: #TusLibros!
+SaleItem class
+	instanceVariableNames: ''!
+
+!SaleItem class methodsFor: 'initialization' stamp: 'DIM 6/26/2017 07:45:59'!
+withProduct: aProduct quantity: aQuantity unitPrice: aUnitPrice
+
+	^ self new initializeWith: aProduct quantity: aQuantity unitPrice: aUnitPrice.! !
 
 
 !classDefinition: #TusLibrosCart category: #TusLibros!
@@ -913,6 +973,11 @@ add: anAmount of: aBook
 belongsTo: aUser
 
 	^ user = aUser.! !
+
+!TusLibrosCart methodsFor: 'accessing' stamp: 'DIM 6/26/2017 07:43:06'!
+itemsForSale
+
+	^ cart itemsForSale.! !
 
 !TusLibrosCart methodsFor: 'accessing' stamp: 'DIM 6/25/2017 14:26:55'!
 listCart
@@ -953,7 +1018,7 @@ isEmpty
 TusLibrosCart class
 	instanceVariableNames: ''!
 
-!TusLibrosCart class methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 00:13:29'!
+!TusLibrosCart class methodsFor: 'initialization' stamp: 'DIM 6/25/2017 00:13:29'!
 cart: aCart belognsTo: aUser
  
 	^ self new initializeWith: aCart belongsTo: aUser.! !
@@ -1052,51 +1117,52 @@ listCart: aCartId
 TusLibrosRestInterface class
 	instanceVariableNames: ''!
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 10:48:31'!
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'DIM 6/25/2017 10:48:31'!
 bookNotInTheCatalogErrorMessage
 
 	^ 'The book is not in the catalog of the store'.! !
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 11:25:53'!
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'DIM 6/25/2017 11:25:53'!
 cartDoesNotExistErrorMessage
 
 	^ 'The Cart does not exists in the Store'! !
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 19:57:28'!
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'DIM 6/25/2017 19:57:28'!
 checkoutEmptyCartErrorMessage
 
 	^ 'Can not checkout with an empty cart.'! !
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 19:46:21'!
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'DIM 6/25/2017 19:46:21'!
 expiredCardErrorMessage
 
 	^ 'Can not create a cashier with an expired card.'! !
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 19:45:36'!
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'DIM 6/25/2017 19:45:36'!
 expiredCardExistErrorMessage
 	self shouldBeImplemented! !
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 01:03:38'!
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'DIM 6/25/2017 01:03:38'!
 invalidPasswordErrorMessage
 	
 	^ 'Invalid Passsword'! !
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 00:57:25'!
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'DIM 6/25/2017 00:57:25'!
 invalidUserErrorMessage
 
 	 ^ 'Invalid User'! !
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 15:09:47'!
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'DIM 6/25/2017 15:09:47'!
 negativeOrZeroAmountOfBooksErrorMessage
 
 	^ 'Can not add a negative or zero amount of Books'! !
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 15:15:35'!
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'DIM 6/25/2017 15:15:35'!
 nonWholeNumberAmountofBooksErrorMessage
 
 	^ 'Can not add a non whole number amount of Books.'! !
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'DIM 6/25/2017 16:22:44'!
+
+!TusLibrosRestInterface class methodsFor: 'initialization' stamp: 'DIM 6/25/2017 16:22:44'!
 withUsers: aValidUsers catalog: aCatalog merchantProcessor: aMerchantProcessor salesBook: aSalesBook 
 
 	^ self new initializeWithUsers: aValidUsers catalog: aCatalog merchantProcessor: aMerchantProcessor salesBook: aSalesBook.! !
