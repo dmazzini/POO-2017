@@ -1107,7 +1107,7 @@ withProduct: aProduct quantity: aQuantity unitPrice: aUnitPrice
 
 !classDefinition: #TusLibrosCart category: #TusLibros!
 Object subclass: #TusLibrosCart
-	instanceVariableNames: 'cart user timeSinceLastActivity'
+	instanceVariableNames: 'cart user timeSinceLastActivity expirationTime'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -1149,12 +1149,14 @@ user
 	^ user.! !
 
 
-!TusLibrosCart methodsFor: 'initialize' stamp: 'DIM 6/27/2017 00:41:39'!
-initializeWith: aCart belongsTo: aUser
+!TusLibrosCart methodsFor: 'initialize' stamp: 'DIM 6/27/2017 08:38:58'!
+initializeWith: aCart belongsTo: aUser withExpirationIn: anExpirationTime
 
 	cart _ aCart.
 	user _ aUser.
-	timeSinceLastActivity _ DateAndTime now.! !
+	expirationTime _ anExpirationTime.
+	timeSinceLastActivity _ DateAndTime now.
+! !
 
 
 !TusLibrosCart methodsFor: 'testing' stamp: 'DIM 6/27/2017 08:17:16'!
@@ -1177,12 +1179,12 @@ isEmpty
 
 	^ cart isEmpty! !
 
-!TusLibrosCart methodsFor: 'testing' stamp: 'DIM 6/27/2017 00:40:04'!
+!TusLibrosCart methodsFor: 'testing' stamp: 'DIM 6/27/2017 08:37:29'!
 isExpired
 		| now delta |
 		now _ DateAndTime now.
 		delta _ now - timeSinceLastActivity.
-		^ delta > (Duration minutes:30).! !
+		^ delta > expirationTime.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1190,10 +1192,10 @@ isExpired
 TusLibrosCart class
 	instanceVariableNames: ''!
 
-!TusLibrosCart class methodsFor: 'initialization' stamp: 'DIM 6/25/2017 00:13:29'!
-cart: aCart belognsTo: aUser
+!TusLibrosCart class methodsFor: 'initialization' stamp: 'DIM 6/27/2017 08:38:14'!
+cart: aCart belognsTo: aUser withExpirationIn: anExpirationTime
  
-	^ self new initializeWith: aCart belongsTo: aUser.! !
+	^ self new initializeWith: aCart belongsTo: aUser withExpirationIn: anExpirationTime.! !
 
 !TusLibrosCart class methodsFor: 'initialization' stamp: 'DIM 6/26/2017 22:14:31'!
 expiredCartErrorMessage
@@ -1226,6 +1228,11 @@ add: anAmount of: aBook toCart: aCartId
 cart: aCartId
 	
 	^ carts at: aCartId.! !
+
+!TusLibrosRestInterface methodsFor: 'accessing' stamp: 'DIM 6/27/2017 08:42:38'!
+expirationTime
+
+	^ Duration minutes: 30.! !
 
 !TusLibrosRestInterface methodsFor: 'accessing' stamp: 'DIM 6/27/2017 00:37:04'!
 purchasesOf: aUser withPassword: aPassword
@@ -1279,7 +1286,7 @@ checkOutCart: aCartId cardNumber: aCardNumber cardExpiration: aCardExpiration ca
 ! !
 
 
-!TusLibrosRestInterface methodsFor: 'create cart' stamp: 'DIM 6/27/2017 00:37:48'!
+!TusLibrosRestInterface methodsFor: 'create cart' stamp: 'DIM 6/27/2017 08:43:41'!
 createCartFor: aUser withPassword: aPassword
 
 	| aCart aTusLibrosCart |
@@ -1290,7 +1297,7 @@ createCartFor: aUser withPassword: aPassword
 	
 	aCart _ Cart with: catalog.
 	
-	aTusLibrosCart _ TusLibrosCart cart: aCart belognsTo: aUser.
+	aTusLibrosCart _ TusLibrosCart cart: aCart belognsTo: aUser withExpirationIn: self expirationTime.
 	
 	carts at: cartId put: aTusLibrosCart.
 	
