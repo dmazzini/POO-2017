@@ -471,6 +471,27 @@ test12ListingProductsOfNotExistingCartShouldRaiseError
 	
 	! !
 
+!TusLibrosRestInterfaceTest methodsFor: 'list cart' stamp: 'DIM 6/27/2017 08:14:46'!
+test22CanNotListAnExpiredCart
+
+	| cartId originalTimeZone |
+
+	cartId _ tusLibrosInterface createCartFor: validUser withPassword: validUserPassword.
+	
+	originalTimeZone _ DateAndTime localTimeZone.
+	
+	DateAndTime localTimeZone:  (TimeZone offset:  originalTimeZone offset - (Duration hours: 1) name: 'test' abbreviation: 'test').
+	
+	self 
+		should:  [  tusLibrosInterface listCart: cartId. ] 
+		raise: Error - MessageNotUnderstood  
+		withExceptionDo: [ :anError |
+				self assert: anError messageText equals: TusLibrosCart expiredCartErrorMessage.
+			].
+		
+	DateAndTime localTimeZone: originalTimeZone .
+	! !
+
 
 !TusLibrosRestInterfaceTest methodsFor: 'checkout cart' stamp: 'DIM 6/25/2017 21:40:57'!
 test13SuccessfulCheckoutRegistersTheSale
@@ -536,6 +557,29 @@ test16CanNotCheckoutACartWithAnExpiredCard
 			]
 	
 ! !
+
+!TusLibrosRestInterfaceTest methodsFor: 'checkout cart' stamp: 'DIM 6/27/2017 08:06:21'!
+test21CanNotCheckoutAnExpiredCart
+
+	| cartId originalTimeZone |
+
+	cartId _ tusLibrosInterface createCartFor: validUser withPassword: validUserPassword.
+	
+	tusLibrosInterface add: 1 of: aValidBook toCart: cartId.
+	
+	originalTimeZone _ DateAndTime localTimeZone.
+	
+	DateAndTime localTimeZone:  (TimeZone offset:  originalTimeZone offset - (Duration hours: 1) name: 'test' abbreviation: 'test').
+	
+	self 
+		should:  [ tusLibrosInterface checkOutCart: cartId cardNumber: aCardNumber cardExpiration: notExpiredDate cardOwner: cardOwner. ] 
+		raise: Error - MessageNotUnderstood  
+		withExceptionDo: [ :anError |
+				self assert: anError messageText equals: TusLibrosCart expiredCartErrorMessage.
+			].
+		
+	DateAndTime localTimeZone: originalTimeZone .
+	! !
 
 
 !TusLibrosRestInterfaceTest methodsFor: 'list purchases' stamp: 'DIM 6/26/2017 10:18:19'!
@@ -927,8 +971,21 @@ expiredCardErrorMessage
 	^ 'Can not create a cashier with an expired card.'! !
 
 
+!classDefinition: #MerchantProcessor category: #TusLibros!
+Object subclass: #MerchantProcessor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!MerchantProcessor methodsFor: 'debit' stamp: 'DIM 6/27/2017 08:27:12'!
+debit: anAmount from: aCard 
+
+	self subclassResponsibility.! !
+
+
 !classDefinition: #MerchantProcessorSimulator category: #TusLibros!
-Object subclass: #MerchantProcessorSimulator
+MerchantProcessor subclass: #MerchantProcessorSimulator
 	instanceVariableNames: 'debitBlock'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -1055,11 +1112,11 @@ Object subclass: #TusLibrosCart
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!TusLibrosCart methodsFor: 'add to cart' stamp: 'DIM 6/27/2017 00:40:44'!
+!TusLibrosCart methodsFor: 'add to cart' stamp: 'DIM 6/27/2017 08:17:33'!
 add: anAmount of: aBook
 
 	self checkExpired.
-	timeSinceLastActivity _ DateAndTime now.
+
 	cart add: anAmount of: aBook.
 ! !
 
@@ -1074,8 +1131,10 @@ itemsForSale
 
 	^ cart itemsForSale.! !
 
-!TusLibrosCart methodsFor: 'accessing' stamp: 'DIM 6/25/2017 14:26:55'!
+!TusLibrosCart methodsFor: 'accessing' stamp: 'DIM 6/27/2017 08:17:03'!
 listCart
+
+	self checkExpired.
 
 	^ cart products.! !
 
@@ -1098,7 +1157,7 @@ initializeWith: aCart belongsTo: aUser
 	timeSinceLastActivity _ DateAndTime now.! !
 
 
-!TusLibrosCart methodsFor: 'testing' stamp: 'DIM 6/27/2017 00:30:22'!
+!TusLibrosCart methodsFor: 'testing' stamp: 'DIM 6/27/2017 08:17:16'!
 checkExpired
 
 	self isExpired 
@@ -1106,7 +1165,7 @@ checkExpired
 			self error: self class expiredCartErrorMessage.		
 		] .
 
-	! !
+	timeSinceLastActivity _ DateAndTime now.! !
 
 !TusLibrosCart methodsFor: 'testing' stamp: 'DIM 6/25/2017 01:35:07'!
 includes: aBook
@@ -1200,7 +1259,7 @@ salesBook
 	^ salesBook.! !
 
 
-!TusLibrosRestInterface methodsFor: 'checkout cart' stamp: 'DIM 6/25/2017 21:38:43'!
+!TusLibrosRestInterface methodsFor: 'checkout cart' stamp: 'DIM 6/27/2017 08:18:56'!
 checkOutCart: aCartId cardNumber: aCardNumber cardExpiration: aCardExpiration cardOwner: aCardOwner
 
 	| aCard aCart aCashier |
@@ -1212,6 +1271,8 @@ checkOutCart: aCartId cardNumber: aCardNumber cardExpiration: aCardExpiration ca
 	(aCard isExpiredOn: Date today ) ifTrue: [^ self error: self class expiredCardErrorMessage].
 	
 	(aCart isEmpty) ifTrue: [ ^ self error: self class checkoutEmptyCartErrorMessage ].
+	aCart checkExpired.
+
 	aCashier _ Cashier for: aCart payingWith: aCard to: merchantProcessor registeringIn: salesBook forAUser: aCart user on: Date today.
 	
 	^ aCashier checkout.
