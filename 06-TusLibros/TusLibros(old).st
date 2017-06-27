@@ -259,12 +259,12 @@ setUp
 
 !classDefinition: #TusLibrosRestInterfaceTest category: #TusLibros!
 TestCase subclass: #TusLibrosRestInterfaceTest
-	instanceVariableNames: 'validUser validUserPassword users invalidUser invalidPassword aValidBook anInvalidBook anotherValidBook aCatalog aMerchantProcessor aSalesBook tusLibrosInterface today aCardNumber cardOwner notExpiredDate expiredDate cartExpiredTime cartNotExpiredTime'
+	instanceVariableNames: 'validUser validUserPassword users invalidUser invalidPassword aValidBook anInvalidBook anotherValidBook aCatalog aMerchantProcessor aSalesBook tusLibrosInterface today aCardNumber cardOwner notExpiredDate expiredDate'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!TusLibrosRestInterfaceTest methodsFor: 'setUp' stamp: 'DIM 6/27/2017 10:38:01'!
+!TusLibrosRestInterfaceTest methodsFor: 'setUp' stamp: 'DIM 6/25/2017 21:34:36'!
 setUp
 
 	validUser _ 'validUser'.	
@@ -288,11 +288,7 @@ setUp
 	
 	aSalesBook _ OrderedCollection new.
 	
-	tusLibrosInterface _ TusLibrosRestInterface withUsers: users catalog: aCatalog merchantProcessor: aMerchantProcessor salesBook: aSalesBook now: [ DateAndTime now ].
-	
-	cartExpiredTime _  [ DateAndTime now + tusLibrosInterface expirationTime  + (Duration hours:1)].
-
-	cartNotExpiredTime _  [ DateAndTime now - tusLibrosInterface expirationTime ].
+	tusLibrosInterface _ TusLibrosRestInterface withUsers: users catalog: aCatalog merchantProcessor: aMerchantProcessor salesBook: aSalesBook.
 	
 	today _ Date today.
 	
@@ -364,7 +360,7 @@ test06ACartDoesNotIncludeAProductThatHasntBeenAdded
 	
 	self deny: ((tusLibrosInterface cart: cartId) includes: aValidBook).! !
 
-!TusLibrosRestInterfaceTest methodsFor: 'add to cart' stamp: 'ad 6/27/2017 14:04:03'!
+!TusLibrosRestInterfaceTest methodsFor: 'add to cart' stamp: 'DIM 6/25/2017 21:28:13'!
 test07CanNotAddABookThatIsNotInTheCatalogOfTheStore
 
 	| cartId |
@@ -375,7 +371,7 @@ test07CanNotAddABookThatIsNotInTheCatalogOfTheStore
 		should:  [ tusLibrosInterface add: 1 of: anInvalidBook toCart: cartId. ] 
 		raise: Error - MessageNotUnderstood  
 		withExceptionDo: [ :anError |
-				self assert: anError messageText equals: Cart productNotOnCatalogErrorMessage .
+				self assert: anError messageText equals: TusLibrosRestInterface bookNotInTheCatalogErrorMessage.
 				self deny: ((tusLibrosInterface cart: cartId) includes: anInvalidBook).
 			]! !
 
@@ -394,7 +390,7 @@ test08CanNotAddABookToACartThatNotExistsInTheStore
 			]
 ! !
 
-!TusLibrosRestInterfaceTest methodsFor: 'add to cart' stamp: 'ad 6/27/2017 14:03:33'!
+!TusLibrosRestInterfaceTest methodsFor: 'add to cart' stamp: 'DIM 6/25/2017 21:28:29'!
 test09AddingToACartANegativeAmountOfABookShouldRaiseError
 
 	| cartId |
@@ -405,11 +401,11 @@ test09AddingToACartANegativeAmountOfABookShouldRaiseError
 		should:  [ tusLibrosInterface add: -1 of: aValidBook toCart: cartId. ] 
 		raise: Error - MessageNotUnderstood  
 		withExceptionDo: [ :anError |
-				self assert: anError messageText equals: Cart negativeOrZeroAmountErrorMessage.
+				self assert: anError messageText equals: TusLibrosRestInterface negativeOrZeroAmountOfBooksErrorMessage.
 			]
 ! !
 
-!TusLibrosRestInterfaceTest methodsFor: 'add to cart' stamp: 'ad 6/27/2017 14:02:54'!
+!TusLibrosRestInterfaceTest methodsFor: 'add to cart' stamp: 'DIM 6/25/2017 21:28:40'!
 test10AddingANonWholeNumberAmountOfABookShouldRaiseError
 
 	| cartId |
@@ -420,9 +416,30 @@ test10AddingANonWholeNumberAmountOfABookShouldRaiseError
 		should:  [ tusLibrosInterface add: 5/9 of: aValidBook toCart: cartId. ] 
 		raise: Error - MessageNotUnderstood  
 		withExceptionDo: [ :anError |
-				self assert: anError messageText equals: Cart nonWholeNumberErrorMessage .
+				self assert: anError messageText equals: TusLibrosRestInterface nonWholeNumberAmountofBooksErrorMessage.
 			]
 ! !
+
+!TusLibrosRestInterfaceTest methodsFor: 'add to cart' stamp: 'DIM 6/27/2017 00:23:03'!
+test20CanNotAddABookToAnExpiredCart
+
+	| cartId originalTimeZone |
+
+	cartId _ tusLibrosInterface createCartFor: validUser withPassword: validUserPassword.
+	
+	originalTimeZone _ DateAndTime localTimeZone.
+	
+	DateAndTime localTimeZone:  (TimeZone offset:  originalTimeZone offset - (Duration hours: 1) name: 'test' abbreviation: 'test').
+	
+	self 
+		should:  [ tusLibrosInterface add: 1 of: aValidBook toCart: cartId. ] 
+		raise: Error - MessageNotUnderstood  
+		withExceptionDo: [ :anError |
+				self assert: anError messageText equals: TusLibrosCart expiredCartErrorMessage.
+			].
+		
+	DateAndTime localTimeZone: originalTimeZone .
+	! !
 
 
 !TusLibrosRestInterfaceTest methodsFor: 'list cart' stamp: 'DIM 6/25/2017 21:28:46'!
@@ -452,6 +469,27 @@ test12ListingProductsOfNotExistingCartShouldRaiseError
 			]
 	
 	
+	! !
+
+!TusLibrosRestInterfaceTest methodsFor: 'list cart' stamp: 'DIM 6/27/2017 08:14:46'!
+test22CanNotListAnExpiredCart
+
+	| cartId originalTimeZone |
+
+	cartId _ tusLibrosInterface createCartFor: validUser withPassword: validUserPassword.
+	
+	originalTimeZone _ DateAndTime localTimeZone.
+	
+	DateAndTime localTimeZone:  (TimeZone offset:  originalTimeZone offset - (Duration hours: 1) name: 'test' abbreviation: 'test').
+	
+	self 
+		should:  [  tusLibrosInterface listCart: cartId. ] 
+		raise: Error - MessageNotUnderstood  
+		withExceptionDo: [ :anError |
+				self assert: anError messageText equals: TusLibrosCart expiredCartErrorMessage.
+			].
+		
+	DateAndTime localTimeZone: originalTimeZone .
 	! !
 
 
@@ -520,6 +558,29 @@ test16CanNotCheckoutACartWithAnExpiredCard
 	
 ! !
 
+!TusLibrosRestInterfaceTest methodsFor: 'checkout cart' stamp: 'DIM 6/27/2017 08:06:21'!
+test21CanNotCheckoutAnExpiredCart
+
+	| cartId originalTimeZone |
+
+	cartId _ tusLibrosInterface createCartFor: validUser withPassword: validUserPassword.
+	
+	tusLibrosInterface add: 1 of: aValidBook toCart: cartId.
+	
+	originalTimeZone _ DateAndTime localTimeZone.
+	
+	DateAndTime localTimeZone:  (TimeZone offset:  originalTimeZone offset - (Duration hours: 1) name: 'test' abbreviation: 'test').
+	
+	self 
+		should:  [ tusLibrosInterface checkOutCart: cartId cardNumber: aCardNumber cardExpiration: notExpiredDate cardOwner: cardOwner. ] 
+		raise: Error - MessageNotUnderstood  
+		withExceptionDo: [ :anError |
+				self assert: anError messageText equals: TusLibrosCart expiredCartErrorMessage.
+			].
+		
+	DateAndTime localTimeZone: originalTimeZone .
+	! !
+
 
 !TusLibrosRestInterfaceTest methodsFor: 'list purchases' stamp: 'DIM 6/26/2017 10:18:19'!
 test17ListOfPurchasesOfAUserShouldIncludeAllBooksPurchased
@@ -585,63 +646,6 @@ test19CanNotListPurchasesOfAValidUserAndInvalidPassword
 		withExceptionDo: [:anError |
 					self assert: anError messageText equals: TusLibrosRestInterface invalidPasswordErrorMessage.				
 			].! !
-
-
-!TusLibrosRestInterfaceTest methodsFor: 'expired cart' stamp: 'DIM 6/27/2017 10:39:16'!
-test20CanNotAddABookToAnExpiredCart
-
-	| cartId |
-
-	cartId _ tusLibrosInterface createCartFor: validUser withPassword: validUserPassword.
-	
-	tusLibrosInterface now: cartExpiredTime.
-	
-	self 
-		should:  [ tusLibrosInterface add: 1 of: aValidBook toCart: cartId. ] 
-		raise: Error - MessageNotUnderstood  
-		withExceptionDo: [ :anError |
-				self assert: anError messageText equals: TusLibrosCart expiredCartErrorMessage.
-				
-			].	
-	! !
-
-!TusLibrosRestInterfaceTest methodsFor: 'expired cart' stamp: 'DIM 6/27/2017 10:34:16'!
-test21CanNotCheckoutAnExpiredCart
-
-	| cartId |
-
-	cartId _ tusLibrosInterface createCartFor: validUser withPassword: validUserPassword.
-	
-	tusLibrosInterface add: 1 of: aValidBook toCart: cartId.
-	
-	tusLibrosInterface now: cartExpiredTime.
-	
-	self 
-		should:  [ tusLibrosInterface checkOutCart: cartId cardNumber: aCardNumber cardExpiration: notExpiredDate cardOwner: cardOwner. ] 
-		raise: Error - MessageNotUnderstood  
-		withExceptionDo: [ :anError |
-				self assert: anError messageText equals: TusLibrosCart expiredCartErrorMessage.
-			].
-		
-	! !
-
-!TusLibrosRestInterfaceTest methodsFor: 'expired cart' stamp: 'ad 6/27/2017 14:01:29'!
-test22CanNotListAnExpiredCart
-
-	| cartId |
-
-	cartId _ tusLibrosInterface createCartFor: validUser withPassword: validUserPassword.
-
-	tusLibrosInterface now: cartExpiredTime.
-	
-	self 
-		should:  [  tusLibrosInterface listCart: cartId. ] 
-		raise: Error - MessageNotUnderstood  
-		withExceptionDo: [ :anError |
-				self assert: anError messageText equals: TusLibrosCart expiredCartErrorMessage.
-			].
-		
-	! !
 
 
 !classDefinition: #Card category: #TusLibros!
@@ -1103,7 +1107,7 @@ withProduct: aProduct quantity: aQuantity unitPrice: aUnitPrice
 
 !classDefinition: #TusLibrosCart category: #TusLibros!
 Object subclass: #TusLibrosCart
-	instanceVariableNames: 'cart user timeSinceLastActivity systemInterface'
+	instanceVariableNames: 'cart user timeSinceLastActivity expirationTime'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -1145,16 +1149,17 @@ user
 	^ user.! !
 
 
-!TusLibrosCart methodsFor: 'private' stamp: 'DIM 6/27/2017 09:37:23'!
-initializeWith: aCart belongsTo: aUser in: aSystemInterface
-	
+!TusLibrosCart methodsFor: 'initialize' stamp: 'DIM 6/27/2017 08:38:58'!
+initializeWith: aCart belongsTo: aUser withExpirationIn: anExpirationTime
+
 	cart _ aCart.
 	user _ aUser.
-	systemInterface _ aSystemInterface.	
-	timeSinceLastActivity _ self now.! !
+	expirationTime _ anExpirationTime.
+	timeSinceLastActivity _ DateAndTime now.
+! !
 
 
-!TusLibrosCart methodsFor: 'testing' stamp: 'DIM 6/27/2017 09:36:41'!
+!TusLibrosCart methodsFor: 'testing' stamp: 'DIM 6/27/2017 08:17:16'!
 checkExpired
 
 	self isExpired 
@@ -1162,7 +1167,7 @@ checkExpired
 			self error: self class expiredCartErrorMessage.		
 		] .
 
-	timeSinceLastActivity _ self now.! !
+	timeSinceLastActivity _ DateAndTime now.! !
 
 !TusLibrosCart methodsFor: 'testing' stamp: 'DIM 6/25/2017 01:35:07'!
 includes: aBook
@@ -1174,25 +1179,12 @@ isEmpty
 
 	^ cart isEmpty! !
 
-!TusLibrosCart methodsFor: 'testing' stamp: 'DIM 6/27/2017 09:37:39'!
+!TusLibrosCart methodsFor: 'testing' stamp: 'DIM 6/27/2017 08:37:29'!
 isExpired
-
-	| now delta |
-
-	now _ self now.
-	delta _ now - timeSinceLastActivity.
-	^ delta > systemInterface expirationTime.! !
-
-
-!TusLibrosCart methodsFor: 'time' stamp: 'DIM 6/27/2017 09:33:55'!
-expirationTime
-	
-	^ systemInterface expirationTime.! !
-
-!TusLibrosCart methodsFor: 'time' stamp: 'DIM 6/27/2017 09:38:48'!
-now
-
-	^ systemInterface now.! !
+		| now delta |
+		now _ DateAndTime now.
+		delta _ now - timeSinceLastActivity.
+		^ delta > expirationTime.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1200,13 +1192,12 @@ now
 TusLibrosCart class
 	instanceVariableNames: ''!
 
-!TusLibrosCart class methodsFor: 'initialization' stamp: 'DIM 6/27/2017 09:31:15'!
-cart: aCart belognsTo: aUser in: aSystemInterface
+!TusLibrosCart class methodsFor: 'initialization' stamp: 'DIM 6/27/2017 08:38:14'!
+cart: aCart belognsTo: aUser withExpirationIn: anExpirationTime
+ 
+	^ self new initializeWith: aCart belongsTo: aUser withExpirationIn: anExpirationTime.! !
 
-	^ self new initializeWith: aCart belongsTo: aUser in: aSystemInterface.! !
-
-
-!TusLibrosCart class methodsFor: 'error messages' stamp: 'DIM 6/26/2017 22:14:31'!
+!TusLibrosCart class methodsFor: 'initialization' stamp: 'DIM 6/26/2017 22:14:31'!
 expiredCartErrorMessage
 
 	^ 'Session expired'.! !
@@ -1214,13 +1205,19 @@ expiredCartErrorMessage
 
 !classDefinition: #TusLibrosRestInterface category: #TusLibros!
 Object subclass: #TusLibrosRestInterface
-	instanceVariableNames: 'validUsers carts cartId catalog merchantProcessor salesBook nowBehavior'
+	instanceVariableNames: 'validUsers carts cartId catalog merchantProcessor salesBook'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!TusLibrosRestInterface methodsFor: 'add to cart' stamp: 'ad 6/27/2017 14:05:24'!
+!TusLibrosRestInterface methodsFor: 'add to cart' stamp: 'DIM 6/25/2017 15:17:00'!
 add: anAmount of: aBook toCart: aCartId
+	
+	(catalog includesKey: aBook) ifFalse: [ self error:  self class bookNotInTheCatalogErrorMessage ].
+	
+	(anAmount isKindOf: Integer) ifFalse: [self error: self class nonWholeNumberAmountofBooksErrorMessage ].
+	
+	(anAmount > 0) ifFalse: [self error: self class negativeOrZeroAmountOfBooksErrorMessage ].
 	
 	(carts includesKey: aCartId) ifFalse: [ self error: self class cartDoesNotExistErrorMessage].
 	
@@ -1231,6 +1228,11 @@ add: anAmount of: aBook toCart: aCartId
 cart: aCartId
 	
 	^ carts at: aCartId.! !
+
+!TusLibrosRestInterface methodsFor: 'accessing' stamp: 'DIM 6/27/2017 08:42:38'!
+expirationTime
+
+	^ Duration minutes: 30.! !
 
 !TusLibrosRestInterface methodsFor: 'accessing' stamp: 'DIM 6/27/2017 00:37:04'!
 purchasesOf: aUser withPassword: aPassword
@@ -1264,20 +1266,19 @@ salesBook
 	^ salesBook.! !
 
 
-!TusLibrosRestInterface methodsFor: 'checkout cart' stamp: 'ad 6/27/2017 14:07:05'!
+!TusLibrosRestInterface methodsFor: 'checkout cart' stamp: 'DIM 6/27/2017 08:18:56'!
 checkOutCart: aCartId cardNumber: aCardNumber cardExpiration: aCardExpiration cardOwner: aCardOwner
 
 	| aCard aCart aCashier |
 	
-	(carts includesKey: aCartId) ifFalse: [ self error: self class cartDoesNotExistErrorMessage]. 
+	(carts includesKey: aCartId) ifFalse: [ ^ self error: self class cartDoesNotExistErrorMessage]. 
 	aCart _ carts at: aCartId.
 	
-	aCart checkExpired.
-	
 	aCard _ Card number: aCardNumber forOwner: aCardOwner thatExpiresOn: aCardExpiration.	
-	(aCard isExpiredOn: Date today ) ifTrue: [ self error: self class expiredCardErrorMessage].
+	(aCard isExpiredOn: Date today ) ifTrue: [^ self error: self class expiredCardErrorMessage].
 	
-	(aCart isEmpty) ifTrue: [ self error: self class checkoutEmptyCartErrorMessage ].
+	(aCart isEmpty) ifTrue: [ ^ self error: self class checkoutEmptyCartErrorMessage ].
+	aCart checkExpired.
 
 	aCashier _ Cashier for: aCart payingWith: aCard to: merchantProcessor registeringIn: salesBook forAUser: aCart user on: Date today.
 	
@@ -1285,7 +1286,7 @@ checkOutCart: aCartId cardNumber: aCardNumber cardExpiration: aCardExpiration ca
 ! !
 
 
-!TusLibrosRestInterface methodsFor: 'create cart' stamp: 'DIM 6/27/2017 09:29:35'!
+!TusLibrosRestInterface methodsFor: 'create cart' stamp: 'DIM 6/27/2017 08:43:41'!
 createCartFor: aUser withPassword: aPassword
 
 	| aCart aTusLibrosCart |
@@ -1296,23 +1297,22 @@ createCartFor: aUser withPassword: aPassword
 	
 	aCart _ Cart with: catalog.
 	
-	aTusLibrosCart _ TusLibrosCart cart: aCart belognsTo: aUser in: self.
+	aTusLibrosCart _ TusLibrosCart cart: aCart belognsTo: aUser withExpirationIn: self expirationTime.
 	
 	carts at: cartId put: aTusLibrosCart.
 	
 	^ cartId.! !
 
 
-!TusLibrosRestInterface methodsFor: 'private' stamp: 'DIM 6/27/2017 10:25:52'!
-initializeWithUsers: aValidUsers catalog: aCatalog merchantProcessor: aMerchantProcessor salesBook: aSalesBook now: aNowBehavior
+!TusLibrosRestInterface methodsFor: 'initialize' stamp: 'DIM 6/25/2017 16:24:30'!
+initializeWithUsers: aValidUsers catalog: aCatalog merchantProcessor: aMerchantProcessor salesBook: aSalesBook 
 	
 	carts _ Dictionary new.
 	cartId  _ 0.
 	validUsers _ aValidUsers.
 	catalog _ aCatalog.
 	merchantProcessor _ aMerchantProcessor.
-	salesBook _ aSalesBook.
-	nowBehavior _ aNowBehavior.! !
+	salesBook _ aSalesBook.! !
 
 
 !TusLibrosRestInterface methodsFor: 'list cart' stamp: 'DIM 6/25/2017 14:58:34'!
@@ -1329,27 +1329,16 @@ userValidationFor: aUsername with: aPassword
 	
 	((validUsers at: aUsername) = aPassword) ifFalse: [ self error: self class invalidPasswordErrorMessage].! !
 
-
-!TusLibrosRestInterface methodsFor: 'time' stamp: 'DIM 6/27/2017 08:42:38'!
-expirationTime
-
-	^ Duration minutes: 30.! !
-
-!TusLibrosRestInterface methodsFor: 'time' stamp: 'DIM 6/27/2017 09:44:16'!
-now
-	
-	^ nowBehavior value.! !
-
-!TusLibrosRestInterface methodsFor: 'time' stamp: 'DIM 6/27/2017 10:27:40'!
-now: aNowBehavior
-	
-	nowBehavior _ aNowBehavior.! !
-
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'TusLibrosRestInterface class' category: #TusLibros!
 TusLibrosRestInterface class
 	instanceVariableNames: ''!
+
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'DIM 6/25/2017 10:48:31'!
+bookNotInTheCatalogErrorMessage
+
+	^ 'The book is not in the catalog of the store'.! !
 
 !TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'DIM 6/25/2017 11:25:53'!
 cartDoesNotExistErrorMessage
@@ -1380,8 +1369,19 @@ invalidUserErrorMessage
 
 	 ^ 'Invalid User'! !
 
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'DIM 6/25/2017 15:09:47'!
+negativeOrZeroAmountOfBooksErrorMessage
 
-!TusLibrosRestInterface class methodsFor: 'initialization' stamp: 'DIM 6/27/2017 10:27:03'!
-withUsers: aValidUsers catalog: aCatalog merchantProcessor: aMerchantProcessor salesBook: aSalesBook now: aNowBehavior
+	^ 'Can not add a negative or zero amount of Books'! !
 
-	^ self new initializeWithUsers: aValidUsers catalog: aCatalog merchantProcessor: aMerchantProcessor salesBook: aSalesBook now:aNowBehavior.! !
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'DIM 6/25/2017 15:15:35'!
+nonWholeNumberAmountofBooksErrorMessage
+
+	^ 'Can not add a non whole number amount of Books.'! !
+
+
+!TusLibrosRestInterface class methodsFor: 'initialization' stamp: 'DIM 6/25/2017 16:22:44'!
+withUsers: aValidUsers catalog: aCatalog merchantProcessor: aMerchantProcessor salesBook: aSalesBook 
+
+	^ self new initializeWithUsers: aValidUsers catalog: aCatalog merchantProcessor: aMerchantProcessor salesBook: aSalesBook.! !
+
